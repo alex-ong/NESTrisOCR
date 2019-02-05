@@ -6,6 +6,7 @@ def setupData():
     for i in range(10):
         data[i] = Image.open(str(i) + '.png')
         data[i] = data[i].load()
+
         
 def dist (col):
     return col[0]* col[0] + col[1]*col[1] + col[2]*col[2]
@@ -29,6 +30,17 @@ def scoreDigit(img, startX, startY):
     scores.sort(key=lambda tup:tup[0])
     
     return scores[0]
+
+def scoreImage(img):
+    img = img.resize((47,7),PIL.Image.ANTIALIAS)
+    img = img.load()        
+    label = ""
+    for i in range(6):
+        result = scoreDigit(img,i*8,0)
+        label += str(result[1])    
+    return label
+
+setupData()
     
 if __name__ == '__main__':
     setupData()
@@ -37,13 +49,7 @@ if __name__ == '__main__':
     t = time.time()
     for i in range(1):
         img = Image.open("test/"+"{:06d}".format(i*100)+".png")
-        t2 = time.time()
-        img = img.resize((47,7),PIL.Image.NEAREST)
-        img = img.load()        
-        label = ""
-        for i in range(6):
-            result = scoreDigit(img,i*8,0)
-            label += str(result[1])
+        
         
     print ("total time:", str(time.time() - t))
     print ("rescale time:", str(time.time() - t2))
