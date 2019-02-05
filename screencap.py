@@ -1,33 +1,74 @@
-import time
-from fastocr import scoreImage
-import cv2
-import mss
-import numpy
+import Win32UICapture
+from WindowMgr import WindowMgr
 from PIL import Image
+from fastocr import scoreImage
+import time
 
-
-with mss.mss() as sct:
-    # Part of the screen to capture
-    monitor_number = 1
-    mon = sct.monitors[monitor_number]
+def lerp(start, end, perc):
+    return perc * (end-start) + start
     
-    monitor = {"top": mon["top"] + 342, 
-                "left": mon["left"]+1775, 
-                "width": 181, 
-                "height": 27, 
-                "mon": monitor_number
-              }
+def mult_rect(rect, mult):
+    return (round(rect[2]*mult[0]+rect[0]),
+            round(rect[3]*mult[1]+rect[1]),
+            round(rect[2]*mult[2]),
+            round(rect[3]*mult[3]))
+            
+CAPTURE_COORDS = (377,120,879,827)
+scorePerc = (0.754,0.264,0.187,0.032)
+linesPerc = (0.596,0.094,0.092,0.032)
+SCORE_COORDS = mult_rect(CAPTURE_COORDS,scorePerc)
+LINES_COORDS = mult_rect(CAPTURE_COORDS,linesPerc)
 
-    while "Screen capturing":
-        last_time = time.time()
+CALIBRATION = False
+CALIBRATE_WINDOW = False
+CALIBRATE_SCORE = False
+CALIBRATE_LINES = True
+WINDOW_NAME = "OBS"
 
-        # Get raw pixels from the screen, save it to a Numpy array
-        sct_img = sct.grab(monitor)
-        img = Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")
+
+def getWindow():
+    wm = WindowMgr()    
+    windows = wm.getWindows()    
+    for window in windows:
+        if window[1].startswith(WINDOW_NAME):
+            return window[0]            
+    return None
+
+def calibrate():
+    hwnd = getWindow()
+    if hwnd is None:
+        print ("Unable to find OBS window with title:",  WINDOW_NAME)
+        return
+    if CALIBRATE_WINDOW:
+        img = Win32UICapture.ImageCapture(CAPTURE_COORDS,hwnd)
+        img.show()
+    if CALIBRATE_SCORE:
+        img = Win32UICapture.ImageCapture(SCORE_COORDS,hwnd)
+        img.show() 
+    if CALIBRATE_LINES:
+        img = Win32UICapture.ImageCapture(LINES_COORDS,hwnd)
+        img.show() 
+    return
         
-        print (scoreImage(img))
-        # Press "q" to quit
-        if cv2.waitKey(25) & 0xFF == ord("q"):
-            cv2.destroyAllWindows()
-            break
+def main():
+    
+    if CALIBRATION:
+        calibrate()
+        return
+        
+    while True:
+        hwnd = getWindow()
+        if hwnd:
+            #img = Win32UICapture.ImageCapture(SCORE_COORDS,hwnd)
+            #current = scoreImage(img,6)
+            #print ("Score:", current)
+            img = Win32UICapture.ImageCapture(LINES_COORDS,hwnd)
+            
+            current = scoreImage(img,3)
+            print ("Lines:", current)
+            
+if __name__ == '__main__':
+    main()
+    
+
         
