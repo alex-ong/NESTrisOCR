@@ -1,4 +1,5 @@
 from PIL import Image
+import PIL
 data = {}
 
 def setupData():
@@ -31,12 +32,20 @@ def scoreDigit(img, startX, startY):
     
 if __name__ == '__main__':
     setupData()
-    img = Image.open("10716.png")
-    img = img.load()
-    #todo resize to 47x7
-    for i in range(6):
-        result = scoreDigit(img,i*8,0)
-        print(result)
+    import time
     
-    
+    t = time.time()
+    for i in range(1):
+        img = Image.open("test/"+"{:06d}".format(i*100)+".png")
+        t2 = time.time()
+        img = img.resize((47,7),PIL.Image.NEAREST)
+        img = img.load()        
+        label = ""
+        for i in range(6):
+            result = scoreDigit(img,i*8,0)
+            label += str(result[1])
+        
+    print ("total time:", str(time.time() - t))
+    print ("rescale time:", str(time.time() - t2))
+    print ("AI time:", str(t2-t))
     
