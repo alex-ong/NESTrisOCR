@@ -1,12 +1,11 @@
 from PIL import Image
 import PIL
 data = {}
-
+digits = ['0','1','2','3','4','5','6','7','8','9','null']
 def setupData():
-    for i in range(10):
-        data[i] = Image.open(str(i) + '.png')
-        data[i] = data[i].load()
-
+    for digit in digits:
+        data[digit] = Image.open(str(digit) + '.png')
+        data[digit] = data[digit].load()    
         
 def dist (col):
     return col[0]* col[0] + col[1]*col[1] + col[2]*col[2]
@@ -18,7 +17,8 @@ def sub(col1,col2):
             
 def scoreDigit(img, startX, startY):
     scores = []
-    for digit in range(10):
+    
+    for digit in digits:
         score = 0
         for y in range(7):
             for x in range(7):
@@ -31,13 +31,15 @@ def scoreDigit(img, startX, startY):
     
     return scores[0]
 
-def scoreImage(img):
-    img = img.resize((47,7),PIL.Image.ANTIALIAS)
+def scoreImage(img,count):
+    img = img.resize((8*count-1,7),PIL.Image.ANTIALIAS)
     img = img.load()        
     label = ""
-    for i in range(6):
+    for i in range(count):
         result = scoreDigit(img,i*8,0)
-        label += str(result[1])    
+        if result[1] == 'null':
+            return None
+        label += result[1]
     return label
 
 setupData()
