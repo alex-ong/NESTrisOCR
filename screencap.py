@@ -47,7 +47,6 @@ CALIBRATE_STATS = False
 def getWindow():
     wm = WindowMgr()    
     windows = wm.getWindows()    
-    print(windows)
     for window in windows:
         if window[1].startswith(WINDOW_NAME):
             return window[0]            
