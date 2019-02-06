@@ -12,17 +12,41 @@ def mult_rect(rect, mult):
             round(rect[3]*mult[1]+rect[1]),
             round(rect[2]*mult[2]),
             round(rect[3]*mult[3]))
-            
+
+def generate_stats(captureCoords, statBoxPerc, statHeight):    
+    statGap = (statBoxPerc[3] - (7*statHeight))/6
+    statGap = statGap + statHeight
+    offsets = [i*(statGap) for i in range(7)]
+    pieces = ['T','J','Z','O','S','L','I']
+    result = {}
+    for i, piece in enumerate(pieces):
+        offset = offsets[i]
+        box = (statBoxPerc[0],statBoxPerc[1]+offset,statBoxPerc[2],statHeight)
+        result[piece] = mult_rect(captureCoords,box)
+    return result
+
+#the rate at which we process
+FPS = 20
+RATE = 0 #change this to 0 to go as fast as possible.
+    
 CAPTURE_COORDS = (377,120,879,827)
 scorePerc = (0.754,0.264,0.187,0.032)
 linesPerc = (0.596,0.094,0.092,0.032)
+levelPerc = (0.818,0.701,0.060,0.032)
+statsPerc = (0.188,0.399,0.091,0.434)
+
+
 SCORE_COORDS = mult_rect(CAPTURE_COORDS,scorePerc)
 LINES_COORDS = mult_rect(CAPTURE_COORDS,linesPerc)
+LEVEL_COORDS = mult_rect(CAPTURE_COORDS,levelPerc)
+STATS_COORDS = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
 
 CALIBRATION = False
 CALIBRATE_WINDOW = False
 CALIBRATE_SCORE = False
-CALIBRATE_LINES = True
+CALIBRATE_LINES = False
+CALIBRATE_LEVEL = False
+CALIBRATE_STATS = True
 WINDOW_NAME = "OBS"
 
 
@@ -48,27 +72,49 @@ def calibrate():
     if CALIBRATE_LINES:
         img = Win32UICapture.ImageCapture(LINES_COORDS,hwnd)
         img.show() 
+    if CALIBRATE_LEVEL:
+        img = Win32UICapture.ImageCapture(LEVEL_COORDS,hwnd)
+        img.show()
+    if CALIBRATE_STATS:
+        for key in STATS_COORDS:
+            img = Win32UICapture.ImageCapture(STATS_COORDS[key],hwnd)
+            img.show()
     return
         
-def main():
-    
+def main(onCap):
+    import time
     if CALIBRATION:
         calibrate()
         return
         
     while True:
+        t = time.time()
         hwnd = getWindow()
-        if hwnd:
-            #img = Win32UICapture.ImageCapture(SCORE_COORDS,hwnd)
-            #current = scoreImage(img,6)
-            #print ("Score:", current)
-            img = Win32UICapture.ImageCapture(LINES_COORDS,hwnd)
+        result = {}
+        if hwnd:            
             
-            current = scoreImage(img,3)
-            print ("Lines:", current)
+            img = Win32UICapture.ImageCapture(SCORE_COORDS,hwnd)
+            result["score"] = scoreImage(img,6)            
+                        
+            img = Win32UICapture.ImageCapture(LINES_COORDS,hwnd)            
+            result["lines"] = scoreImage(img,3)
             
+            img = Win32UICapture.ImageCapture(LEVEL_COORDS,hwnd)
+            result["level"] = scoreImage(img,2)
+            
+            #todo: capture entire area and crop?
+            for key in STATS_COORDS:
+                img = Win32UICapture.ImageCapture(STATS_COORDS[key],hwnd)
+                result[key] = scoreImage(img,3)
+            
+        toSleep = RATE - (time.time() - t)        
+        if toSleep > 0:
+            time.sleep(toSleep)
+        onCap(result)
+        
+        
 if __name__ == '__main__':
-    main()
+    main(print)
     
 
         

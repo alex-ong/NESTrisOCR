@@ -36,14 +36,25 @@ class Win32UICapture(object):
     def ReleaseAll(self):    
         hwnd = self.lasthwndTarget
         if self.myDC is not None:
-            self.myDC.DeleteDC()
-            self.myDC = None
+            try:
+                self.myDC.DeleteDC()                
+            except win32ui.error:
+                pass
+            finally:
+                self.myDC = None
+                
         if self.newDC is not None:
-            self.newDC.DeleteDC()
-            self.newDC = None
-        if self.hDC is not None:
-            win32gui.ReleaseDC(hwnd, self.hDC)
+            try:
+                self.newDC.DeleteDC()
+            except win32ui.error:
+                pass
+            finally:
+                self.newDC = None
+                
+        if self.hDC is not None:            
+            win32gui.ReleaseDC(hwnd, self.hDC)            
             self.hDC = None
+                
         if self.myBitMap is not None:
             win32gui.DeleteObject(self.myBitMap.GetHandle())    
             self.myBitMap = None
