@@ -1,6 +1,6 @@
 import Win32UICapture
 from WindowMgr import WindowMgr
-from PIL import Image
+from PIL import Image, ImageDraw
 from fastocr import scoreImage
 from calibration import * #bad!
 import time
@@ -52,6 +52,29 @@ def getWindow():
             return window[0]            
     return None
 
+def screenPercToPixels(w,h,rect_xywh):
+    left = rect_xywh[0] * w
+    top = rect_xywh[1] * h
+    right = left + rect_xywh[2]*w
+    bot = top+ rect_xywh[3]*h
+    return (left,top,right,bot)
+    
+def highlight_calibration(img):    
+    poly = Image.new('RGBA', (img.width,img.height))
+    draw = ImageDraw.Draw(poly)
+    #score
+    red = (255,0,0,128)    
+    blue = (0,0,255,128)
+    draw.rectangle(screenPercToPixels(img.width,img.height,scorePerc),fill=red)
+    #lines
+    draw.rectangle(screenPercToPixels(img.width,img.height,linesPerc),fill=red)
+    #level
+    draw.rectangle(screenPercToPixels(img.width,img.height,levelPerc),fill=red)    
+    #pieces
+    draw.rectangle(screenPercToPixels(img.width,img.height,statsPerc),fill=blue)
+    img.paste(poly,mask=poly)    
+    del draw
+    
 def calibrate():
     hwnd = getWindow()
     if hwnd is None:
@@ -59,6 +82,7 @@ def calibrate():
         return
     if CALIBRATE_WINDOW:
         img = Win32UICapture.ImageCapture(CAPTURE_COORDS,hwnd)
+        highlight_calibration(img)
         img.show()
     if CALIBRATE_SCORE:
         img = Win32UICapture.ImageCapture(SCORE_COORDS,hwnd)
