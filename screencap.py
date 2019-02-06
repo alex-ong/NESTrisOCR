@@ -2,6 +2,7 @@ import Win32UICapture
 from WindowMgr import WindowMgr
 from PIL import Image
 from fastocr import scoreImage
+from calibration import * #bad!
 import time
 
 def lerp(start, end, perc):
@@ -29,30 +30,24 @@ def generate_stats(captureCoords, statBoxPerc, statHeight):
 FPS = 20
 RATE = 0 #change this to 0 to go as fast as possible.
     
-CAPTURE_COORDS = (377,120,879,827)
-scorePerc = (0.754,0.264,0.187,0.032)
-linesPerc = (0.596,0.094,0.092,0.032)
-levelPerc = (0.818,0.701,0.060,0.032)
-statsPerc = (0.188,0.399,0.091,0.434)
-
-
 SCORE_COORDS = mult_rect(CAPTURE_COORDS,scorePerc)
 LINES_COORDS = mult_rect(CAPTURE_COORDS,linesPerc)
 LEVEL_COORDS = mult_rect(CAPTURE_COORDS,levelPerc)
 STATS_COORDS = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
 
 CALIBRATION = False
-CALIBRATE_WINDOW = False
+CALIBRATE_WINDOW = True
 CALIBRATE_SCORE = False
 CALIBRATE_LINES = False
 CALIBRATE_LEVEL = False
-CALIBRATE_STATS = True
-WINDOW_NAME = "OBS"
+CALIBRATE_STATS = False
+
 
 
 def getWindow():
     wm = WindowMgr()    
     windows = wm.getWindows()    
+    print(windows)
     for window in windows:
         if window[1].startswith(WINDOW_NAME):
             return window[0]            
