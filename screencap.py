@@ -147,7 +147,7 @@ def main(onCap):
         
 def sendResult(client, message):
     #print(message)
-    client.sendMessage(message)
+    client.sendMessage(str(message))
         
 if __name__ == '__main__':
     client = TCPClient.CreateClient('127.0.0.1',3338)
