@@ -3,6 +3,8 @@ from WindowMgr import WindowMgr
 from PIL import Image, ImageDraw
 from fastocr import scoreImage
 from calibration import * #bad!
+from multiprocessing import Pool
+
 import time
 
 def lerp(start, end, perc):
@@ -29,6 +31,7 @@ def generate_stats(captureCoords, statBoxPerc, statHeight):
 #the rate at which we process
 FPS = 20
 RATE = 0 #change this to 0 to go as fast as possible.
+LIVE = True
     
 SCORE_COORDS = mult_rect(CAPTURE_COORDS,scorePerc)
 LINES_COORDS = mult_rect(CAPTURE_COORDS,linesPerc)
@@ -36,12 +39,12 @@ LEVEL_COORDS = mult_rect(CAPTURE_COORDS,levelPerc)
 STATS_COORDS = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
 
 CALIBRATION = False
-CALIBRATE_WINDOW = True
+CALIBRATE_WINDOW = False
 CALIBRATE_SCORE = False
 CALIBRATE_LINES = False
 CALIBRATE_LEVEL = False
-CALIBRATE_STATS = False
-
+CALIBRATE_STATS = True
+MULTI_THREAD = 8
 
 
 def getWindow():
@@ -98,37 +101,59 @@ def calibrate():
             img = Win32UICapture.ImageCapture(STATS_COORDS[key],hwnd)
             img.show()
     return
-        
+
+def captureAndOCR(coords,hwnd,digits,taskName):
+    img = Win32UICapture.ImageCapture(coords,hwnd)
+    return taskName, scoreImage(img,digits)
+
+def runFunc(func, args):
+    return func(*args)
+    
 def main(onCap):
     import time
     if CALIBRATION:
         calibrate()
         return
+    
+    if MULTI_THREAD >= 2:
+        p = Pool(MULTI_THREAD)
+    else:
+        p = None
         
     while True:
         t = time.time()
         hwnd = getWindow()
         result = {}
-        if hwnd:            
-            
-            img = Win32UICapture.ImageCapture(SCORE_COORDS,hwnd)
-            result["score"] = scoreImage(img,6)            
-                        
-            img = Win32UICapture.ImageCapture(LINES_COORDS,hwnd)            
-            result["lines"] = scoreImage(img,3)
-            
-            img = Win32UICapture.ImageCapture(LEVEL_COORDS,hwnd)
-            result["level"] = scoreImage(img,2)
-            
-            #todo: capture entire area and crop?
+        if hwnd:       
+            rawTasks = []
+            rawTasks.append((captureAndOCR,(SCORE_COORDS,hwnd,6,"score")))
+            rawTasks.append((captureAndOCR,(LINES_COORDS,hwnd,3,"lines")))
+            rawTasks.append((captureAndOCR,(LEVEL_COORDS,hwnd,2,"level")))
             for key in STATS_COORDS:
-                img = Win32UICapture.ImageCapture(STATS_COORDS[key],hwnd)
-                result[key] = scoreImage(img,3)
-            
+                rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,3,key)))
+                
+            result = {}
+            if p: #multithread
+                tasks = []
+                for task in rawTasks:
+                    tasks.append(p.apply_async(task[0],task[1]))                
+                taskResults = [res.get(timeout=1) for res in tasks]
+                for key, number in taskResults:
+                    result[key] = number
+                
+            else: #single thread                   
+                for task in rawTasks:
+                    key, number = runFunc(task[0],task[1])
+                    result[key] = number
+                        
+        
         toSleep = RATE - (time.time() - t)        
         if toSleep > 0:
             time.sleep(toSleep)
         onCap(result)
+        #print (time.time() - t)
+        
+        
         
         
 if __name__ == '__main__':
