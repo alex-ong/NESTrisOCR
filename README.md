@@ -10,8 +10,11 @@ Algorithm is simple KNearest (compare image to reference images, sum of differen
 
 Requirements
 ===
-pillow
-pypiwin32
+Use pip to install the following:
+
+`pillow`
+
+`pypiwin32`
 
 Running
 ===
@@ -19,31 +22,34 @@ Running
 
 Calibration
 ===
-All calibration is in calibration.py and screencap.py
+![calibiration](https://github.com/alex-ong/NESTrisOCR/blob/master/example-calibration.png)
 
-screencap.py
+All calibration is in `calibration.py` and `screencap.py`
+
+**screencap.py**
 
 Use the following to calibrate:
-CALIBRATION - turns calibration on. Program runs the following test images then exits.
+* `CALIBRATION` - turns calibration on. Program runs the following test images then exits.
 
-* CALIBRATE_WINDOW - shows what you are capturing, overlaying the score,lines,level and stats
+* `CALIBRATE_WINDOW` - shows what you are capturing, overlaying the score,lines,level and stats
 
-* CALIBRATE_SCORE 
+* `CALIBRATE_SCORE`  - shows captured image for score. Make sure it's pixel perfect!
 
-* CALIBRATE_LINES 
+* `CALIBRATE_LINES` - shows captured image for lines. Make sure it's pixel perfect!
 
-* CALIBRATE_LEVEL 
+* `CALIBRATE_LEVEL` - shows captured image for level. Make sure it's pixel perfect!
 
-* CALIBRATE_STATS 
+* `CALIBRATE_STATS` - shows captured image for stats. Make sure it's pixel perfect!
 
-calibration.py
+**calibration.py**
 
-* WINDOW_NAME - the obs window name. it must start with these characters.
+* `WINDOW_NAME` - the obs window name. it must start with these characters.
 
-* CAPTURE_COORDS - pixel offset of window to capture. Start with (0,0, 200,200) and go from there...
+* `CAPTURE_COORDS` - pixel offset of window to capture. Start with (0,0, 200,200) and go from there...
 
-* _____Perc - shouldn't need to adjust, but can slightly adjust to get pixel perfect, which will increase accuracy.
+* `_____Perc` - shouldn't need to adjust, but can slightly adjust to get pixel perfect, which will increase accuracy.
 
 Testing
 ===
 Uncomment `#print message`, and see what is being outputted.
+It will output via TCP to port 3338 by default.
