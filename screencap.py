@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw
 from fastocr import scoreImage
 from calibration import * #bad!
 from multiprocessing import Pool
-
+from Networking import TCPClient
 import time
 
 def lerp(start, end, perc):
@@ -27,11 +27,6 @@ def generate_stats(captureCoords, statBoxPerc, statHeight):
         box = (statBoxPerc[0],statBoxPerc[1]+offset,statBoxPerc[2],statHeight)
         result[piece] = mult_rect(captureCoords,box)
     return result
-
-#the rate at which we process
-FPS = 20
-RATE = 0 #change this to 0 to go as fast as possible.
-LIVE = True
     
 SCORE_COORDS = mult_rect(CAPTURE_COORDS,scorePerc)
 LINES_COORDS = mult_rect(CAPTURE_COORDS,linesPerc)
@@ -43,7 +38,7 @@ CALIBRATE_WINDOW = False
 CALIBRATE_SCORE = False
 CALIBRATE_LINES = False
 CALIBRATE_LEVEL = False
-CALIBRATE_STATS = True
+CALIBRATE_STATS = False
 MULTI_THREAD = 8
 
 
@@ -119,7 +114,7 @@ def main(onCap):
         p = Pool(MULTI_THREAD)
     else:
         p = None
-        
+    
     while True:
         t = time.time()
         hwnd = getWindow()
@@ -145,19 +140,18 @@ def main(onCap):
                 for task in rawTasks:
                     key, number = runFunc(task[0],task[1])
                     result[key] = number
-                        
-        
-        toSleep = RATE - (time.time() - t)        
-        if toSleep > 0:
-            time.sleep(toSleep)
+                               
         onCap(result)
         #print (time.time() - t)
         
         
-        
+def sendResult(client, message):
+    #print(message)
+    client.sendMessage(message)
         
 if __name__ == '__main__':
-    main(print)
+    client = TCPClient.CreateClient('127.0.0.1',3338)
+    main(lambda x: sendResult(client,x))
     
 
         
