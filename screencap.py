@@ -5,6 +5,7 @@ from fastocr import scoreImage
 from calibration import * #bad!
 from multiprocessing import Pool
 from Networking import TCPClient
+import json
 import time
 
 def lerp(start, end, perc):
@@ -144,14 +145,30 @@ def main(onCap):
         onCap(result)
         #print (time.time() - t)
         
-        
+class CachedSender(object):
+    def __init__(self, client):
+        self.client = client
+        self.lastMessage = None
+    
+    #convert message to jsonstr and then send if its new.
+    def sendResult(self, message):
+        message = json.dumps(message,indent=2)
+        if (message == self.lastMessage):
+            return
+        else:
+            self.lastMessage = message
+            #print(message);
+            self.client.sendMessage(message)
+            
 def sendResult(client, message):
     #print(message)
-    client.sendMessage(str(message))
+    jsonStr = json.dumps(message, indent=2)
+    client.sendMessage(jsonStr)
         
 if __name__ == '__main__':
     client = TCPClient.CreateClient('127.0.0.1',3338)
-    main(lambda x: sendResult(client,x))
+    cachedSender = CachedSender(client)
+    main(cachedSender.sendResult)
     
 
         
