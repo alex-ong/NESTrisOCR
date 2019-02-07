@@ -48,18 +48,14 @@ def scoreDigit(img, startX, startY):
 def contrastImg(img):  
     if MONO:
         img = img.convert('L')    
-    img = ImageEnhance.Sharpness(img).enhance(3.0)
-    img = ImageEnhance.Brightness(img).enhance(2.0)
-    img = ImageEnhance.Contrast(img).enhance(2.0)     
-    
+    img = ImageEnhance.Brightness(img).enhance(3.0) # hack to parse red    
     return img
     
 def convertImg(img, count,show):
-    img = contrastImg(img)    
+    img = contrastImg(img)        
+    img = img.resize((8*count-1,7),PIL.Image.ANTIALIAS)
     if show:
         img.show()
-    img = img.resize((8*count-1,7),PIL.Image.ANTIALIAS)
-    
     img = img.load()        
     return img    
 
@@ -70,7 +66,8 @@ def scoreImage(img,count,show=False):
         result = scoreDigit(img,i*8,0)
         if result[1] == 'null':
             return None
-        label += result[1]
+        else:
+            label += result[1]
     return label
 
 setupData()
