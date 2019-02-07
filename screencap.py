@@ -169,9 +169,7 @@ class CachedSender(object):
             if message[key] is not None and self.lastDict[key] is not None:
                 diff = int(message[key]) - int(self.lastDict[key])
                 if diff > 1 or diff < 0:
-                    print ((key), message[key], self.lastDict[key])
-        if not error:
-            print('ok')
+                    print ((key), message[key], self.lastDict[key])        
     
 def sendResult(client, message):
     #print(message)

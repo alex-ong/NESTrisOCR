@@ -48,7 +48,7 @@ def contrastImg(img):
         img = img.convert('L')    
     img = ImageEnhance.Brightness(img).enhance(2.0) # hack to parse red
     img = ImageEnhance.Contrast(img).enhance(3.0)
-    #img = ImageEnhance.Sharpness(img).enhance(1.5)
+    img = ImageEnhance.Sharpness(img).enhance(1.5)
     return img
     
 def convertImg(img, count,show):
