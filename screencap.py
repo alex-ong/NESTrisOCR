@@ -35,7 +35,7 @@ LEVEL_COORDS = mult_rect(CAPTURE_COORDS,levelPerc)
 STATS_COORDS = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
 
 CALIBRATION = False
-CALIBRATE_WINDOW = False
+CALIBRATE_WINDOW = True
 CALIBRATE_SCORE = False
 CALIBRATE_LINES = False
 CALIBRATE_LEVEL = False
@@ -98,9 +98,9 @@ def calibrate():
             img.show()
     return
 
-def captureAndOCR(coords,hwnd,digits,taskName):
+def captureAndOCR(coords,hwnd,digits,taskName,draw=False):
     img = Win32UICapture.ImageCapture(coords,hwnd)
-    return taskName, scoreImage(img,digits)
+    return taskName, scoreImage(img,digits,draw)
 
 def runFunc(func, args):
     return func(*args)
@@ -142,24 +142,37 @@ def main(onCap):
                     key, number = runFunc(task[0],task[1])
                     result[key] = number
                                
-        onCap(result)
-        #print (time.time() - t)
+        onCap(result)              
         
 class CachedSender(object):
     def __init__(self, client):
         self.client = client
         self.lastMessage = None
-    
+        self.lastDict = None
     #convert message to jsonstr and then send if its new.
-    def sendResult(self, message):
-        message = json.dumps(message,indent=2)
-        if (message == self.lastMessage):
+    def sendResult(self, message):                
+        jsonMessage = json.dumps(message,indent=2)
+        if (jsonMessage == self.lastMessage):
             return
         else:
-            self.lastMessage = message
             #print(message);
-            self.client.sendMessage(message)
+            self.client.sendMessage(jsonMessage)
+            self.lastMessage = jsonMessage
+            self.verify(message)
+            self.lastDict = message
             
+    def verify(self, message):
+        if self.lastDict is None:
+            return
+        error = None
+        for key in ['T','J','Z','O','S','L','I']:
+            if message[key] is not None and self.lastDict[key] is not None:
+                diff = int(message[key]) - int(self.lastDict[key])
+                if diff > 1 or diff < 0:
+                    print ((key), message[key], self.lastDict[key])
+        if not error:
+            print('ok')
+    
 def sendResult(client, message):
     #print(message)
     jsonStr = json.dumps(message, indent=2)
