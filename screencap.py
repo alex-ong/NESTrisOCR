@@ -98,9 +98,9 @@ def calibrate():
             img.show()
     return
 
-def captureAndOCR(coords,hwnd,digits,taskName,draw=False):
+def captureAndOCR(coords,hwnd,digits,taskName,draw=False,red=False):
     img = Win32UICapture.ImageCapture(coords,hwnd)
-    return taskName, scoreImage(img,digits,draw)
+    return taskName, scoreImage(img,digits,draw,red)
 
 def runFunc(func, args):
     return func(*args)
@@ -126,7 +126,7 @@ def main(onCap):
             rawTasks.append((captureAndOCR,(LINES_COORDS,hwnd,3,"lines")))
             rawTasks.append((captureAndOCR,(LEVEL_COORDS,hwnd,2,"level")))
             for key in STATS_COORDS:
-                rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,3,key)))
+                rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,3,key,False,True)))
                 
             result = {}
             if p: #multithread
@@ -141,7 +141,7 @@ def main(onCap):
                 for task in rawTasks:
                     key, number = runFunc(task[0],task[1])
                     result[key] = number
-                               
+                
         onCap(result)              
         
 class CachedSender(object):
@@ -155,7 +155,7 @@ class CachedSender(object):
         if (jsonMessage == self.lastMessage):
             return
         else:
-            #print(message);
+            print(message);
             self.client.sendMessage(jsonMessage)
             self.lastMessage = jsonMessage
             self.verify(message)

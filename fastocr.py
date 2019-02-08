@@ -2,23 +2,31 @@ import PIL
 from PIL import Image, ImageEnhance
 
 data = {}
+redData = {}
 digits = ['0','1','2','3','4','5','6','7','8','9','null']
+
 MONO = True
 IMAGE_SIZE = 7
 BLOCK_SIZE = IMAGE_SIZE+1
 IMAGE_MULT = 2
 
-def setupData():
+def setupColour(prefix, outputDict):
+    #setup white digits
     for digit in digits:
-        data[digit] = Image.open(str(digit) + '.png')
+        filename = prefix + str(digit) + '.png'
+        if digit == 'null':
+            filename = 'null.png'
+        outputDict[digit] = Image.open(filename)
         
-        data[digit] = data[digit].convert('L')
+        outputDict[digit] = outputDict[digit].convert('L')
         if IMAGE_MULT != 1:
-            data[digit] = data[digit].resize((IMAGE_SIZE*IMAGE_MULT,
-                                              IMAGE_SIZE*IMAGE_MULT),PIL.Image.ANTIALIAS)
-        data[digit] = data[digit].load()
-    
+            outputDict[digit] = outputDict[digit].resize((IMAGE_SIZE*IMAGE_MULT,
+                                                          IMAGE_SIZE*IMAGE_MULT),PIL.Image.ANTIALIAS)
+        outputDict[digit] = outputDict[digit].load()
         
+def setupData():
+    setupColour('',data) #setup white
+    setupColour('red',redData) #setup red        
 
 def dist(col):
     return col*col
@@ -27,14 +35,14 @@ def sub(col1,col2):
     return col1-col2
 
 
-def scoreDigit(img, startX, startY):
+def scoreDigit(img, startX, startY, red):
     scores = []
-    
+    template = redData if red else data
     for digit in digits:
         score = 0
         for y in range(IMAGE_SIZE*IMAGE_MULT):
             for x in range(IMAGE_SIZE*IMAGE_MULT):
-                a = data[digit][x,y]
+                a = template[digit][x,y]
                 b = img[startX+x,startY+y]
                 score += dist(sub(a,b))
                 
@@ -46,9 +54,9 @@ def scoreDigit(img, startX, startY):
 def contrastImg(img):  
     if MONO:
         img = img.convert('L')    
-    img = ImageEnhance.Brightness(img).enhance(2.0) # hack to parse red
-    img = ImageEnhance.Contrast(img).enhance(3.0)
-    img = ImageEnhance.Sharpness(img).enhance(1.5)
+    #img = ImageEnhance.Brightness(img).enhance(2.0) # hack to parse red
+    #img = ImageEnhance.Contrast(img).enhance(3.0)
+    #img = ImageEnhance.Sharpness(img).enhance(1.5)
     return img
     
 def convertImg(img, count,show):
@@ -60,11 +68,11 @@ def convertImg(img, count,show):
     img = img.load()        
     return img    
 
-def scoreImage(img,count,show=False):
+def scoreImage(img,count,show=False, red=False):
     img = convertImg(img,count,show)
     label = ""
     for i in range(count):
-        result = scoreDigit(img,i*(BLOCK_SIZE*IMAGE_MULT),0)
+        result = scoreDigit(img,i*(BLOCK_SIZE*IMAGE_MULT),0, red)
         if result[1] == 'null':
             return None
         else:
