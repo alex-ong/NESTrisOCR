@@ -16,13 +16,13 @@ def setupColour(prefix, outputDict):
         filename = prefix + str(digit) + '.png'
         if digit == 'null':
             filename = 'null.png'
-        outputDict[digit] = Image.open(filename)
+        img = Image.open(filename)
         
-        outputDict[digit] = outputDict[digit].convert('L')
+        img = img.convert('L')
         if IMAGE_MULT != 1:
-            outputDict[digit] = outputDict[digit].resize((IMAGE_SIZE*IMAGE_MULT,
-                                                          IMAGE_SIZE*IMAGE_MULT),PIL.Image.ANTIALIAS)
-        outputDict[digit] = outputDict[digit].load()
+            img = img.resize((IMAGE_SIZE*IMAGE_MULT,
+                              IMAGE_SIZE*IMAGE_MULT),PIL.Image.ANTIALIAS)
+        outputDict[digit] = img.load()
         
 def setupData():
     setupColour('',data) #setup white

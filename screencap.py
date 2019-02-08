@@ -141,7 +141,7 @@ def main(onCap):
                 for task in rawTasks:
                     key, number = runFunc(task[0],task[1])
                     result[key] = number
-                
+        
         onCap(result)              
         
 class CachedSender(object):
@@ -154,8 +154,9 @@ class CachedSender(object):
         jsonMessage = json.dumps(message,indent=2)
         if (jsonMessage == self.lastMessage):
             return
-        else:
-            print(message);
+        else: 
+            #print(message)
+                
             self.client.sendMessage(jsonMessage)
             self.lastMessage = jsonMessage
             self.verify(message)
@@ -169,7 +170,7 @@ class CachedSender(object):
             if message[key] is not None and self.lastDict[key] is not None:
                 diff = int(message[key]) - int(self.lastDict[key])
                 if diff > 1 or diff < 0:
-                    print ((key), message[key], self.lastDict[key])        
+                    print ("warning:",key, self.lastDict[key], "->", message[key])        
     
 def sendResult(client, message):
     #print(message)
