@@ -40,7 +40,7 @@ CALIBRATE_SCORE = False
 CALIBRATE_LINES = False
 CALIBRATE_LEVEL = False
 CALIBRATE_STATS = False
-MULTI_THREAD = 8
+MULTI_THREAD = 1
 
 
 def getWindow():
@@ -125,8 +125,8 @@ def main(onCap):
             rawTasks.append((captureAndOCR,(SCORE_COORDS,hwnd,6,"score")))
             rawTasks.append((captureAndOCR,(LINES_COORDS,hwnd,3,"lines")))
             rawTasks.append((captureAndOCR,(LEVEL_COORDS,hwnd,2,"level")))
-            for key in STATS_COORDS:
-                rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,3,key,False,True)))
+            #for key in STATS_COORDS:
+            #    rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,3,key,False,True)))
                 
             result = {}
             if p: #multithread
@@ -148,29 +148,12 @@ class CachedSender(object):
     def __init__(self, client):
         self.client = client
         self.lastMessage = None
-        self.lastDict = None
+
     #convert message to jsonstr and then send if its new.
     def sendResult(self, message):                
-        jsonMessage = json.dumps(message,indent=2)
-        if (jsonMessage == self.lastMessage):
-            return
-        else: 
-            #print(message)
-                
-            self.client.sendMessage(jsonMessage)
-            self.lastMessage = jsonMessage
-            self.verify(message)
-            self.lastDict = message
-            
-    def verify(self, message):
-        if self.lastDict is None:
-            return
-        error = None
-        for key in ['T','J','Z','O','S','L','I']:
-            if message[key] is not None and self.lastDict[key] is not None:
-                diff = int(message[key]) - int(self.lastDict[key])
-                if diff > 1 or diff < 0:
-                    print ("warning:",key, self.lastDict[key], "->", message[key])        
+        jsonMessage = json.dumps(message,indent=2)        
+        self.client.sendMessage(jsonMessage)
+
     
 def sendResult(client, message):
     #print(message)
