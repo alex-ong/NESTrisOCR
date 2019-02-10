@@ -142,7 +142,7 @@ def main(onCap):
                     key, number = runFunc(task[0],task[1])
                     result[key] = number
         
-        onCap(result)              
+            onCap(result)              
         
 class CachedSender(object):
     def __init__(self, client):
