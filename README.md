@@ -81,5 +81,8 @@ the current lines, score, level.
 
 `{'lines': '000', 'score', '000120', 'level', '00'}`
 
+If you are in a menu, it will more likely output
 
-It will output via TCP to port 3338 by default.
+`{'lines': None, 'score', None, 'level', None}`
+
+It will output via TCP to port 3338 by default. THis is to connect to other applications that actually use the data.
