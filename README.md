@@ -10,21 +10,46 @@ Algorithm is simple KNearest (compare image to reference images, sum of differen
 
 Requirements
 ===
-Use pip to install the following:
+You need a working python installation to get everything running.
 
-`pillow`
+`python37-32` [Download here](https://www.python.org/downloads/release/python-372/)
 
-`pypiwin32`
+When installing, make sure you `add to path` - this lets you run python from command prompt from any folder.
+
+Next, [open a command window](https://www.google.com/search?q=how+to+open+a+command+prompt+windows). type in the following commands to install some modules required for this program
+
+`pip install pillow`
+
+`pip install pypiwin32`
+
+You can verify they are installed by running python from the command prompt and then importing the modules
+`python`
+
+`import PIL` 
+
+`import win32ui`
+
+
+You shouldnt get any errors. Then, exit python
+`exit()`
 
 Running
 ===
 `python screencap.py`
 
+If you are not familiar with command prompt, [google it...](https://www.google.com/search?q=how+to+change+directory+in+command+prompt)
+
+You'll want to open a command prompt, change to the directory of this repository, then run this python file.
+
 Calibration
 ===
-![calibiration](https://github.com/alex-ong/NESTrisOCR/blob/master/example-calibration.png)
+![calibration](https://github.com/alex-ong/NESTrisOCR/blob/master/example-calibration.png)
 
 All calibration is in `calibration.py` and `screencap.py`
+
+You need to set screencap.py to calibration mode, run it, and see what image it spits out.
+I recommend just using `CALIBRATION = True` and `CALIBRATE_WINDOW = True`
+It will spit out an image. Run the program repeatedly, tweaking the `calibration.py` until it looks right
 
 **screencap.py**
 
@@ -51,5 +76,10 @@ Use the following to calibrate:
 
 Testing
 ===
-Uncomment `#print message`, and see what is being outputted.
+Uncomment `#print(message)` near the bottom of the file, and see what is being outputted. It should print out
+the current lines, score, level.
+
+`{'lines': '000', 'score', '000120', 'level', '00'}`
+
+
 It will output via TCP to port 3338 by default.
