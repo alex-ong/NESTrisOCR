@@ -150,13 +150,13 @@ class CachedSender(object):
         self.lastMessage = None
 
     #convert message to jsonstr and then send if its new.
-    def sendResult(self, message):                
+    def sendResult(self, message):
+        print(message)
         jsonMessage = json.dumps(message,indent=2)        
         self.client.sendMessage(jsonMessage)
 
     
-def sendResult(client, message):
-    #print(message)
+def sendResult(client, message):    
     jsonStr = json.dumps(message, indent=2)
     client.sendMessage(jsonStr)
         
