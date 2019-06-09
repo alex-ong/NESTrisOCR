@@ -17,7 +17,7 @@ def mult_rect(rect, mult):
             round(rect[2]*mult[2]),
             round(rect[3]*mult[3]))
 
-def generate_stats(captureCoords, statBoxPerc, statHeight):    
+def generate_stats(captureCoords, statBoxPerc, statHeight, do_mult=True):    
     statGap = (statBoxPerc[3] - (7*statHeight))/6
     statGap = statGap + statHeight
     offsets = [i*(statGap) for i in range(7)]
@@ -26,7 +26,10 @@ def generate_stats(captureCoords, statBoxPerc, statHeight):
     for i, piece in enumerate(pieces):
         offset = offsets[i]
         box = (statBoxPerc[0],statBoxPerc[1]+offset,statBoxPerc[2],statHeight)
-        result[piece] = mult_rect(captureCoords,box)
+        if do_mult:
+            result[piece] = mult_rect(captureCoords,box)
+        else:
+            result[piece] = box
     return result
     
 SCORE_COORDS = mult_rect(CAPTURE_COORDS,scorePerc)
@@ -34,14 +37,14 @@ LINES_COORDS = mult_rect(CAPTURE_COORDS,linesPerc)
 LEVEL_COORDS = mult_rect(CAPTURE_COORDS,levelPerc)
 STATS_COORDS = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
 
-CALIBRATION = False
+CALIBRATION = True
 CALIBRATE_WINDOW = True
 CALIBRATE_SCORE = False
 CALIBRATE_LINES = False
 CALIBRATE_LEVEL = False
 CALIBRATE_STATS = False
 MULTI_THREAD = 1
-
+RATE = 0.064
 
 def getWindow():
     wm = WindowMgr()    
@@ -63,7 +66,8 @@ def highlight_calibration(img):
     draw = ImageDraw.Draw(poly)
     #score
     red = (255,0,0,128)    
-    blue = (0,0,255,128)
+    blue = (0,0,255,128)       
+    orange = (255,165,0,128)
     draw.rectangle(screenPercToPixels(img.width,img.height,scorePerc),fill=red)
     #lines
     draw.rectangle(screenPercToPixels(img.width,img.height,linesPerc),fill=red)
@@ -71,6 +75,10 @@ def highlight_calibration(img):
     draw.rectangle(screenPercToPixels(img.width,img.height,levelPerc),fill=red)    
     #pieces
     draw.rectangle(screenPercToPixels(img.width,img.height,statsPerc),fill=blue)
+    print(statsPerc)
+    for value in generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3],False).values():
+        print(value)
+        draw.rectangle(screenPercToPixels(img.width,img.height,value),fill=orange)
     img.paste(poly,mask=poly)    
     del draw
     
@@ -142,7 +150,9 @@ def main(onCap):
                     key, number = runFunc(task[0],task[1])
                     result[key] = number
         
-            onCap(result)              
+            onCap(result)  
+        while time.time() < t + RATE:
+            time.sleep(0.001)
         
 class CachedSender(object):
     def __init__(self, client):
