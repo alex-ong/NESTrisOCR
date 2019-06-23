@@ -16,7 +16,7 @@ def setupColour(prefix, outputDict):
         filename = prefix + str(digit) + '.png'
         if digit == 'null':
             filename = 'null.png'
-        img = Image.open(filename)
+        img = Image.open('../assets/' + filename)
         
         img = img.convert('L')
         if IMAGE_MULT != 1:
@@ -25,8 +25,8 @@ def setupColour(prefix, outputDict):
         outputDict[digit] = img.load()
         
 def setupData():
-    setupColour('',data) #setup white
-    setupColour('red',redData) #setup red        
+    setupColour('sprite_templates/',data) #setup white
+    setupColour('samples/red',redData) #setup red
 
 def dist(col):
     return col*col
