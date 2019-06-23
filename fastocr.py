@@ -59,7 +59,7 @@ def contrastImg(img):
     #img = ImageEnhance.Sharpness(img).enhance(1.5)
     return img
     
-def convertImg(img, count,show):
+def convertImg(img, count, show):
     img = contrastImg(img)        
     img = img.resize((((BLOCK_SIZE)*count-1)*IMAGE_MULT,
                         IMAGE_SIZE*IMAGE_MULT),PIL.Image.ANTIALIAS)
@@ -68,7 +68,7 @@ def convertImg(img, count,show):
     img = img.load()        
     return img    
 
-def scoreImage(img,count,show=False, red=False):
+def scoreImage(img, count, show=False, red=False):
     img = convertImg(img,count,show)
     label = ""
     for i in range(count):
