@@ -10,6 +10,9 @@ Algorithm is simple KNearest (compare image to reference images, sum of differen
 
 Requirements
 ===
+
+Windows
+=====
 You need a working python installation to get everything running.
 
 `python37-32` [Download here](https://www.python.org/downloads/release/python-372/)
@@ -32,6 +35,25 @@ You can verify they are installed by running python from the command prompt and 
 
 You shouldnt get any errors. Then, exit python
 `exit()`
+
+
+OSX
+=====
+
+You need to have python3 and the pyobjc binding to access the Quartz APIs
+
+At the comment line, run:
+
+`brew install python3 libtiff libjpeg webp little-cms2`
+
+`pip3 install -U pyobjc pillow`
+
+You can verify the installation is correct by checking this:
+
+`import Quartz`
+
+`import PIL`
+
 
 Running
 ===

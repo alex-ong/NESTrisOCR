@@ -15,8 +15,8 @@ def setupColour(prefix, outputDict):
     for digit in digits:
         filename = prefix + str(digit) + '.png'
         if digit == 'null':
-            filename = 'null.png'
-        img = Image.open('../assets/' + filename)
+            filename = 'sprite_templates/null.png'
+        img = Image.open('assets/' + filename)
         
         img = img.convert('L')
         if IMAGE_MULT != 1:

@@ -1,5 +1,13 @@
-import Win32UICapture
-from WindowMgr import WindowMgr
+import platform
+
+if platform.system() == 'Darwin':
+    import QuartzCapture as WindowCapture
+    from QuartzWindowMgr import WindowMgr
+
+else:
+    import Win32UICapture as WindowCapture
+    from Win32WindowMgr import WindowMgr
+
 from PIL import Image, ImageDraw
 from fastocr import scoreImage
 from calibration import * #bad!
@@ -47,11 +55,11 @@ MULTI_THREAD = 1
 RATE = 0.064
 
 def getWindow():
-    wm = WindowMgr()    
-    windows = wm.getWindows()    
+    wm = WindowMgr()
+    windows = wm.getWindows()
     for window in windows:
         if window[1].startswith(WINDOW_NAME):
-            return window[0]            
+            return window[0]
     return None
 
 def screenPercToPixels(w,h,rect_xywh):
@@ -88,26 +96,26 @@ def calibrate():
         print ("Unable to find OBS window with title:",  WINDOW_NAME)
         return
     if CALIBRATE_WINDOW:
-        img = Win32UICapture.ImageCapture(CAPTURE_COORDS,hwnd)
+        img = WindowCapture.ImageCapture(CAPTURE_COORDS,hwnd)
         highlight_calibration(img)
         img.show()
     if CALIBRATE_SCORE:
-        img = Win32UICapture.ImageCapture(SCORE_COORDS,hwnd)
+        img = WindowCapture.ImageCapture(SCORE_COORDS,hwnd)
         img.show() 
     if CALIBRATE_LINES:
-        img = Win32UICapture.ImageCapture(LINES_COORDS,hwnd)
+        img = WindowCapture.ImageCapture(LINES_COORDS,hwnd)
         img.show() 
     if CALIBRATE_LEVEL:
-        img = Win32UICapture.ImageCapture(LEVEL_COORDS,hwnd)
+        img = WindowCapture.ImageCapture(LEVEL_COORDS,hwnd)
         img.show()
     if CALIBRATE_STATS:
         for key in STATS_COORDS:
-            img = Win32UICapture.ImageCapture(STATS_COORDS[key],hwnd)
+            img = WindowCapture.ImageCapture(STATS_COORDS[key],hwnd)
             img.show()
     return
 
 def captureAndOCR(coords,hwnd,digits,taskName,draw=False,red=False):
-    img = Win32UICapture.ImageCapture(coords,hwnd)
+    img = WindowCapture.ImageCapture(coords,hwnd)
     return taskName, scoreImage(img,digits,draw,red)
 
 def runFunc(func, args):
