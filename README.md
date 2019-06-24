@@ -37,6 +37,8 @@ Running
 ===
 `python screencap.py`
 
+Alternatively you can double-click screencap.py if you are on windows and have installed python correctly.
+
 If you are not familiar with command prompt, [google it...](https://www.google.com/search?q=how+to+change+directory+in+command+prompt)
 
 You'll want to open a command prompt, change to the directory of this repository, then run this python file.
