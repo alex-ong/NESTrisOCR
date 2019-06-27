@@ -67,7 +67,7 @@ You'll want to open a command prompt, change to the directory of this repository
 
 Calibration
 ===
-![calibration](https://github.com/alex-ong/NESTrisOCR/blob/master/example-calibration.png)
+![calibration](https://github.com/alex-ong/NESTrisOCR/blob/master/assets/doc/example-calibration.png)
 
 All calibration is in `calibration.py` and `screencap.py`
 
