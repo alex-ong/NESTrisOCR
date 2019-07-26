@@ -26,7 +26,7 @@ def setupColour(prefix, outputDict):
         
 def setupData():
     setupColour('sprite_templates/',data) #setup white
-    setupColour('samples/red',redData) #setup red
+    setupColour('sprite_templates/red',redData) #setup red
 
 def dist(col):
     return col*col
