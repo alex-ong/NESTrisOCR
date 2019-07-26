@@ -4,15 +4,16 @@ from PIL import Image, ImageEnhance
 data = {}
 redData = {}
 digits = ['0','1','2','3','4','5','6','7','8','9','null']
+digitsLetters = digits + ['A','B','C','D','E','F']
 
 MONO = True
 IMAGE_SIZE = 7
 BLOCK_SIZE = IMAGE_SIZE+1
 IMAGE_MULT = 2
 
-def setupColour(prefix, outputDict):
+def setupColour(prefix, outputDict, digitList):
     #setup white digits
-    for digit in digits:
+    for digit in digitList:
         filename = prefix + str(digit) + '.png'
         if digit == 'null':
             filename = 'sprite_templates/null.png'
@@ -25,8 +26,8 @@ def setupColour(prefix, outputDict):
         outputDict[digit] = img.load()
         
 def setupData():
-    setupColour('sprite_templates/',data) #setup white
-    setupColour('sprite_templates/red',redData) #setup red
+    setupColour('sprite_templates/', data, digitsLetters) #setup white
+    setupColour('sprite_templates/red', redData, digits) #setup red
 
 def dist(col):
     return col*col
@@ -35,10 +36,11 @@ def sub(col1,col2):
     return col1-col2
 
 
-def scoreDigit(img, startX, startY, red):
+def scoreDigit(img, pattern, startX, startY, red):
     scores = []
     template = redData if red else data
-    for digit in digits:
+    validDigits = digitsLetters if pattern == 'A' else digits
+    for digit in validDigits:
         score = 0
         for y in range(IMAGE_SIZE*IMAGE_MULT):
             for x in range(IMAGE_SIZE*IMAGE_MULT):
@@ -68,11 +70,13 @@ def convertImg(img, count, show):
     img = img.load()        
     return img    
 
-def scoreImage(img, count, show=False, red=False):
+
+def scoreImage(img, digitPattern, show=False, red=False):
+    count = len(digitPattern)
     img = convertImg(img,count,show)
     label = ""
-    for i in range(count):
-        result = scoreDigit(img,i*(BLOCK_SIZE*IMAGE_MULT),0, red)
+    for (i, pattern) in enumerate(digitPattern):
+        result = scoreDigit(img, pattern, i*(BLOCK_SIZE*IMAGE_MULT),0, red)
         if result[1] == 'null':
             return None
         else:

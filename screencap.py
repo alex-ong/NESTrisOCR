@@ -39,7 +39,15 @@ def generate_stats(captureCoords, statBoxPerc, statHeight, do_mult=True):
         else:
             result[piece] = box
     return result
-    
+
+#patterns for digits. 
+#A = 0->9 + A->F, 
+#D = 0->9
+SCORE_PATTERN = 'ADDDDD'
+LINES_PATTERN = 'DDD'
+LEVEL_PATTERN = 'AA'
+STATS_PATTERN = 'DDD'
+
 SCORE_COORDS = mult_rect(CAPTURE_COORDS,scorePerc)
 LINES_COORDS = mult_rect(CAPTURE_COORDS,linesPerc)
 LEVEL_COORDS = mult_rect(CAPTURE_COORDS,levelPerc)
@@ -47,11 +55,10 @@ LEVEL_COORDS = mult_rect(CAPTURE_COORDS,levelPerc)
 #piece stats.
 STATS_COORDS = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
 STATS_METHOD = 'TEXT' #can be TEXT or FIELD. Field isn't implmeented yet, so just use TEXT.
-STATS_ENABLE = False
+STATS_ENABLE = True
 
 
-
-CALIBRATION = True
+CALIBRATION = False
 CALIBRATE_WINDOW = True
 CALIBRATE_SCORE = False
 CALIBRATE_LINES = False
@@ -120,9 +127,9 @@ def calibrate():
             img.show()
     return
 
-def captureAndOCR(coords,hwnd,digits,taskName,draw=False,red=False):
+def captureAndOCR(coords,hwnd,digitPattern,taskName,draw=False,red=False):
     img = WindowCapture.ImageCapture(coords,hwnd)
-    return taskName, scoreImage(img,digits,draw,red)
+    return taskName, scoreImage(img,digitPattern,draw,red)
 
 def runFunc(func, args):
     return func(*args)
@@ -144,13 +151,13 @@ def main(onCap):
         result = {}
         if hwnd:       
             rawTasks = []
-            rawTasks.append((captureAndOCR,(SCORE_COORDS,hwnd,6,"score")))
-            rawTasks.append((captureAndOCR,(LINES_COORDS,hwnd,3,"lines")))
-            rawTasks.append((captureAndOCR,(LEVEL_COORDS,hwnd,2,"level")))
+            rawTasks.append((captureAndOCR,(SCORE_COORDS,hwnd,SCORE_PATTERN,"score")))
+            rawTasks.append((captureAndOCR,(LINES_COORDS,hwnd,LINES_PATTERN,"lines")))
+            rawTasks.append((captureAndOCR,(LEVEL_COORDS,hwnd,LEVEL_PATTERN,"level")))
             
             if STATS_ENABLE:
                 for key in STATS_COORDS:
-                    rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,3,key,False,True)))
+                    rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,STATS_PATTERN,key,False,True)))
                 
             result = {}
             if p: #multithread
