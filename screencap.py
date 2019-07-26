@@ -43,7 +43,13 @@ def generate_stats(captureCoords, statBoxPerc, statHeight, do_mult=True):
 SCORE_COORDS = mult_rect(CAPTURE_COORDS,scorePerc)
 LINES_COORDS = mult_rect(CAPTURE_COORDS,linesPerc)
 LEVEL_COORDS = mult_rect(CAPTURE_COORDS,levelPerc)
+
+#piece stats.
 STATS_COORDS = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
+STATS_METHOD = 'TEXT' #can be TEXT or FIELD. Field isn't implmeented yet, so just use TEXT.
+STATS_ENABLE = False
+
+
 
 CALIBRATION = True
 CALIBRATE_WINDOW = True
@@ -141,8 +147,10 @@ def main(onCap):
             rawTasks.append((captureAndOCR,(SCORE_COORDS,hwnd,6,"score")))
             rawTasks.append((captureAndOCR,(LINES_COORDS,hwnd,3,"lines")))
             rawTasks.append((captureAndOCR,(LEVEL_COORDS,hwnd,2,"level")))
-            #for key in STATS_COORDS:
-            #    rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,3,key,False,True)))
+            
+            if STATS_ENABLE:
+                for key in STATS_COORDS:
+                    rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,3,key,False,True)))
                 
             result = {}
             if p: #multithread
