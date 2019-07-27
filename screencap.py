@@ -53,9 +53,10 @@ LINES_COORDS = mult_rect(CAPTURE_COORDS,linesPerc)
 LEVEL_COORDS = mult_rect(CAPTURE_COORDS,levelPerc)
 
 #piece stats.
-STATS_COORDS = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
-STATS_METHOD = 'TEXT' #can be TEXT or FIELD. Field isn't implmeented yet, so just use TEXT.
-STATS_ENABLE = True
+STATS_COORDS  = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
+STATS2_COORDS = mult_rect(CAPTURE_COORDS, stats2Perc)
+STATS_METHOD  = 'TEXT' #can be TEXT or FIELD. Field isn't implmeented yet, so just use TEXT.
+STATS_ENABLE  = True
 
 
 CALIBRATION = False
@@ -94,12 +95,14 @@ def highlight_calibration(img):
     draw.rectangle(screenPercToPixels(img.width,img.height,linesPerc),fill=red)
     #level
     draw.rectangle(screenPercToPixels(img.width,img.height,levelPerc),fill=red)    
-    #pieces
-    draw.rectangle(screenPercToPixels(img.width,img.height,statsPerc),fill=blue)
-    print(statsPerc)
-    for value in generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3],False).values():
-        print(value)
-        draw.rectangle(screenPercToPixels(img.width,img.height,value),fill=orange)
+    if STATS_METHOD == 'TEXT':
+        #pieces
+        draw.rectangle(screenPercToPixels(img.width,img.height,statsPerc),fill=blue)
+        for value in generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3],False).values():
+            draw.rectangle(screenPercToPixels(img.width,img.height,value),fill=orange)
+    else: #STATS_METHOD == 'FIELD':
+        draw.rectangle(screenPercToPixels(img.width,img.height,stats2Perc),fill=blue)
+        
     img.paste(poly,mask=poly)    
     del draw
     
@@ -131,6 +134,11 @@ def captureAndOCR(coords,hwnd,digitPattern,taskName,draw=False,red=False):
     img = WindowCapture.ImageCapture(coords,hwnd)
     return taskName, scoreImage(img,digitPattern,draw,red)
 
+#this is a stub. Don't use it!
+def captureAndOCRBoard(coords, hwnd):
+    img = WindowCapture.ImageCapture(coords, hwnd)
+    return None
+
 def runFunc(func, args):
     return func(*args)
     
@@ -156,8 +164,11 @@ def main(onCap):
             rawTasks.append((captureAndOCR,(LEVEL_COORDS,hwnd,LEVEL_PATTERN,"level")))
             
             if STATS_ENABLE:
-                for key in STATS_COORDS:
-                    rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,STATS_PATTERN,key,False,True)))
+                if STATS_METHOD == 'TEXT':
+                    for key in STATS_COORDS:
+                        rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,STATS_PATTERN,key,False,True)))
+                else: #if STATS_METHOD == 'FIELD'
+                    rawTasks.append((captureAndOCRBoard, (STATS2_COORDS, hwnd)))
                 
             result = {}
             if p: #multithread
