@@ -13,6 +13,7 @@ from fastocr import scoreImage
 from calibration import * #bad!
 from multiprocessing import Pool
 from Networking import TCPClient
+import boardocr
 import json
 import time
 
@@ -55,9 +56,8 @@ LEVEL_COORDS = mult_rect(CAPTURE_COORDS,levelPerc)
 #piece stats.
 STATS_COORDS  = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
 STATS2_COORDS = mult_rect(CAPTURE_COORDS, stats2Perc)
-STATS_METHOD  = 'TEXT' #can be TEXT or FIELD. Field isn't implmeented yet, so just use TEXT.
+STATS_METHOD  = 'FIELD' #can be TEXT or FIELD. Field isn't implmeented yet, so just use TEXT.
 STATS_ENABLE  = True
-
 
 CALIBRATION = False
 CALIBRATE_WINDOW = True
@@ -65,8 +65,8 @@ CALIBRATE_SCORE = False
 CALIBRATE_LINES = False
 CALIBRATE_LEVEL = False
 CALIBRATE_STATS = False
-MULTI_THREAD = 1
-RATE = 0.064
+MULTI_THREAD = 4
+RATE = 0.008
 
 def getWindow():
     wm = WindowMgr()
@@ -100,8 +100,14 @@ def highlight_calibration(img):
         draw.rectangle(screenPercToPixels(img.width,img.height,statsPerc),fill=blue)
         for value in generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3],False).values():
             draw.rectangle(screenPercToPixels(img.width,img.height,value),fill=orange)
-    else: #STATS_METHOD == 'FIELD':
+    else: #STATS_METHOD == 'FIELD':        
         draw.rectangle(screenPercToPixels(img.width,img.height,stats2Perc),fill=blue)
+        for x in range (4):
+            for y in range(2):                
+                blockPercX = lerp(stats2Perc[0], stats2Perc[0]+stats2Perc[2], x/4.0 + 1/8.0)
+                blockPercY = lerp(stats2Perc[1], stats2Perc[1]+stats2Perc[3], y/2.0 + 1/4.0)
+                rect = (blockPercX-0.01, blockPercY-0.01, 0.02, 0.02)
+                draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill=red)
         
     img.paste(poly,mask=poly)    
     del draw
@@ -137,7 +143,8 @@ def captureAndOCR(coords,hwnd,digitPattern,taskName,draw=False,red=False):
 #this is a stub. Don't use it!
 def captureAndOCRBoard(coords, hwnd):
     img = WindowCapture.ImageCapture(coords, hwnd)
-    return None
+    rgbo = boardocr.parseImage(img)    
+    return ('board_ocr', rgbo)
 
 def runFunc(func, args):
     return func(*args)
@@ -153,6 +160,10 @@ def main(onCap):
     else:
         p = None
     
+    if STATS_ENABLE and STATS_METHOD == 'FIELD':
+        accum = boardocr.OCRStatus()
+        lastLines = None
+        
     while True:
         t = time.time()
         hwnd = getWindow()
@@ -183,8 +194,18 @@ def main(onCap):
                 for task in rawTasks:
                     key, number = runFunc(task[0],task[1])
                     result[key] = number
-        
+            
+            # update our accumulator
+            if STATS_ENABLE and STATS_METHOD == 'FIELD':            
+                if lastLines is None and result['lines'] == '000':
+                    accum.reset()
+                accum.update(result['board_ocr'])
+                del result['board_ocr']
+                result.update(accum.toDict())
+                lastLines = result['lines']
+                
             onCap(result)  
+            
         while time.time() < t + RATE:
             time.sleep(0.001)
         

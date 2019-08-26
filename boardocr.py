@@ -12,13 +12,36 @@ class Piece(Enum):
     EMPTY = 7
     UNKNOWN = 8
     
+def isBlack(colour):
+    limit = 20
+    return (colour[0] < limit and
+           colour[1] < limit and
+           colour[2] < limit)
+           
+last = None
+def parseImage(img):
+    global last
+    img = img.resize((4,2),PIL.Image.NEAREST)
+    img = img.load()
+    r = not isBlack(img[3,1])
+    g = not isBlack(img[3,0])
+    b = not isBlack(img[2,1])
+    o = not isBlack(img[1,1])
+            
+    result = patternToPiece(r,g,b,o)
+    if (r or g or b or o):
+        if last != (r,g,b,o):
+            last = (r,g,b,o)
+            
+    return result
+    
 #  pattern
 #...xxxg...
 #....obr...
 #..........
 # look at boardOCR doc.
 
-def patternToPiece(r,g,b,o):
+def patternToPiece(r,g,b,o):    
     if g and not o and not b and not r:
         return Piece.I
     if not g and o and b and not r:
@@ -60,6 +83,7 @@ class OCRStatus(object):
         self.S = 0
         self.L = 0
         self.I = 0
+        self.lastPiece = Piece.EMPTY
 
     def update(self, newPiece):
         if self.lastPiece == Piece.EMPTY and newPiece != Piece.EMPTY:
@@ -77,17 +101,20 @@ class OCRStatus(object):
                 self.L += 1
             elif newPiece == Piece.I:
                 self.I += 1
+            
+            if newPiece != Piece.UNKNOWN:
+                print(newPiece)
         self.lastPiece = newPiece
     
     def toDict(self):
         return { 
-                 "T": str(self.T),
-                 "J": str(self.J),
-                 "Z": str(self.Z),
-                 "O": str(self.O),
-                 "S": str(self.S),
-                 "L": str(self.L),
-                 "I": str(self.I)
+                 "T": str(self.T).zfill(3),
+                 "J": str(self.J).zfill(3),
+                 "Z": str(self.Z).zfill(3),
+                 "O": str(self.O).zfill(3),
+                 "S": str(self.S).zfill(3),
+                 "L": str(self.L).zfill(3),
+                 "I": str(self.I).zfill(3)
                }
                
         
