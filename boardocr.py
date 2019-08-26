@@ -10,7 +10,37 @@ class Piece(Enum):
     L = 5
     I = 6
     EMPTY = 7
+    UNKNOWN = 8
     
+#  pattern
+#...xxxg...
+#....obr...
+#..........
+# look at boardOCR doc.
+
+def patternToPiece(r,g,b,o):
+    if g and not o and not b and not r:
+        return Piece.I
+    if not g and o and b and not r:
+        return Piece.O
+    if g and not o and b and not r:
+        return Piece.T
+    if g and o and not b and not r:
+        return Piece.L
+    if g and not o and not b and r:
+        return Piece.J
+    if g and o and b and not r:
+        return Piece.S
+    if not g and not o and b and r:
+        return Piece.Z
+        
+    if not g and not o and not b and not r:
+        return Piece.EMPTY
+    else:
+        return Piece.UNKNOWN
+        
+
+
 class OCRStatus(object):
     def __init__(self):
         self.lastPiece = Piece.EMPTY
@@ -50,7 +80,8 @@ class OCRStatus(object):
         self.lastPiece = newPiece
     
     def toDict(self):
-        return { "T": str(self.T),
+        return { 
+                 "T": str(self.T),
                  "J": str(self.J),
                  "Z": str(self.Z),
                  "O": str(self.O),
@@ -58,3 +89,5 @@ class OCRStatus(object):
                  "L": str(self.L),
                  "I": str(self.I)
                }
+               
+        
