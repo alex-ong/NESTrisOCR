@@ -13,33 +13,14 @@ from fastocr import scoreImage
 from calibration import * #bad!
 from multiprocessing import Pool
 from Networking import TCPClient
+from textstats import generate_stats
+from lib import mult_rect, lerp
 import boardocr
 import json
 import time
 
-def lerp(start, end, perc):
-    return perc * (end-start) + start
-    
-def mult_rect(rect, mult):
-    return (round(rect[2]*mult[0]+rect[0]),
-            round(rect[3]*mult[1]+rect[1]),
-            round(rect[2]*mult[2]),
-            round(rect[3]*mult[3]))
 
-def generate_stats(captureCoords, statBoxPerc, statHeight, do_mult=True):    
-    statGap = (statBoxPerc[3] - (7*statHeight))/6
-    statGap = statGap + statHeight
-    offsets = [i*(statGap) for i in range(7)]
-    pieces = ['T','J','Z','O','S','L','I']
-    result = {}
-    for i, piece in enumerate(pieces):
-        offset = offsets[i]
-        box = (statBoxPerc[0],statBoxPerc[1]+offset,statBoxPerc[2],statHeight)
-        if do_mult:
-            result[piece] = mult_rect(captureCoords,box)
-        else:
-            result[piece] = box
-    return result
+
 
 #patterns for digits. 
 #A = 0->9 + A->F, 
@@ -54,17 +35,13 @@ LINES_COORDS = mult_rect(CAPTURE_COORDS,linesPerc)
 LEVEL_COORDS = mult_rect(CAPTURE_COORDS,levelPerc)
 
 #piece stats and method. Recommend using FIELD
+STATS_ENABLE  = False
 STATS_COORDS  = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
 STATS2_COORDS = mult_rect(CAPTURE_COORDS, stats2Perc)
 STATS_METHOD  = 'FIELD' #can be TEXT or FIELD. 
-STATS_ENABLE  = False
+
 
 CALIBRATION = True
-CALIBRATE_WINDOW = True
-CALIBRATE_SCORE = False
-CALIBRATE_LINES = False
-CALIBRATE_LEVEL = False
-CALIBRATE_STATS = False
 MULTI_THREAD = 1 #shouldn't need more than four if using FieldStats + score/lines/level
 
 #limit how fast we scan.
@@ -75,8 +52,6 @@ if STATS_ENABLE and STATS_METHOD == 'FIELD':
     RATE = RATE_FIELDSTATS
 else:
     RATE = RATE_TEXTONLY
-
-
 
 def getWindow():
     wm = WindowMgr()
@@ -127,23 +102,11 @@ def calibrate():
     if hwnd is None:
         print ("Unable to find OBS window with title:",  WINDOW_NAME)
         return
-    if CALIBRATE_WINDOW:
-        img = WindowCapture.ImageCapture(CAPTURE_COORDS,hwnd)
-        highlight_calibration(img)
-        img.show()
-    if CALIBRATE_SCORE:
-        img = WindowCapture.ImageCapture(SCORE_COORDS,hwnd)
-        img.show() 
-    if CALIBRATE_LINES:
-        img = WindowCapture.ImageCapture(LINES_COORDS,hwnd)
-        img.show() 
-    if CALIBRATE_LEVEL:
-        img = WindowCapture.ImageCapture(LEVEL_COORDS,hwnd)
-        img.show()
-    if CALIBRATE_STATS:
-        for key in STATS_COORDS:
-            img = WindowCapture.ImageCapture(STATS_COORDS[key],hwnd)
-            img.show()
+    
+    img = WindowCapture.ImageCapture(CAPTURE_COORDS,hwnd)
+    highlight_calibration(img)
+    img.show()
+
     return
 
 def captureAndOCR(coords,hwnd,digitPattern,taskName,draw=False,red=False):
