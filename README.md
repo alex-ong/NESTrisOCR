@@ -25,6 +25,8 @@ Next, [open a command window](https://www.google.com/search?q=how+to+open+a+comm
 
 `pip install pypiwin32`
 
+`pip install numpy`
+
 You can verify they are installed by running python from the command prompt and then importing the modules
 `python`
 

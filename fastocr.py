@@ -1,5 +1,13 @@
 import PIL
 from PIL import Image, ImageEnhance
+import time
+try:
+    import numpy as np
+    NP_SUPPORTED = True
+except:
+    NP_SUPPORTED = False
+    
+import sys
 
 data = {}
 redData = {}
@@ -10,6 +18,7 @@ MONO = True
 IMAGE_SIZE = 7
 BLOCK_SIZE = IMAGE_SIZE+1
 IMAGE_MULT = 2
+GAP = (BLOCK_SIZE - IMAGE_SIZE) * IMAGE_MULT
 
 def setupColour(prefix, outputDict, digitList):
     #setup white digits
@@ -23,7 +32,11 @@ def setupColour(prefix, outputDict, digitList):
         if IMAGE_MULT != 1:
             img = img.resize((IMAGE_SIZE*IMAGE_MULT,
                               IMAGE_SIZE*IMAGE_MULT),PIL.Image.ANTIALIAS)
-        outputDict[digit] = img.load()
+        img = img.getdata()
+        if NP_SUPPORTED:
+            img = np.asarray(img)
+            img = np.reshape(img, (IMAGE_SIZE * IMAGE_MULT, IMAGE_SIZE*IMAGE_MULT))
+        outputDict[digit] = img
         
 def setupData():
     setupColour('sprite_templates/', data, digitsLetters) #setup white
@@ -37,19 +50,30 @@ def sub(col1,col2):
 
 
 def scoreDigit(img, pattern, startX, startY, red):
+    
     scores = []
     template = redData if red else data
-    validDigits = digitsLetters if pattern == 'A' else digits
+    validDigits = digitsLetters if pattern == 'A' else digits    
+    if NP_SUPPORTED:
+        #img in y, x format
+        subImage = img[:,startX:startX + 14]    
     for digit in validDigits:
         score = 0
-        for y in range(IMAGE_SIZE*IMAGE_MULT):
-            for x in range(IMAGE_SIZE*IMAGE_MULT):
-                a = template[digit][x,y]
-                b = img[startX+x,startY+y]
-                score += dist(sub(a,b))
+        if NP_SUPPORTED:                        
+            diff = np.subtract(subImage, template[digit])            
+            diff = np.abs(diff)
+            score = np.sum(diff)  
+            
+        else:
+            for y in range(IMAGE_SIZE*IMAGE_MULT):
+                for x in range(IMAGE_SIZE*IMAGE_MULT):
+                    a = template[digit][x,y]
+                    b = img[startX+x,startY+y]
+                    score += dist(sub(a,b))
                 
         scores.append((score, digit))
     scores.sort(key=lambda tup:tup[0])
+    
     return scores[0]
 
 #convert to black/white, with custom threshold    
@@ -62,12 +86,19 @@ def contrastImg(img):
     return img
     
 def convertImg(img, count, show):
+    t = time.time()
     img = contrastImg(img)        
     img = img.resize((((BLOCK_SIZE)*count-1)*IMAGE_MULT,
                         IMAGE_SIZE*IMAGE_MULT),PIL.Image.ANTIALIAS)
+    
     if show:
         img.show()
-    img = img.load()        
+    img = img.getdata()
+    if NP_SUPPORTED:
+        img = np.asarray(img)
+        #img is in y,x format
+        img = np.reshape(img,(IMAGE_SIZE*IMAGE_MULT,-1))
+    
     return img    
 
 

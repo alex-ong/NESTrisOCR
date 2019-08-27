@@ -53,20 +53,30 @@ SCORE_COORDS = mult_rect(CAPTURE_COORDS,scorePerc)
 LINES_COORDS = mult_rect(CAPTURE_COORDS,linesPerc)
 LEVEL_COORDS = mult_rect(CAPTURE_COORDS,levelPerc)
 
-#piece stats.
+#piece stats and method. Recommend using FIELD
 STATS_COORDS  = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
 STATS2_COORDS = mult_rect(CAPTURE_COORDS, stats2Perc)
-STATS_METHOD  = 'FIELD' #can be TEXT or FIELD. Field isn't implmeented yet, so just use TEXT.
-STATS_ENABLE  = True
+STATS_METHOD  = 'FIELD' #can be TEXT or FIELD. 
+STATS_ENABLE  = False
 
-CALIBRATION = False
+CALIBRATION = True
 CALIBRATE_WINDOW = True
 CALIBRATE_SCORE = False
 CALIBRATE_LINES = False
 CALIBRATE_LEVEL = False
 CALIBRATE_STATS = False
-MULTI_THREAD = 4
-RATE = 0.008
+MULTI_THREAD = 1 #shouldn't need more than four if using FieldStats + score/lines/level
+
+#limit how fast we scan.
+RATE_FIELDSTATS = 0.008
+RATE_TEXTONLY = 0.064
+
+if STATS_ENABLE and STATS_METHOD == 'FIELD':    
+    RATE = RATE_FIELDSTATS
+else:
+    RATE = RATE_TEXTONLY
+
+
 
 def getWindow():
     wm = WindowMgr()
@@ -137,7 +147,8 @@ def calibrate():
     return
 
 def captureAndOCR(coords,hwnd,digitPattern,taskName,draw=False,red=False):
-    img = WindowCapture.ImageCapture(coords,hwnd)
+    t = time.time()
+    img = WindowCapture.ImageCapture(coords,hwnd)    
     return taskName, scoreImage(img,digitPattern,draw,red)
 
 #this is a stub. Don't use it!
@@ -203,9 +214,13 @@ def main(onCap):
                 del result['board_ocr']
                 result.update(accum.toDict())
                 lastLines = result['lines']
-                
-            onCap(result)  
+                        
+            onCap(result) 
             
+        if (time.time() - t > 0.016 and
+            STATS_ENABLE and STATS_METHOD == 'FIELD'):
+            print("Warning, not meeting rate")
+        
         while time.time() < t + RATE:
             time.sleep(0.001)
         
