@@ -65,7 +65,12 @@ def patternToPiece(r,g,b,o):
 
 
 class OCRStatus(object):
+    #min time between two pieces
+    #since ARE = 10 frames, we can safely set it to 10 * 1/60
+    TIME_EPSILON = 0.160 #min time between two pieces
+
     def __init__(self):
+        self.lastPieceTimeStamp = 0.0
         self.lastPiece = Piece.EMPTY
         self.T = 0
         self.J = 0
@@ -84,27 +89,38 @@ class OCRStatus(object):
         self.L = 0
         self.I = 0
         self.lastPiece = Piece.EMPTY
+    
+    def updatePiece(self, piece):
+        if newPiece == Piece.T:
+            self.T += 1
+        elif newPiece == Piece.J:
+            self.J += 1
+        elif newPiece == Piece.Z:
+            self.Z += 1
+        elif newPiece == Piece.O:
+            self.O += 1
+        elif newPiece == Piece.S:
+            self.S += 1
+        elif newPiece == Piece.L:
+            self.L += 1
+        elif newPiece == Piece.I:
+            self.I += 1
 
-    def update(self, newPiece):
-        if self.lastPiece == Piece.EMPTY and newPiece != Piece.EMPTY:
-            if newPiece == Piece.T:
-                self.T += 1
-            elif newPiece == Piece.J:
-                self.J += 1
-            elif newPiece == Piece.Z:
-                self.Z += 1
-            elif newPiece == Piece.O:
-                self.O += 1
-            elif newPiece == Piece.S:
-                self.S += 1
-            elif newPiece == Piece.L:
-                self.L += 1
-            elif newPiece == Piece.I:
-                self.I += 1
-            
-            if newPiece != Piece.UNKNOWN:
-                print(newPiece)
+    def meetsEpsilon(self, timeStamp):
+        return timeStamp - self.lastPieceTimeStamp >= TIME_EPSILON
+
+    def update(self, newPiece, timeStamp):
+        if newPiece == Piece.UNKNOWN:
+            return
+
+        if (self.lastPiece == Piece.EMPTY and
+                  newPiece != Piece.EMPTY and
+                  meetsEpsilon(timeStamp):
+                updatePiece(newPiece)
+                self.lastPieceTimeStamp = timeStamp
+
         self.lastPiece = newPiece
+
     
     def toDict(self):
         return { 

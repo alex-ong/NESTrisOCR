@@ -173,7 +173,7 @@ def main(onCap):
             if STATS_ENABLE and STATS_METHOD == 'FIELD':            
                 if lastLines is None and result['lines'] == '000':
                     accum.reset()
-                accum.update(result['board_ocr'])
+                accum.update(result['board_ocr'], t)
                 del result['board_ocr']
                 result.update(accum.toDict())
                 lastLines = result['lines']
