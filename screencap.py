@@ -14,7 +14,7 @@ from calibration import * #bad!
 from multiprocessing import Pool
 from Networking import TCPClient
 from textstats import generate_stats
-from lib import mult_rect, lerp
+from lib import mult_rect, lerp, ScoreFixer
 import boardocr
 import json
 import time
@@ -25,7 +25,7 @@ import time
 #patterns for digits. 
 #A = 0->9 + A->F, 
 #D = 0->9
-SCORE_PATTERN = 'ADDDDD'
+SCORE_PATTERN = 'ADDDDD' #change to DDDDDD if you don't have A-F enabled.
 LINES_PATTERN = 'DDD'
 LEVEL_PATTERN = 'AA'
 STATS_PATTERN = 'DDD'
@@ -40,6 +40,7 @@ STATS_COORDS  = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
 STATS2_COORDS = mult_rect(CAPTURE_COORDS, stats2Perc)
 STATS_METHOD  = 'FIELD' #can be TEXT or FIELD. 
 
+USE_STATS_FIELD = (STATS_ENABLE and STATS_METHOD == 'FIELD')
 
 CALIBRATION = True
 MULTI_THREAD = 1 #shouldn't need more than four if using FieldStats + score/lines/level
@@ -48,7 +49,7 @@ MULTI_THREAD = 1 #shouldn't need more than four if using FieldStats + score/line
 RATE_FIELDSTATS = 0.008
 RATE_TEXTONLY = 0.064
 
-if STATS_ENABLE and STATS_METHOD == 'FIELD':    
+if USE_STATS_FIELD:    
     RATE = RATE_FIELDSTATS
 else:
     RATE = RATE_TEXTONLY
@@ -134,10 +135,12 @@ def main(onCap):
     else:
         p = None
     
-    if STATS_ENABLE and STATS_METHOD == 'FIELD':
+    if USE_STATS_FIELD:
         accum = boardocr.OCRStatus()
         lastLines = None
-        
+    
+    scoreFixer = ScoreFixer(SCORE_PATTERN)
+    
     while True:
         t = time.time()
         hwnd = getWindow()
@@ -170,14 +173,17 @@ def main(onCap):
                     result[key] = number
             
             # update our accumulator
-            if STATS_ENABLE and STATS_METHOD == 'FIELD':            
+            if USE_STATS_FIELD:            
                 if lastLines is None and result['lines'] == '000':
                     accum.reset()
-                accum.update(result['board_ocr'])
+                accum.update(result['board_ocr'], t)
                 del result['board_ocr']
                 result.update(accum.toDict())
                 lastLines = result['lines']
-                        
+            
+            #fix score's first digit. 8 to B and B to 8 depending on last state.
+            result['score'] = scoreFixer.fix(result['score'])
+            
             onCap(result) 
             
         if (time.time() - t > 0.016 and
