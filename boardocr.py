@@ -18,20 +18,23 @@ def isBlack(colour):
            colour[1] < limit and
            colour[2] < limit)
            
-last = None
-def parseImage(img):
-    global last
+
+def parseImage(img):   
     img = img.resize((4,2),PIL.Image.NEAREST)
     img = img.load()
     r = not isBlack(img[3,1])
     g = not isBlack(img[3,0])
     b = not isBlack(img[2,1])
     o = not isBlack(img[1,1])
-            
-    result = patternToPiece(r,g,b,o)
-    if (r or g or b or o):
-        if last != (r,g,b,o):
-            last = (r,g,b,o)
+    
+    k1 = isBlack(img[0,0])
+    k2 = isBlack(img[1,0])
+    k3 = isBlack(img[2,0])
+    k4 = isBlack(img[0,1])
+    
+    k = k1 and k2 and k3 and k4 #are all the other 4 tiles black?
+    
+    result = patternToPiece(r,g,b,o, k)
             
     return result
     
@@ -41,7 +44,7 @@ def parseImage(img):
 #..........
 # look at boardOCR doc.
 
-def patternToPiece(r,g,b,o):    
+def patternToPiece(r,g,b,o,k):    
     if g and not o and not b and not r:
         return Piece.I
     if not g and o and b and not r:
@@ -57,7 +60,7 @@ def patternToPiece(r,g,b,o):
     if not g and not o and b and r:
         return Piece.Z
         
-    if not g and not o and not b and not r:
+    if not g and not o and not b and not r and k:
         return Piece.EMPTY
     else:
         return Piece.UNKNOWN
@@ -101,10 +104,9 @@ class OCRStatus(object):
                 self.L += 1
             elif newPiece == Piece.I:
                 self.I += 1
-            
-            if newPiece != Piece.UNKNOWN:
-                print(newPiece)
-        self.lastPiece = newPiece
+        
+        if newPiece != Piece.UNKNOWN:
+            self.lastPiece = newPiece
     
     def toDict(self):
         return { 
