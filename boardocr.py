@@ -1,6 +1,6 @@
 import PIL
 from enum import Enum
-
+from threading import Lock
 class Piece(Enum):
     T = 0
     J = 1
@@ -35,7 +35,6 @@ def parseImage(img):
     k = k1 and k2 and k3 and k4 #are all the other 4 tiles black?
     
     result = patternToPiece(r,g,b,o, k)
-            
     return result
     
 #  pattern
@@ -66,13 +65,14 @@ def patternToPiece(r,g,b,o,k):
         return Piece.UNKNOWN
         
 
-
+#thread safe OCR status.
 class OCRStatus(object):
     #min time between two pieces
     #since ARE = 10 frames, we can safely set it to 10 * 1/60
     TIME_EPSILON = 0.160 #min time between two pieces
 
     def __init__(self):
+        self.lock = Lock()
         self.lastPieceTimeStamp = 0.0
         self.lastPiece = Piece.EMPTY
         self.T = 0
@@ -87,6 +87,7 @@ class OCRStatus(object):
         return timeStamp > self.lastPieceTimeStamp + self.TIME_EPSILON
         
     def reset(self):
+        self.lock.acquire()
         self.T = 0
         self.J = 0
         self.Z = 0
@@ -95,6 +96,7 @@ class OCRStatus(object):
         self.L = 0
         self.I = 0
         self.lastPiece = Piece.EMPTY
+        self.lock.release()
     
     def updatePiece(self, newPiece):
         if newPiece == Piece.T:
@@ -115,7 +117,12 @@ class OCRStatus(object):
     def update(self, newPiece, timeStamp):
         if newPiece == Piece.UNKNOWN:
             return
-
+        
+        self.lock.acquire()
+        if newPiece == self.lastPiece:
+            self.lock.release()
+            return
+             
         if (self.lastPiece == Piece.EMPTY and
                   newPiece != Piece.EMPTY and
                   self.meetsEpsilon(timeStamp)):
@@ -123,10 +130,12 @@ class OCRStatus(object):
                 self.lastPieceTimeStamp = timeStamp
 
         self.lastPiece = newPiece
+        self.lock.release()
 
     
     def toDict(self):
-        return { 
+        self.lock.acquire()
+        result = { 
                  "T": str(self.T).zfill(3),
                  "J": str(self.J).zfill(3),
                  "Z": str(self.Z).zfill(3),
@@ -134,6 +143,8 @@ class OCRStatus(object):
                  "S": str(self.S).zfill(3),
                  "L": str(self.L).zfill(3),
                  "I": str(self.I).zfill(3)
-               }
+                 }
+        self.lock.release()
+        return result
                
         

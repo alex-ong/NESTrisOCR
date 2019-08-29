@@ -1,25 +1,15 @@
-import platform
-
-if platform.system() == 'Darwin':
-    import QuartzCapture as WindowCapture
-    from QuartzWindowMgr import WindowMgr
-
-else:
-    import Win32UICapture as WindowCapture
-    from Win32WindowMgr import WindowMgr
-
 from PIL import Image, ImageDraw
 from fastocr import scoreImage
 from calibration import * #bad!
+from lib import * #bad!
+from ScoreFixer import ScoreFixer
+from CachedSender import CachedSender
 from multiprocessing import Pool
+import threading
 from Networking import TCPClient
 from textstats import generate_stats
-from lib import mult_rect, lerp, ScoreFixer
 import boardocr
-import json
 import time
-
-
 
 
 #patterns for digits. 
@@ -35,7 +25,7 @@ LINES_COORDS = mult_rect(CAPTURE_COORDS,linesPerc)
 LEVEL_COORDS = mult_rect(CAPTURE_COORDS,levelPerc)
 
 #piece stats and method. Recommend using FIELD
-STATS_ENABLE  = False
+STATS_ENABLE  = True
 STATS_COORDS  = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
 STATS2_COORDS = mult_rect(CAPTURE_COORDS, stats2Perc)
 STATS_METHOD  = 'FIELD' #can be TEXT or FIELD. 
@@ -46,36 +36,24 @@ CALIBRATION = True
 MULTI_THREAD = 1 #shouldn't need more than four if using FieldStats + score/lines/level
 
 #limit how fast we scan.
-RATE_FIELDSTATS = 0.008
+RATE_FIELDSTATS = 0.004
 RATE_TEXTONLY = 0.064
 
-if USE_STATS_FIELD:    
+if USE_STATS_FIELD and MULTI_THREAD == 1:    
     RATE = RATE_FIELDSTATS
 else:
     RATE = RATE_TEXTONLY
 
-def getWindow():
-    wm = WindowMgr()
-    windows = wm.getWindows()
-    for window in windows:
-        if window[1].startswith(WINDOW_NAME):
-            return window[0]
-    return None
 
-def screenPercToPixels(w,h,rect_xywh):
-    left = rect_xywh[0] * w
-    top = rect_xywh[1] * h
-    right = left + rect_xywh[2]*w
-    bot = top+ rect_xywh[3]*h
-    return (left,top,right,bot)
-    
 def highlight_calibration(img):    
     poly = Image.new('RGBA', (img.width,img.height))
     draw = ImageDraw.Draw(poly)
-    #score
+    
     red = (255,0,0,128)    
     blue = (0,0,255,128)       
     orange = (255,165,0,128)
+    
+    #score
     draw.rectangle(screenPercToPixels(img.width,img.height,scorePerc),fill=red)
     #lines
     draw.rectangle(screenPercToPixels(img.width,img.height,linesPerc),fill=red)
@@ -101,13 +79,12 @@ def highlight_calibration(img):
 def calibrate():
     hwnd = getWindow()
     if hwnd is None:
-        print ("Unable to find OBS window with title:",  WINDOW_NAME)
+        print ("Unable to find window with title:",  WINDOW_NAME)
         return
     
     img = WindowCapture.ImageCapture(CAPTURE_COORDS,hwnd)
     highlight_calibration(img)
     img.show()
-
     return
 
 def captureAndOCR(coords,hwnd,digitPattern,taskName,draw=False,red=False):
@@ -115,17 +92,27 @@ def captureAndOCR(coords,hwnd,digitPattern,taskName,draw=False,red=False):
     img = WindowCapture.ImageCapture(coords,hwnd)    
     return taskName, scoreImage(img,digitPattern,draw,red)
 
-#this is a stub. Don't use it!
 def captureAndOCRBoard(coords, hwnd):
     img = WindowCapture.ImageCapture(coords, hwnd)
     rgbo = boardocr.parseImage(img)    
     return ('board_ocr', rgbo)
 
-def runFunc(func, args):
-    return func(*args)
-    
-def main(onCap):
-    import time
+#run this as fast as possible    
+def statsFieldMulti(ocr_stats, pool):    
+    while True:
+        t = time.time()
+        hwnd = getWindow()
+        _, pieceType = pool.apply(captureAndOCRBoard, (STATS2_COORDS, hwnd))
+        ocr_stats.update(pieceType,t)
+        if (time.time() - t > 1/60.0):
+            print ("Warning, not scanning field fast enough")
+        
+        # only sleep once.
+        if time.time() < t + RATE_FIELDSTATS:
+            time.sleep(0.001)
+
+
+def main(onCap):    
     if CALIBRATION:
         calibrate()
         return
@@ -133,11 +120,14 @@ def main(onCap):
     if MULTI_THREAD >= 2:
         p = Pool(MULTI_THREAD)
     else:
-        p = None
-    
+        p = None      
+        
     if USE_STATS_FIELD:
         accum = boardocr.OCRStatus()
-        lastLines = None
+        lastLines = None #use to reset accumulator
+        if MULTI_THREAD >= 2: #run Field_OCR as fast as possible; unlock from mainthread.                     
+            thread = threading.Thread(target=statsFieldMulti,args=(accum,p))
+            thread.start()        
     
     scoreFixer = ScoreFixer(SCORE_PATTERN)
     
@@ -152,67 +142,39 @@ def main(onCap):
             rawTasks.append((captureAndOCR,(LEVEL_COORDS,hwnd,LEVEL_PATTERN,"level")))
             
             if STATS_ENABLE:
-                if STATS_METHOD == 'TEXT':
-                    for key in STATS_COORDS:
-                        rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,STATS_PATTERN,key,False,True)))
-                else: #if STATS_METHOD == 'FIELD'
+                if STATS_METHOD == 'TEXT':                
+                    rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,STATS_PATTERN,key,False,True)))
+                elif MULTI_THREAD == 1: #run FIELD_PIECE in main thread if necessary
                     rawTasks.append((captureAndOCRBoard, (STATS2_COORDS, hwnd)))
-                
-            result = {}
-            if p: #multithread
-                tasks = []
-                for task in rawTasks:
-                    tasks.append(p.apply_async(task[0],task[1]))                
-                taskResults = [res.get(timeout=1) for res in tasks]
-                for key, number in taskResults:
-                    result[key] = number
-                
-            else: #single thread                   
-                for task in rawTasks:
-                    key, number = runFunc(task[0],task[1])
-                    result[key] = number
+                    
+            # run all tasks (in separate threads if MULTI_THREAD is enabled)
+            result = runTasks(p, rawTasks)
+
+            #fix score's first digit. 8 to B and B to 8 depending on last state.
+            result['score'] = scoreFixer.fix(result['score'])
             
             # update our accumulator
             if USE_STATS_FIELD:            
                 if lastLines is None and result['lines'] == '000':
                     accum.reset()
-                accum.update(result['board_ocr'], t)
-                del result['board_ocr']
+                
+                if MULTI_THREAD == 1:
+                    accum.update(result['board_ocr'], t)                
+                    del result['board_ocr']
+
                 result.update(accum.toDict())
                 lastLines = result['lines']
             
-            #fix score's first digit. 8 to B and B to 8 depending on last state.
-            result['score'] = scoreFixer.fix(result['score'])
-            
+                # warning for USE_STATS_FIELD if necessary
+                if MULTI_THREAD == 1 and time.time() > t + 1/60.0:
+                    print ("Warning, not scanning field fast enough")
+                    
             onCap(result) 
-            
-        if (time.time() - t > 0.016 and
-            STATS_ENABLE and STATS_METHOD == 'FIELD'):
-            print("Warning, not meeting rate")
         
         while time.time() < t + RATE:
             time.sleep(0.001)
         
-class CachedSender(object):
-    def __init__(self, client):
-        self.client = client
-        self.lastMessage = None
-        self.lastSend = time.time()
-        
-    #convert message to jsonstr and then send if its new.
-    def sendResult(self, message):     
-        jsonMessage = json.dumps(message,indent=2)        
-        t = time.time()
-        if t - self.lastSend > 0.064 or (self.lastMessage != jsonMessage):            
-            print(message)
-            self.client.sendMessage(jsonMessage)
-            self.lastMessage = jsonMessage
-            self.lastSend = time.time()
 
-    
-def sendResult(client, message):    
-    jsonStr = json.dumps(message, indent=2)
-    client.sendMessage(jsonStr)
         
 if __name__ == '__main__':
     client = TCPClient.CreateClient('127.0.0.1',3338)

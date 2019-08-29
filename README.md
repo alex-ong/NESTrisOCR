@@ -3,9 +3,8 @@ NESTrisOCR
 Simple OCR, captures subset of OBS window, then processes relevant numbers.
 Forwards results via TCP.
 
-Look at fastocr.py to see image processing, in particular brightness adjustment for red numbers.
+Look at `fastocr.py` to see image processing of numbers, and `boardocr.py` for processing of board to piece.
 Algorithm is simple KNearest (compare image to reference images, sum of difference of pixels)
-
 
 
 Requirements
@@ -33,6 +32,8 @@ You can verify they are installed by running python from the command prompt and 
 `import PIL` 
 
 `import win32ui`
+
+`import numpy
 
 
 You shouldnt get any errors. Then, exit python
@@ -67,6 +68,7 @@ If you are not familiar with command prompt, [google it...](https://www.google.c
 
 You'll want to open a command prompt, change to the directory of this repository, then run this python file.
 
+
 Calibration
 ===
 ![calibration](https://github.com/alex-ong/NESTrisOCR/blob/master/assets/doc/example-calibration.png)
@@ -82,15 +84,9 @@ It will spit out an image. Run the program repeatedly, tweaking the `calibration
 Use the following to calibrate:
 * `CALIBRATION` - turns calibration on. Program runs the following test images then exits.
 
-* `CALIBRATE_WINDOW` - shows what you are capturing, overlaying the score,lines,level and stats
+* `CALIBRATE_WINDOW` - shows what you are capturing, overlaying the score,lines,level and stats. Make sure it's pixel perfect!
+We ideally want it to hug the numbers as tightly as possible!
 
-* `CALIBRATE_SCORE`  - shows captured image for score. Make sure it's pixel perfect!
-
-* `CALIBRATE_LINES` - shows captured image for lines. Make sure it's pixel perfect!
-
-* `CALIBRATE_LEVEL` - shows captured image for level. Make sure it's pixel perfect!
-
-* `CALIBRATE_STATS` - shows captured image for stats. Make sure it's pixel perfect!
 
 **calibration.py**
 
@@ -100,12 +96,16 @@ Use the following to calibrate:
 
 * `_____Perc` - shouldn't need to adjust, but can slightly adjust to get pixel perfect, which will increase accuracy.
 
+
 Testing
 ===
-Uncomment `#print(message)` near the bottom of the file, and see what is being outputted. It should print out
-the current lines, score, level.
+The window should print out your current state.
 
 `{'lines': '000', 'score', '000120', 'level', '00'}`
+
+If you have STATS_ENABLE:
+
+`{'score': '642572', 'lines': '147', 'level': '20', 'T': '004', 'J': '010', 'Z': '011', 'O': '005', 'S': '010', 'L': '008', 'I': '009'}`
 
 If you are in a menu, it will more likely output
 
