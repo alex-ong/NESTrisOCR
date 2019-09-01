@@ -12,8 +12,12 @@ else:
     from Win32WindowMgr import WindowMgr
     
 
-def getWindow():
+def getWindow(hwnd=None):
     wm = WindowMgr()
+
+    if hwnd:
+        return wm.getWindow(hwnd)
+
     windows = wm.getWindows()
     for window in windows:
         if window[1].startswith(WINDOW_NAME):

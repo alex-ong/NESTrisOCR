@@ -48,6 +48,9 @@ class WindowMgr:
                 return True
         return False
   
+    def getWindow(self, hwnd):
+        return hwnd if win32gui.IsWindow(hwnd) else None
+
     def getWindows(self):
         '''
         Return a list of tuples (handler, (width, height)) for each real window.

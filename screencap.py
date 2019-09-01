@@ -98,7 +98,7 @@ def captureAndOCRBoard(coords, hwnd):
     return ('board_ocr', rgbo)
 
 #run this as fast as possible    
-def statsFieldMulti(ocr_stats, pool):    
+def statsFieldMulti(ocr_stats, pool):
     while True:
         t = time.time()
         hwnd = getWindow()
@@ -125,17 +125,34 @@ def main(onCap):
     if USE_STATS_FIELD:
         accum = boardocr.OCRStatus()
         lastLines = None #use to reset accumulator
-        if MULTI_THREAD >= 2: #run Field_OCR as fast as possible; unlock from mainthread.                     
-            thread = threading.Thread(target=statsFieldMulti,args=(accum,p))
+        if MULTI_THREAD >= 2: #run Field_OCR as fast as possible; unlock from mainthread.
+            thread = threading.Thread(target=statsFieldMulti, args=(accum,p))
             thread.start()        
     
     scoreFixer = ScoreFixer(SCORE_PATTERN)
     
     while True:
-        t = time.time()
+        # outer loop waits for the window to exists
+        frame_start = time.time()
+        frame_end = frame_start + RATE
         hwnd = getWindow()
-        result = {}
-        if hwnd:       
+
+        if not hwnd:
+            while time.time() < frame_end:
+                time.sleep(0.001)
+            continue
+
+        while True:
+            # inner loop gets fresh data for just the desired window
+            frame_start  = time.time()
+            frame_end = frame_start + RATE
+
+            hwnd = getWindow(hwnd)
+
+            if not hwnd:
+                break
+
+            result = {}
             rawTasks = []
             rawTasks.append((captureAndOCR,(SCORE_COORDS,hwnd,SCORE_PATTERN,"score")))
             rawTasks.append((captureAndOCR,(LINES_COORDS,hwnd,LINES_PATTERN,"lines")))
@@ -154,25 +171,25 @@ def main(onCap):
             result['score'] = scoreFixer.fix(result['score'])
             
             # update our accumulator
-            if USE_STATS_FIELD:            
+            if USE_STATS_FIELD:
                 if lastLines is None and result['lines'] == '000':
                     accum.reset()
                 
                 if MULTI_THREAD == 1:
-                    accum.update(result['board_ocr'], t)                
+                    accum.update(result['board_ocr'], frame_start)
                     del result['board_ocr']
 
                 result.update(accum.toDict())
                 lastLines = result['lines']
             
                 # warning for USE_STATS_FIELD if necessary
-                if MULTI_THREAD == 1 and time.time() > t + 1/60.0:
+                if MULTI_THREAD == 1 and time.time() > frame_start + 1/60.0:
                     print ("Warning, not scanning field fast enough")
                     
-            onCap(result) 
+            onCap(result)
         
-        while time.time() < t + RATE:
-            time.sleep(0.001)
+            while time.time() < frame_end:
+                time.sleep(0.001)
         
 
         
