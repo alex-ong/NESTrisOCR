@@ -66,9 +66,9 @@ You shouldnt get any errors. Then, exit python
 
 Running
 ===
-`python screencap.py`
+`python main.py`
 
-Alternatively you can double-click screencap.py if you are on windows and have installed python correctly.
+Alternatively you can double-click main.py if you are on windows and have installed python correctly.
 
 If you are not familiar with command prompt, [google it...](https://www.google.com/search?q=how+to+change+directory+in+command+prompt)
 
@@ -79,13 +79,13 @@ Calibration
 ===
 ![calibration](https://github.com/alex-ong/NESTrisOCR/blob/master/assets/doc/example-calibration.png)
 
-All calibration is in `calibration.py` and `screencap.py`
+All calibration is in `calibration.py` and `main.py`
 
-You need to set screencap.py to calibration mode, run it, and see what image it spits out.
+You need to set main.py to calibration mode, run it, and see what image it spits out.
 I recommend just using `CALIBRATION = True` and `CALIBRATE_WINDOW = True`
 It will spit out an image. Run the program repeatedly, tweaking the `calibration.py` until it looks right
 
-**screencap.py**
+**main.py**
 
 Use the following to calibrate:
 * `CALIBRATION` - turns calibration on. Program runs the following test images then exits.
