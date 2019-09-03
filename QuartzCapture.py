@@ -13,14 +13,17 @@ class QuartzCapture(object):
     def __init__(self):
         pass
     
-    def ImageCapture(self, rectangle, window):
+    def ImageCapture(self, rectangle, hwnd):
         x, y, w, h = rectangle
 
-        if w <= 0 or h <= 0 or not window or not window['ID']:
+        if w <= 0 or h <= 0 or not hwnd:
             return None
 
-        offsetX = window['x'] or 0
-        offsetY = window['y'] or 0
+        win = Quartz.CGWindowListCreateDescriptionFromArray([hwnd])[0]
+        coordinates = win.valueForKey_('kCGWindowBounds')
+
+        offsetX = coordinates.valueForKey_('X')
+        offsetY = coordinates.valueForKey_('Y')
 
         # can raise, correct later
         cgimg = Quartz.CGWindowListCreateImage(
@@ -29,8 +32,8 @@ class QuartzCapture(object):
                 Quartz.CGSize(w, h)
             ),
             Quartz.kCGWindowListOptionIncludingWindow | Quartz.kCGWindowListExcludeDesktopElements,
-            window['ID'],
-            0
+            hwnd,
+            Quartz.kCGWindowImageNominalResolution
         )
 
         width = Quartz.CGImageGetWidth(cgimg)
