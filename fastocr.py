@@ -19,6 +19,7 @@ IMAGE_SIZE = 7
 BLOCK_SIZE = IMAGE_SIZE+1
 IMAGE_MULT = 2
 GAP = (BLOCK_SIZE - IMAGE_SIZE) * IMAGE_MULT
+SCALED_IMAGE_SIZE = IMAGE_SIZE * IMAGE_MULT
 
 def setupColour(prefix, outputDict, digitList):
     #setup white digits
@@ -30,12 +31,12 @@ def setupColour(prefix, outputDict, digitList):
         
         img = img.convert('L')
         if IMAGE_MULT != 1:
-            img = img.resize((IMAGE_SIZE*IMAGE_MULT,
-                              IMAGE_SIZE*IMAGE_MULT),PIL.Image.ANTIALIAS)
+            img = img.resize((SCALED_IMAGE_SIZE,
+                              SCALED_IMAGE_SIZE),PIL.Image.ANTIALIAS)
         if NP_SUPPORTED:
             img = img.getdata()
             img = np.asarray(img)
-            img = np.reshape(img, (IMAGE_SIZE * IMAGE_MULT, IMAGE_SIZE*IMAGE_MULT))
+            img = np.reshape(img, (SCALED_IMAGE_SIZE, SCALED_IMAGE_SIZE))
         else:
             img = img.load()
 
@@ -53,7 +54,7 @@ def getDigit(img, pattern, startX, startY, red):
     if NP_SUPPORTED:
         scores = {}
         #img in y, x format
-        subImage = img[:,startX:startX + 14]
+        subImage = img[:,startX:startX + SCALED_IMAGE_SIZE]
 
         for digit in validDigits:
             diff = np.subtract(subImage, template[digit])
@@ -62,10 +63,9 @@ def getDigit(img, pattern, startX, startY, red):
 
     else:
         scores = {digit:0 for digit in validDigits}
-        MAX = IMAGE_SIZE * IMAGE_MULT
 
-        for y in range(MAX):
-            for x in range(MAX):
+        for y in range(SCALED_IMAGE_SIZE):
+            for x in range(SCALED_IMAGE_SIZE):
                 b = img[startX + x, startY + y]
 
                 for digit in digits:
@@ -97,7 +97,7 @@ def convertImg(img, count, show):
     t = time.time()
     img = contrastImg(img)        
     img = img.resize((((BLOCK_SIZE)*count-1)*IMAGE_MULT,
-                        IMAGE_SIZE*IMAGE_MULT),PIL.Image.ANTIALIAS)
+                        SCALED_IMAGE_SIZE),PIL.Image.ANTIALIAS)
     
     if show:
         img.show()
@@ -106,7 +106,7 @@ def convertImg(img, count, show):
         img = img.getdata()
         img = np.asarray(img)
         #img is in y,x format
-        img = np.reshape(img,(IMAGE_SIZE*IMAGE_MULT,-1))
+        img = np.reshape(img,(SCALED_IMAGE_SIZE,-1))
     else:
         img = img.load()
     
