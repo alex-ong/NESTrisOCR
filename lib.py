@@ -11,12 +11,13 @@ else:
     import Win32UICapture as WindowCapture
     from Win32WindowMgr import WindowMgr
     
-
-def getWindow(hwnd=None):
+def checkWindow(hwnd):
     wm = WindowMgr()
-
-    if hwnd:
-        return wm.getWindow(hwnd)
+    #check for hwnd passed in as none too.
+    return wm.checkWindow(hwnd) if hwnd else None
+    
+def getWindow():
+    wm = WindowMgr()
 
     windows = wm.getWindows()
     for window in windows:

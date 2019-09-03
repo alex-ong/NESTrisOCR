@@ -142,15 +142,10 @@ def main(onCap):
                 time.sleep(0.001)
             continue
 
-        while True:
+        while checkWindow(hwnd):
             # inner loop gets fresh data for just the desired window
             frame_start  = time.time()
             frame_end = frame_start + RATE
-
-            hwnd = getWindow(hwnd)
-
-            if not hwnd:
-                break
 
             result = {}
             rawTasks = []

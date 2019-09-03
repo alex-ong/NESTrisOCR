@@ -48,7 +48,8 @@ class WindowMgr:
                 return True
         return False
   
-    def getWindow(self, hwnd):
+    def checkWindow(self, hwnd):
+        '''checks if a window still exists'''
         return hwnd if win32gui.IsWindow(hwnd) else None
 
     def getWindows(self):

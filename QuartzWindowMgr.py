@@ -17,7 +17,10 @@ class WindowMgr:
     def __init__ (self):
         pass
   
-    def getWindow(self, win_info):
+    def checkWindow(self, win_info):
+        '''
+        Checks if a window still exists
+        '''
         try:
             win = Quartz.CGWindowListCreateDescriptionFromArray([win_info['ID']])[0]
             return getWindowInfo(win)
