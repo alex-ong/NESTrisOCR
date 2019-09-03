@@ -33,7 +33,7 @@ You can verify they are installed by running python from the command prompt and 
 
 `import win32ui`
 
-`import numpy
+`import numpy`
 
 
 You shouldnt get any errors. Then, exit python
@@ -45,17 +45,23 @@ OSX
 
 You need to have python3 and the pyobjc binding to access the Quartz APIs
 
-At the comment line, run:
+At the command line, run:
 
 `brew install python3 libtiff libjpeg webp little-cms2`
 
-`pip3 install -U pyobjc pillow`
+`pip3 install -U pyobjc pillow numpy`
 
 You can verify the installation is correct by checking this:
 
+`import PIL`
+
 `import Quartz`
 
-`import PIL`
+`import numpy`
+
+
+You shouldnt get any errors. Then, exit python
+`exit()`
 
 
 Running
