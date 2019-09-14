@@ -23,9 +23,7 @@ def auto_calibrate(img):
     matches = bf.match(des1, des2)
 
     # Sort them in the order of their distance.
-    matches = sorted(matches, key=lambda x: x.distance)
-
-    good_matches = matches
+    good_matches = sorted(matches, key=lambda x: x.distance)
 
     src_pts = np.float32([kp1[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)
     dst_pts = np.float32([kp2[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)
