@@ -41,6 +41,7 @@ def pts_to_params(pts):
     left, top, bottom, right = pts_to_rect(pts)
     return int(left), int(top), int(right - left), int(bottom - top)
 
+
 def pts_to_rect(pts):
     top = pts[0][0][1]
     left = pts[0][0][0]
