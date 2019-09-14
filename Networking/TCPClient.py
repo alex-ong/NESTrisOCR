@@ -27,7 +27,7 @@ class ThreadedClient(StoppableThread.StoppableThread):
         self.target = target
         self.port = port
         self.messageQueue = queue.Queue()
-        super().__init__(*args)    
+        super(ThreadedClient, self).__init__(*args)
         
     def sendMessage(self, message):        
         self.messageQueue.put(message)

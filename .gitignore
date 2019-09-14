@@ -1,2 +1,6 @@
 /__pycache__/
 /Networking/__pycache__/
+__pycache__/
+*.py[cod]
+*$py.class
+.idea/

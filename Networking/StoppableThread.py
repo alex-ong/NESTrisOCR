@@ -5,7 +5,7 @@ class StoppableThread(threading.Thread):
     regularly for the stopped() condition."""
 
     def __init__(self):        
-        super().__init__()
+        super(StoppableThread, self).__init__()
         self._mystopEvent = threading.Event()        
 
     def stop(self):

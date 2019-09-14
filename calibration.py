@@ -1,6 +1,6 @@
 
 WINDOW_NAME = "OBS"    
-CAPTURE_COORDS = (27,100,611,505)
+CAPTURE_COORDS = (0,0,1500,600)
 scorePerc = (0.754,0.249,0.188,0.033)
 linesPerc = (0.596,0.069,0.092,0.033)
 levelPerc = (0.818,0.714,0.060,0.032)

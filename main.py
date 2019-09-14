@@ -10,6 +10,7 @@ from Networking import TCPClient
 from textstats import generate_stats
 import boardocr
 import time
+from auto_calibrate import auto_calibrate
 
 
 #patterns for digits. 
@@ -28,7 +29,7 @@ LEVEL_COORDS = mult_rect(CAPTURE_COORDS,levelPerc)
 STATS_ENABLE  = True
 STATS_COORDS  = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
 STATS2_COORDS = mult_rect(CAPTURE_COORDS, stats2Perc)
-STATS_METHOD  = 'FIELD' #can be TEXT or FIELD. 
+STATS_METHOD  = 'TEXT' #can be TEXT or FIELD.
 
 USE_STATS_FIELD = (STATS_ENABLE and STATS_METHOD == 'FIELD')
 
@@ -75,6 +76,7 @@ def highlight_calibration(img):
         
     img.paste(poly,mask=poly)    
     del draw
+
     
 def calibrate():
     hwnd = getWindow()
@@ -83,8 +85,10 @@ def calibrate():
         return
     
     img = WindowCapture.ImageCapture(CAPTURE_COORDS,hwnd)
-    highlight_calibration(img)
-    img.show()
+    coords = auto_calibrate(img)
+    new_img = WindowCapture.ImageCapture(coords,hwnd)
+    highlight_calibration(new_img)
+    new_img.show()
     return
 
 def captureAndOCR(coords,hwnd,digitPattern,taskName,draw=False,red=False):
