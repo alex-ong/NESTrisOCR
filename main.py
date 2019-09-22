@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw
 from fastocr import scoreImage
-from calibration import * #bad!
+from config import config
 from lib import * #bad!
 from ScoreFixer import ScoreFixer
 from CachedSender import CachedSender
@@ -20,14 +20,14 @@ LINES_PATTERN = 'DDD'
 LEVEL_PATTERN = 'AA'
 STATS_PATTERN = 'DDD'
 
-SCORE_COORDS = mult_rect(CAPTURE_COORDS,scorePerc)
-LINES_COORDS = mult_rect(CAPTURE_COORDS,linesPerc)
-LEVEL_COORDS = mult_rect(CAPTURE_COORDS,levelPerc)
+SCORE_COORDS = mult_rect(config.CAPTURE_COORDS,config.scorePerc)
+LINES_COORDS = mult_rect(config.CAPTURE_COORDS,config.linesPerc)
+LEVEL_COORDS = mult_rect(config.CAPTURE_COORDS,config.levelPerc)
 
 #piece stats and method. Recommend using FIELD
 STATS_ENABLE  = True
-STATS_COORDS  = generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3])
-STATS2_COORDS = mult_rect(CAPTURE_COORDS, stats2Perc)
+STATS_COORDS  = generate_stats(config.CAPTURE_COORDS,config.statsPerc,config.scorePerc[3])
+STATS2_COORDS = mult_rect(config.CAPTURE_COORDS, config.stats2Perc)
 STATS_METHOD  = 'FIELD' #can be TEXT or FIELD. 
 
 USE_STATS_FIELD = (STATS_ENABLE and STATS_METHOD == 'FIELD')

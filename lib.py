@@ -1,6 +1,6 @@
 import time
 import json
-from calibration import WINDOW_NAME
+from config import config
 import platform
 
 if platform.system() == 'Darwin':
@@ -21,7 +21,7 @@ def getWindow():
 
     windows = wm.getWindows()
     for window in windows:
-        if window[1].startswith(WINDOW_NAME):
+        if window[1].startswith(config.WINDOW_NAME):
             return window[0]
     return None
     
