@@ -127,16 +127,19 @@ def scoreImage(img, digitPattern, show=False, red=False):
 
 setupData()
     
-if __name__ == '__main__':
+def testFastOCR():
     setupData()
     import time
     
     t = time.time()
-    for i in range(1):
-        img = Image.open("test/"+"{:06d}".format(i*100)+".png")
-        
-        
-    print ("total time:", str(time.time() - t))
-    print ("rescale time:", str(time.time() - t2))
-    print ("AI time:", str(t2-t))
     
+    img = Image.open("assets/test/score.png")
+    for i in range(10000):
+        scoreImage(img,'ADDDDD')
+        
+    result = time.time() - t
+    print ("10000 iterations took:" + str(result) + " seconds")
+    
+    
+if __name__ == '__main__':
+    testFastOCR()
