@@ -15,7 +15,7 @@ import time
 #patterns for digits. 
 #A = 0->9 + A->F, 
 #D = 0->9
-SCORE_PATTERN = 'ADDDDD' #change to DDDDDD if you don't have A-F enabled.
+SCORE_PATTERN = 'ADDDDD' if config.hexSupport else 'DDDDDD'
 LINES_PATTERN = 'DDD'
 LEVEL_PATTERN = 'AA'
 STATS_PATTERN = 'DDD'
@@ -32,8 +32,8 @@ STATS_METHOD  = 'FIELD' #can be TEXT or FIELD.
 
 USE_STATS_FIELD = (STATS_ENABLE and STATS_METHOD == 'FIELD')
 
-CALIBRATION = True
-MULTI_THREAD = 1 #shouldn't need more than four if using FieldStats + score/lines/level
+CALIBRATION = config.calibrate
+MULTI_THREAD = config.threads #shouldn't need more than four if using FieldStats + score/lines/level
 
 #limit how fast we scan.
 RATE_FIELDSTATS = 0.004
@@ -53,6 +53,7 @@ def highlight_calibration(img):
     blue = (0,0,255,128)       
     orange = (255,165,0,128)
     
+    scorePerc, linesPerc, levelPerc = (config.scorePerc, config.linesPerc, config.levelPerc)
     #score
     draw.rectangle(screenPercToPixels(img.width,img.height,scorePerc),fill=red)
     #lines
@@ -62,9 +63,10 @@ def highlight_calibration(img):
     if STATS_METHOD == 'TEXT':
         #pieces
         draw.rectangle(screenPercToPixels(img.width,img.height,statsPerc),fill=blue)
-        for value in generate_stats(CAPTURE_COORDS,statsPerc,scorePerc[3],False).values():
+        for value in generate_stats(config.CAPTURE_COORDS,statsPerc,scorePerc[3],False).values():
             draw.rectangle(screenPercToPixels(img.width,img.height,value),fill=orange)
     else: #STATS_METHOD == 'FIELD':        
+        stats2Perc = config.stats2Perc
         draw.rectangle(screenPercToPixels(img.width,img.height,stats2Perc),fill=blue)
         for x in range (4):
             for y in range(2):                
@@ -82,7 +84,7 @@ def calibrate():
         print ("Unable to find window with title:",  WINDOW_NAME)
         return
     
-    img = WindowCapture.ImageCapture(CAPTURE_COORDS,hwnd)
+    img = WindowCapture.ImageCapture(config.CAPTURE_COORDS,hwnd)
     highlight_calibration(img)
     img.show()
     return
@@ -113,23 +115,24 @@ def statsFieldMulti(ocr_stats, pool):
 
 
 def main(onCap):    
+
     if CALIBRATION:
         calibrate()
         return
     
     if MULTI_THREAD >= 2:
-        p = Pool(MULTI_THREAD)
-    else:
-        p = None      
+        p = Pool(MULTI_THREAD)    
         
     if USE_STATS_FIELD:
         accum = boardocr.OCRStatus()
         lastLines = None #use to reset accumulator
         if MULTI_THREAD >= 2: #run Field_OCR as fast as possible; unlock from mainthread.
             thread = threading.Thread(target=statsFieldMulti, args=(accum,p))
+            thread.daemon = True
             thread.start()        
     
     scoreFixer = ScoreFixer(SCORE_PATTERN)
+    
     
     while True:
         # outer loop waits for the window to exists
@@ -191,7 +194,11 @@ def main(onCap):
 if __name__ == '__main__':
     client = TCPClient.CreateClient('127.0.0.1',3338)
     cachedSender = CachedSender(client)
-    main(cachedSender.sendResult)
-    
+    try:
+        main(cachedSender.sendResult)
+    except KeyboardInterrupt:
+        pass
+    client.stop()
+    client.join()
 
         
