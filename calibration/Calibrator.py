@@ -3,8 +3,9 @@ from PIL import Image, ImageDraw
 from lib import *
 from OCRAlgo.PieceStatsTextOCR import generate_stats
 from calibration.StringChooser import StringChooser
-from calibration.RectChooser import RectChooser
+from calibration.RectChooser import RectChooser, CompactRectChooser
 from calibration.ImageCanvas import ImageCanvas
+from calibration.draw_calibration import draw_calibration
 
 class Calibrator(tk.Frame):
             
@@ -19,26 +20,56 @@ class Calibrator(tk.Frame):
         self.root = root
         self.destroying = False    
         root.config(background="black")
-        StringChooser(self,"capture window starts with:", config.WINDOW_NAME, config.setWindowName, 20).grid(sticky='nsew')
-        StringChooser(self,"player name",config.player_name, config.setPlayerName,25).grid(sticky='nsew')
+        StringChooser(self,"capture window starts with:", config.WINDOW_NAME, config.setWindowName, 20).grid(row=0,sticky='nsew')
+        StringChooser(self,"player name",config.player_name, config.setPlayerName,25).grid(row=1,sticky='nsew')
         #StringChooser(self,"multi_thread",config.multi_thread, config.set,25).grid(sticky='nsew')
         #StringChooser(self,"player name",config.player_name, config.setPlayerName,25).grid(sticky='nsew')
         
         # window coords
         r = RectChooser(self,"capture window coords (pixels)", config.CAPTURE_COORDS,False, self.updateWindowCoords)
         r.config(relief=tk.FLAT,bd=5,background='orange')
-        r.grid()
+        r.grid(row=2)
         
-        self.boardImage = ImageCanvas(self)
+        self.boardImage = ImageCanvas(self,512,480)
         self.boardImage.config(relief=tk.FLAT,bd=5,background='orange')
-        self.boardImage.grid()
-        self.boardImage.SetImageSource(lambda: draw_calibration(self.config))
-        self.boardImage.update()
-    
+        self.boardImage.grid(row=3, rowspan=10)        
+        
+        CompactRectChooser(self,"lines (imagePerc)",config.linesPerc,True,self.updateLinesPerc).grid(row=3,column=1)
+        self.linesImage = ImageCanvas(self,100,100)        
+        self.linesImage.grid(row=4,column=1)
+        
+        
+        #self.scoreImage = ImageCanvas(self,(7*6+5)*2,14)
+        #self.scoreImage.config(relief=tk.FLAT,bd=1)
+        #self.scoreImage.grid(row=5,column=1)
+
+        #self.levelImage = ImageCanvas(self,(7*2+1)*2,14)
+        #self.levelImage.config(relief=tk.FLAT,bd=1)
+        #self.levelImage.grid(row=5,column=1)
+
+        self.redrawImages()
+
+    def updateLinesPerc(self, result):
+        x,y,w,h = result
+        self.config.setLinesPerc(result)
+        self.redrawImages()
+
     def updateWindowCoords(self, result):
         x,y,w,h = result
         self.config.setGameCoords(result)
-        self.boardImage.update()
+        self.redrawImages()
+
+    def redrawImages(self):
+        board = self.getNewBoardImage()
+        dim = board.width, board.height        
+        
+        lines_img = board.crop(pixelPercRect(dim, self.config.linesPerc))        
+        lines_img = lines_img.resize(pixelSize(3,4),Image.ANTIALIAS)
+        self.boardImage.updateImage(board)
+        self.linesImage.updateImage(lines_img)
+    
+    def getNewBoardImage(self):
+        return draw_calibration(self.config)
 
     def update(self):        
         if not self.destroying:
@@ -48,51 +79,14 @@ class Calibrator(tk.Frame):
         self.destroying = True
         self.root.destroy()
         
-
-
-def highlight_calibration(img, c):    
-    poly = Image.new('RGBA', (img.width,img.height))
-    draw = ImageDraw.Draw(poly)
-    
-    red = (255,0,0,128)    
-    blue = (0,0,255,128)       
-    orange = (255,165,0,128)
-    
-    scorePerc, linesPerc, levelPerc = (c.scorePerc, c.linesPerc, c.levelPerc)
-    #score
-    draw.rectangle(screenPercToPixels(img.width,img.height,scorePerc),fill=red)
-    #lines
-    draw.rectangle(screenPercToPixels(img.width,img.height,linesPerc),fill=red)
-    #level
-    draw.rectangle(screenPercToPixels(img.width,img.height,levelPerc),fill=red)    
-    if c.capture_stats:
-        if c.stats_method == 'TEXT':
-            #pieces
-            draw.rectangle(screenPercToPixels(img.width,img.height,c.statsPerc),fill=blue)
-            for value in generate_stats(c.CAPTURE_COORDS,c.statsPerc,c.scorePerc[3],False).values():
-                draw.rectangle(screenPercToPixels(img.width,img.height,value),fill=orange)
-        else: #c.stats_method == 'FIELD':
-            stats2Perc = c.stats2Perc
-            draw.rectangle(screenPercToPixels(img.width,img.height,stats2Perc),fill=blue)
-            for x in range(4):
-                for y in range(2):                
-                    blockPercX = lerp(stats2Perc[0], stats2Perc[0] + stats2Perc[2], x / 4.0 + 1 / 8.0)
-                    blockPercY = lerp(stats2Perc[1], stats2Perc[1] + stats2Perc[3], y / 2.0 + 1 / 4.0)
-                    rect = (blockPercX - 0.01, blockPercY - 0.01, 0.02, 0.02)
-                    draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill=red)
-        
-        img.paste(poly,mask=poly)    
-    del draw
-
-#todo, return image or array of images with cropped out sections.    
-def draw_calibration(config):
-    hwnd = getWindow()
-    if hwnd is None:
-        print("Unable to find window with title:",  config.WINDOW_NAME)
-        return None
-    
-    img = WindowCapture.ImageCapture(config.CAPTURE_COORDS, hwnd)
-    highlight_calibration(img, config)   
-    img.thumbnail((512,480),Image.NEAREST)
-    return img
-    
+def pixelSize(numDigits, upscale):
+    return ((7 * numDigits + numDigits-1) * upscale, 
+             7 * upscale)
+#sources: PixelDimensions (w,h), RectPerc(x,y,w,h)
+#out: RectPixel(x,y,x2,y2)
+def pixelPercRect(dim,rectPerc):
+    x1 = round(dim[0] * rectPerc[0])
+    y1 = round(dim[1] * rectPerc[1])
+    x2 = round(x1 + dim[0]*rectPerc[2])
+    y2 = round(y1 + dim[1]*rectPerc[3])
+    return (x1,y1,x2,y2)

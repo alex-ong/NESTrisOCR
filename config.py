@@ -23,11 +23,11 @@ class Configuration:
         #calibration
         self.WINDOW_NAME = parser['calibration']['window_name']
         self.CAPTURE_COORDS = literal_eval(parser['calibration']['game_coords'])        
-        self.scorePerc = literal_eval(parser['calibration']['scorePerc'])
-        self.linesPerc = literal_eval(parser['calibration']['linesPerc'])
-        self.levelPerc = literal_eval(parser['calibration']['levelPerc'])
-        self.statsPerc  = literal_eval(parser['calibration']['statsPerc'])
-        self.stats2Perc = literal_eval(parser['calibration']['stats2Perc'])
+        self.scorePerc = literal_eval(parser['calibration']['scoreperc'])
+        self.linesPerc = literal_eval(parser['calibration']['linesperc'])
+        self.levelPerc = literal_eval(parser['calibration']['levelperc'])
+        self.statsPerc  = literal_eval(parser['calibration']['statsperc'])
+        self.stats2Perc = literal_eval(parser['calibration']['stats2perc'])
         #network
         self.host = parser['network']['host']
         self.port = literal_eval(parser['network']['port'])
@@ -65,19 +65,19 @@ class Configuration:
         self.setItem('calibration','game_coords', val)    
         
     def setScorePerc(self, val):
-        self.setItem('calibration','scorePerc', val)    
+        self.setItem('calibration','scoreperc', val)    
         
     def setLinesPerc(self, val):
-        self.setItem('calibration','linesPerc', val)    
+        self.setItem('calibration','linesperc', val)    
     
     def setLevelPerc(self, val):
-        self.setItem('calibration','levelPerc', val)    
+        self.setItem('calibration','levelperc', val)    
     
     def setStatsPerc(self, val):
-        self.setItem('calibration','statsPerc', val)    
+        self.setItem('calibration','statsperc', val)    
     
     def setStats2Perc(self, val):
-        self.setItem('calibration','stats2Perc', val)    
+        self.setItem('calibration','stats2perc', val)    
     
     def setHost(self, val):
         self.setItem('network','host', val)    

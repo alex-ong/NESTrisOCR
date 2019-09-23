@@ -4,17 +4,13 @@ from PIL import ImageTk
 
 class ImageCanvas(tk.Canvas):
 
-    def __init__(self, root):
-        super().__init__(root, width=512, height=480)        
+    def __init__(self, root, width, height):
+        super().__init__(root, width=width, height=height)        
         self._getImg = None
         self._img = None
         
         self.ph = None        
-
-    def update(self):
-        if self._getImg is not None: 
-            self.updateImage(self._getImg())
-            
+        
     def updateImage(self, image):        
         if image is not None:            
             self.ph = ImageTk.PhotoImage(image)
@@ -26,5 +22,3 @@ class ImageCanvas(tk.Canvas):
             else:    
                 self._img = self.itemconfig(self._img, image=self.ph)                        
         
-    def SetImageSource(self, callback):
-        self._getImg = callback
