@@ -3,6 +3,8 @@ from PIL import Image, ImageDraw
 from lib import *
 from OCRAlgo.PieceStatsTextOCR import generate_stats
 from calibration.StringChooser import StringChooser
+from calibration.RectChooser import RectChooser
+from calibration.ImageCanvas import ImageCanvas
 
 class Calibrator(tk.Frame):
             
@@ -16,9 +18,28 @@ class Calibrator(tk.Frame):
         self.pack()
         self.root = root
         self.destroying = False    
-
-        StringChooser(self,"player name",config.player_name, config.setPlayerName,25).grid()
+        root.config(background="black")
+        StringChooser(self,"capture window starts with:", config.WINDOW_NAME, config.setWindowName, 20).grid(sticky='nsew')
+        StringChooser(self,"player name",config.player_name, config.setPlayerName,25).grid(sticky='nsew')
+        #StringChooser(self,"multi_thread",config.multi_thread, config.set,25).grid(sticky='nsew')
+        #StringChooser(self,"player name",config.player_name, config.setPlayerName,25).grid(sticky='nsew')
         
+        # window coords
+        r = RectChooser(self,"capture window coords (pixels)", config.CAPTURE_COORDS,False, self.updateWindowCoords)
+        r.config(relief=tk.FLAT,bd=5,background='orange')
+        r.grid()
+        
+        self.boardImage = ImageCanvas(self)
+        self.boardImage.config(relief=tk.FLAT,bd=5,background='orange')
+        self.boardImage.grid()
+        self.boardImage.SetImageSource(lambda: draw_calibration(self.config))
+        self.boardImage.update()
+    
+    def updateWindowCoords(self, result):
+        x,y,w,h = result
+        self.config.setGameCoords(result)
+        self.boardImage.update()
+
     def update(self):        
         if not self.destroying:
             super().update()
@@ -68,9 +89,10 @@ def draw_calibration(config):
     hwnd = getWindow()
     if hwnd is None:
         print("Unable to find window with title:",  config.WINDOW_NAME)
-        return
+        return None
     
     img = WindowCapture.ImageCapture(config.CAPTURE_COORDS, hwnd)
-    highlight_calibration(img, config)    
+    highlight_calibration(img, config)   
+    img.thumbnail((512,480),Image.NEAREST)
     return img
     

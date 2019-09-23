@@ -7,8 +7,8 @@ class StringChooser(tk.Frame):
         self.maxLength = maxLength
         self.value.trace("w", lambda name, index, mode: self.changeValueText())
         self.OnChange = OnChange
-        tk.Label(self,text=name).grid(row=0,columnspan=4)
-        tk.Entry(self,textvariable=self.value).grid(row=1,columnspan=4)
+        tk.Label(self,text=name).pack(side=tk.LEFT)
+        tk.Entry(self,textvariable=self.value).pack(side=tk.RIGHT)
 
     def changeValueText(self):
         success = len(self.value.get()) < self.maxLength
