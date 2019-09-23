@@ -1,2 +1,4 @@
 /__pycache__/
 /Networking/__pycache__/
+/.vs
+*__pycache__/

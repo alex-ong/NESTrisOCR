@@ -79,22 +79,14 @@ Calibration
 ===
 ![calibration](https://github.com/alex-ong/NESTrisOCR/blob/master/assets/doc/example-calibration.png)
 
-All calibration is in `calibration.py` and `main.py`
+All calibration is in `calibrate.py` and `config.ini`
 
-You need to set main.py to calibration mode, run it, and see what image it spits out.
-I recommend just using `CALIBRATION = True` and `CALIBRATE_WINDOW = True`
-It will spit out an image. Run the program repeatedly, tweaking the `calibration.py` until it looks right
+You need to set simply run `calibrate.py` and see what image it spits out.
 
-**main.py**
-
-Use the following to calibrate:
-* `CALIBRATION` - turns calibration on. Program runs the following test images then exits.
-
-* `CALIBRATE_WINDOW` - shows what you are capturing, overlaying the score,lines,level and stats. Make sure it's pixel perfect!
-We ideally want it to hug the numbers as tightly as possible!
+It will spit out an image. Run the program repeatedly, tweaking the `config.ini` until it looks right
 
 
-**calibration.py**
+**config.ini**
 
 * `WINDOW_NAME` - the obs window name. it must start with these characters.
 

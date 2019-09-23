@@ -6,14 +6,16 @@ class Configuration:
         self._parser = parser        
         #player
         self.player_name = parser['player']['name']
-        self.twitch_url = parser['player']['twitch']
+        self.twitch_url = parser['player']['twitch']        
         #performance        
         self.threads = literal_eval(parser['performance']['multi_thread'])
-        self.hexSupport = parser['performance'].getboolean('support_hex_score')
+        self.hexSupport = parser['performance'].getboolean('support_hex_score') 
+        #stats
+        self.capture_stats = parser['stats'].getboolean('read_stats')
+        self.stats_method = parser['stats']['stats_method'].upper()
         #calibration
-        self.calibrate = parser['calibration'].getboolean('calibration_mode')
         self.WINDOW_NAME = parser['calibration']['window_name']
-        self.CAPTURE_COORDS = literal_eval(parser['calibration']['game_coords'])
+        self.CAPTURE_COORDS = literal_eval(parser['calibration']['game_coords'])        
         self.scorePerc = literal_eval(parser['calibration']['scorePerc'])
         self.linesPerc = literal_eval(parser['calibration']['linesPerc'])
         self.levelPerc = literal_eval(parser['calibration']['levelPerc'])
