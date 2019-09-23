@@ -18,15 +18,10 @@ You need a working python installation to get everything running.
 
 When installing, make sure you `add to path` - this lets you run python from command prompt from any folder.
 
-Next, [open a command window](https://www.google.com/search?q=how+to+open+a+command+prompt+windows). type in the following commands to install some modules required for this program
-
-`pip install pillow`
-
-`pip install pypiwin32`
-
-`pip install numpy`
+Double click `install-requirements.bat`. This will install all the other libraries required.
 
 You can verify they are installed by running python from the command prompt and then importing the modules
+
 `python`
 
 `import PIL` 
@@ -34,6 +29,8 @@ You can verify they are installed by running python from the command prompt and 
 `import win32ui`
 
 `import numpy`
+
+`import ConfigUpdater`
 
 
 You shouldnt get any errors. Then, exit python

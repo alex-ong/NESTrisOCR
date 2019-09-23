@@ -1,0 +1,4 @@
+numpy
+pillow
+pypiwin32
+ConfigUpdater
