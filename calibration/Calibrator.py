@@ -6,6 +6,7 @@ from calibration.StringChooser import StringChooser
 from calibration.RectChooser import RectChooser, CompactRectChooser
 from calibration.ImageCanvas import ImageCanvas
 from calibration.draw_calibration import draw_calibration
+from calibration.OtherOptions import create_window
 
 UPSCALE=4
 class Calibrator(tk.Frame):
@@ -23,8 +24,7 @@ class Calibrator(tk.Frame):
         root.config(background="black")
         StringChooser(self,"capture window starts with:", config.WINDOW_NAME, config.setWindowName, 20).grid(row=0,sticky='nsew')
         StringChooser(self,"player name",config.player_name, config.setPlayerName,25).grid(row=1,sticky='nsew')
-        #StringChooser(self,"multi_thread",config.multi_thread, config.set,25).grid(sticky='nsew')
-        #StringChooser(self,"player name",config.player_name, config.setPlayerName,25).grid(sticky='nsew')
+        tk.Button(self,text="Other options", command=lambda: create_window(root, self.config)).grid(row=0,column=1)
         
         # window coords
         r = RectChooser(self,"capture window coords (pixels)", config.CAPTURE_COORDS,False, self.updateWindowCoords)
