@@ -1,6 +1,8 @@
 ﻿import tkinter as tk
 from PIL import Image, ImageDraw
 from lib import *
+from OCRAlgo.PieceStatsTextOCR import generate_stats
+from calibration.StringChooser import StringChooser
 
 class Calibrator(tk.Frame):
             
@@ -14,20 +16,20 @@ class Calibrator(tk.Frame):
         self.pack()
         self.root = root
         self.destroying = False    
-        label = tk.Label(self, text="test")
-        label.pack()
-    
+
+        StringChooser(self,"player name",config.player_name, config.setPlayerName,25).grid()
+        
     def update(self):        
         if not self.destroying:
             super().update()
     
-    def on_exit(self):        
+    def on_exit(self):                
         self.destroying = True
         self.root.destroy()
+        
 
 
-
-def highlight_calibration(img, config):    
+def highlight_calibration(img, c):    
     poly = Image.new('RGBA', (img.width,img.height))
     draw = ImageDraw.Draw(poly)
     
@@ -35,21 +37,21 @@ def highlight_calibration(img, config):
     blue = (0,0,255,128)       
     orange = (255,165,0,128)
     
-    scorePerc, linesPerc, levelPerc = (config.scorePerc, config.linesPerc, config.levelPerc)
+    scorePerc, linesPerc, levelPerc = (c.scorePerc, c.linesPerc, c.levelPerc)
     #score
     draw.rectangle(screenPercToPixels(img.width,img.height,scorePerc),fill=red)
     #lines
     draw.rectangle(screenPercToPixels(img.width,img.height,linesPerc),fill=red)
     #level
     draw.rectangle(screenPercToPixels(img.width,img.height,levelPerc),fill=red)    
-    if config.capture_stats:
-        if config.stats_method == 'TEXT':
+    if c.capture_stats:
+        if c.stats_method == 'TEXT':
             #pieces
-            draw.rectangle(screenPercToPixels(img.width,img.height,statsPerc),fill=blue)
-            for value in generate_stats(config.CAPTURE_COORDS,statsPerc,scorePerc[3],False).values():
+            draw.rectangle(screenPercToPixels(img.width,img.height,c.statsPerc),fill=blue)
+            for value in generate_stats(c.CAPTURE_COORDS,c.statsPerc,c.scorePerc[3],False).values():
                 draw.rectangle(screenPercToPixels(img.width,img.height,value),fill=orange)
-        else: #config.stats_method == 'FIELD':
-            stats2Perc = config.stats2Perc
+        else: #c.stats_method == 'FIELD':
+            stats2Perc = c.stats2Perc
             draw.rectangle(screenPercToPixels(img.width,img.height,stats2Perc),fill=blue)
             for x in range(4):
                 for y in range(2):                
