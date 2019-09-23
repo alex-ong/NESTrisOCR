@@ -1,14 +1,17 @@
 from PIL import Image, ImageDraw
-from fastocr import scoreImage
+from OCRAlgo.DigitOCR import scoreImage
+from OCRAlgo.ScoreFixer import ScoreFixer
+from OCRAlgo.PieceStatsTextOCR import generate_stats
+import OCRAlgo.PieceStatsBoardOCR as PieceStatsBoardOCR
+
 from config import config
 from lib import * #bad!
-from ScoreFixer import ScoreFixer
 from CachedSender import CachedSender
 from multiprocessing import Pool
 import threading
 from Networking import TCPClient
-from textstats import generate_stats
-import boardocr
+
+
 import time
 
 
@@ -50,8 +53,8 @@ def captureAndOCR(coords,hwnd,digitPattern,taskName,draw=False,red=False):
 
 def captureAndOCRBoard(coords, hwnd):
     img = WindowCapture.ImageCapture(coords, hwnd)
-    rgbo = boardocr.parseImage(img)    
-    return ('board_ocr', rgbo)
+    rgbo = PieceStatsBoardOCR.parseImage(img)    
+    return ('piece_stats_board', rgbo)
 
 #run this as fast as possible    
 def statsFieldMulti(ocr_stats, pool):
@@ -75,7 +78,7 @@ def main(onCap):
         p = None
 
     if USE_STATS_FIELD:
-        accum = boardocr.OCRStatus()
+        accum = PieceStatsBoardOCR.OCRStatus()
         lastLines = None #use to reset accumulator
         if MULTI_THREAD >= 2: #run Field_OCR as fast as possible; unlock from mainthread.
             thread = threading.Thread(target=statsFieldMulti, args=(accum,p))
@@ -125,8 +128,8 @@ def main(onCap):
                     accum.reset()
                 
                 if MULTI_THREAD == 1:
-                    accum.update(result['board_ocr'], frame_start)
-                    del result['board_ocr']
+                    accum.update(result['piece_stats_board'], frame_start)
+                    del result['piece_stats_board']
 
                 result.update(accum.toDict())
                 lastLines = result['lines']

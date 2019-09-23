@@ -1,6 +1,7 @@
 import PIL
 from PIL import Image, ImageEnhance
 import time
+#todo: remove NP_SUPPORTED and only use numpy
 try:
     import numpy as np
     NP_SUPPORTED = True

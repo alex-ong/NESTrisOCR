@@ -4,12 +4,12 @@ from config import config
 import platform
 
 if platform.system() == 'Darwin':
-    import QuartzCapture as WindowCapture
-    from QuartzWindowMgr import WindowMgr
+    import WinCap.QuartzCapture as WindowCapture
+    from WinCap.QuartzWindowMgr import WindowMgr
 
 else:
-    import Win32UICapture as WindowCapture
-    from Win32WindowMgr import WindowMgr
+    import WinCap.Win32UICapture as WindowCapture
+    from WinCap.Win32WindowMgr import WindowMgr
     
 def checkWindow(hwnd):
     wm = WindowMgr()
