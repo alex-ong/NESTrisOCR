@@ -17,8 +17,8 @@ class ImageCanvas(tk.Canvas):
             
             # create image if not existing...
             if self._img is None:
-                borderSize = self.cget('bd')
-                self._img = self.create_image(borderSize, borderSize, image=self.ph,anchor=tk.NW)
-            else:    
-                self._img = self.itemconfig(self._img, image=self.ph)                        
+                self._img = self.create_image(0, 0, image=self.ph,anchor=tk.NW)
+            else:
+                self._img = self.itemconfig(self._img, image=self.ph)
+
         

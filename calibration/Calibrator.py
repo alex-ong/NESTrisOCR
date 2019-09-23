@@ -7,6 +7,7 @@ from calibration.RectChooser import RectChooser, CompactRectChooser
 from calibration.ImageCanvas import ImageCanvas
 from calibration.draw_calibration import draw_calibration
 
+UPSCALE=4
 class Calibrator(tk.Frame):
             
     def __init__(self, config):
@@ -30,32 +31,40 @@ class Calibrator(tk.Frame):
         r.config(relief=tk.FLAT,bd=5,background='orange')
         r.grid(row=2)
         
-        self.boardImage = ImageCanvas(self,512,480)
-        self.boardImage.config(relief=tk.FLAT,bd=5,background='orange')
-        self.boardImage.grid(row=3, rowspan=10)        
+        border = tk.Frame(self)
+        border.grid(row=3,rowspan=10)
+        border.config(relief=tk.FLAT,bd=5,background='orange')
+        self.boardImage = ImageCanvas(border,512,480)        
+        self.boardImage.pack()
         
+        canvasSize = pixelSize(6,UPSCALE)
         CompactRectChooser(self,"lines (imagePerc)",config.linesPerc,True,self.updateLinesPerc).grid(row=3,column=1)
-        self.linesImage = ImageCanvas(self,100,100)        
+        self.linesImage = ImageCanvas(self,canvasSize[0],canvasSize[1])        
         self.linesImage.grid(row=4,column=1)
         
-        
-        #self.scoreImage = ImageCanvas(self,(7*6+5)*2,14)
-        #self.scoreImage.config(relief=tk.FLAT,bd=1)
-        #self.scoreImage.grid(row=5,column=1)
+        CompactRectChooser(self,"score (imagePerc)", config.scorePerc,True,self.updateScorePerc).grid(row=5,column=1)
+        self.scoreImage = ImageCanvas(self,canvasSize[0],canvasSize[1])        
+        self.scoreImage.grid(row=6,column=1)
 
-        #self.levelImage = ImageCanvas(self,(7*2+1)*2,14)
-        #self.levelImage.config(relief=tk.FLAT,bd=1)
-        #self.levelImage.grid(row=5,column=1)
+        CompactRectChooser(self,"level (imagePerc)", config.levelPerc,True,self.updateLevelPerc).grid(row=7,column=1)
+        self.levelImage = ImageCanvas(self,canvasSize[0],canvasSize[1])        
+        self.levelImage.grid(row=8,column=1)
 
         self.redrawImages()
 
     def updateLinesPerc(self, result):
-        x,y,w,h = result
         self.config.setLinesPerc(result)
+        self.redrawImages()
+    
+    def updateScorePerc(self, result):
+        self.config.setScorePerc(result)
+        self.redrawImages()
+    
+    def updateLevelPerc(self, result):
+        self.config.setLevelPerc(result)
         self.redrawImages()
 
     def updateWindowCoords(self, result):
-        x,y,w,h = result
         self.config.setGameCoords(result)
         self.redrawImages()
 
@@ -65,8 +74,17 @@ class Calibrator(tk.Frame):
         
         lines_img = board.crop(pixelPercRect(dim, self.config.linesPerc))        
         lines_img = lines_img.resize(pixelSize(3,4),Image.ANTIALIAS)
+
+        score_img = board.crop(pixelPercRect(dim, self.config.scorePerc))        
+        score_img = score_img.resize(pixelSize(6,4),Image.ANTIALIAS)
+
+        level_img = board.crop(pixelPercRect(dim, self.config.levelPerc))        
+        level_img = level_img.resize(pixelSize(2,4),Image.ANTIALIAS)
+
         self.boardImage.updateImage(board)
         self.linesImage.updateImage(lines_img)
+        self.scoreImage.updateImage(score_img)
+        self.levelImage.updateImage(level_img)
     
     def getNewBoardImage(self):
         return draw_calibration(self.config)
@@ -82,6 +100,7 @@ class Calibrator(tk.Frame):
 def pixelSize(numDigits, upscale):
     return ((7 * numDigits + numDigits-1) * upscale, 
              7 * upscale)
+
 #sources: PixelDimensions (w,h), RectPerc(x,y,w,h)
 #out: RectPixel(x,y,x2,y2)
 def pixelPercRect(dim,rectPerc):

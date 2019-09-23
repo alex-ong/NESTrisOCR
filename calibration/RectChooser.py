@@ -1,5 +1,5 @@
 import tkinter as tk
-from calibration.NumberChooser import NumberChooser
+from calibration.NumberChooser import NumberChooser, CompactNumberChooser
 
 from lib import tryGetInt
 from lib import tryGetFloat
@@ -13,14 +13,19 @@ class RectChooser(tk.Frame):
 
         tk.Label(self,text=name).grid(row=0,columnspan=4,sticky='nsew')
         minCrement = 0.001 if isFloat else 1
-        self.x = NumberChooser(self, 'x', a, isFloat, self.FireEvent, minCrement)
-        self.y = NumberChooser(self, 'y', b, isFloat, self.FireEvent, minCrement)
-        self.w = NumberChooser(self, 'w', c, isFloat, self.FireEvent, minCrement)
-        self.h = NumberChooser(self, 'h', d, isFloat, self.FireEvent, minCrement)
+
+        singleChooser = self.getSingleChooser()
+        self.x = singleChooser(self, 'x', a, isFloat, self.FireEvent, minCrement)
+        self.y = singleChooser(self, 'y', b, isFloat, self.FireEvent, minCrement)
+        self.w = singleChooser(self, 'w', c, isFloat, self.FireEvent, minCrement)
+        self.h = singleChooser(self, 'h', d, isFloat, self.FireEvent, minCrement)
     
         self.check = tryGetFloat if isFloat else tryGetInt
         self.subclassLayout()
     
+    def getSingleChooser(self):
+        return NumberChooser
+
     def subclassLayout(self):
         self.x.grid(row=1, column=0)
         self.y.grid(row=1, column=1)
@@ -50,3 +55,5 @@ class CompactRectChooser(RectChooser):
         self.w.grid(row=3,column=0)
         self.h.grid(row=4,column=0)
     
+    def getSingleChooser(self):
+        return CompactNumberChooser
