@@ -1,4 +1,5 @@
+ConfigUpdater
 numpy
+opencv-python
 pillow
 pypiwin32
-ConfigUpdater
