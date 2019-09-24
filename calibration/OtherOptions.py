@@ -20,6 +20,10 @@ class OtherOptions(tk.Toplevel):
         #captureField
         BoolChooser(self,'Capture game field',
                     config.capture_field,self.changeCaptureField).pack(fill='both')
+        
+        #capturePreview
+        BoolChooser(self,'Capture next piece',
+                    config.capture_preview,self.changeCapturePreview).pack(fill='both')
 
         #captureStats
         BoolChooser(self,'Capture Piece Stats', config.capture_stats, 
@@ -43,6 +47,9 @@ class OtherOptions(tk.Toplevel):
     
     def changeCaptureField(self, value):        
         self.config.setCaptureField(value)
+    
+    def changeCapturePreview(self, value):        
+        self.config.setCapturePreview(value)
 
     def changeCaptureStats(self,value):
         self.config.setCaptureStats(value)

@@ -19,6 +19,7 @@ class Configuration:
         #stats
         self.capture_stats = parser['stats'].getboolean('read_stats')
         self.stats_method = parser['stats']['stats_method'].upper()
+        
         #calibration
         self.WINDOW_NAME = parser['calibration']['window_name']
         self.CAPTURE_COORDS = literal_eval(parser['calibration']['game_coords'])        
@@ -33,7 +34,13 @@ class Configuration:
         self.color1Perc = literal_eval(parser['calibration']['color1perc'])
         self.color2Perc = literal_eval(parser['calibration']['color2perc'])
 
+        #preview
+        self.capture_preview = parser['calibration'].getboolean('read_preview')
+        self.previewPerc = literal_eval(parser['calibration']['previewperc'])
+        
+        #calculate stats2Perc from field
         self.stats2Perc = self.subImage(self.fieldPerc)
+
         #network
         self.host = parser['network']['host']
         self.port = literal_eval(parser['network']['port'])
@@ -94,6 +101,9 @@ class Configuration:
     
     def setCaptureField(self,val):
         self.setItem('calibration','read_field', val)
+
+    def setCapturePreview(self,val):
+        self.setItem('calibration','read_preview', val)
         
     def setFieldPerc(self, val):
         self.setItem('calibration','fieldperc', val)    
@@ -104,6 +114,8 @@ class Configuration:
     def setColor2Perc(self, val):
         self.setItem('calibration','color2perc', val)
 
+    def setPreviewPerc(self, val):
+        self.setItem('calibration','previewperc', val)    
     def setHost(self, val):
         self.setItem('network','host', val)    
     

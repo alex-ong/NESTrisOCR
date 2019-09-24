@@ -56,6 +56,7 @@ class Calibrator(tk.Frame):
 
         self.setupTab1()
         self.setupTab2()
+        self.setupTab3()
 
         self.redrawImages()
         self.lastUpdate = time.time()
@@ -91,6 +92,15 @@ class Calibrator(tk.Frame):
         self.setStatsTextVisible()
         self.tabManager.add(f,text="FieldStats")
     
+    def setupTab3(self):
+        f = tk.Frame(self.tabManager)        
+        self.previewPiece = CompactRectChooser(f,"Next Piece (imagePerc)",config.previewPerc,True,self.updatePreviewPerc)                
+        self.previewPiece.grid()
+        
+        self.setPreviewTextVisible()
+        
+        self.tabManager.add(f, text="PreviewPiece")
+    
     def setFieldTextVisible(self):
         show = False
         if (self.config.capture_field or 
@@ -108,6 +118,13 @@ class Calibrator(tk.Frame):
             self.pieceStats.grid()
         else:
             self.pieceStats.grid_forget()
+    
+    def setPreviewTextVisible(self):
+        show = self.config.capture_preview 
+        if show:
+            self.previewPiece.grid()
+        else:
+            self.previewPiece.grid_forget()
 
     def getActiveTab(self):
         return self.tabManager.index(self.tabManager.select())
@@ -145,6 +162,9 @@ class Calibrator(tk.Frame):
     
     def updateStatsPerc(self, result):
         self.updateRedraw(self.config.setStatsPerc, result)
+
+    def updatePreviewPerc(self, result):
+        self.updateRedraw(self.config.setPreviewPerc, result)
 
     def redrawImages(self):
         self.lastUpdate = time.time()
@@ -190,6 +210,7 @@ class Calibrator(tk.Frame):
         self.redrawImages()
         self.setStatsTextVisible()
         self.setFieldTextVisible()
+        self.setPreviewTextVisible()
 
     def on_exit(self):                
         self.destroying = True

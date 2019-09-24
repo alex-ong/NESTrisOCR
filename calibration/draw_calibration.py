@@ -1,5 +1,6 @@
 ﻿from lib import getWindow, WindowCapture, screenPercToPixels, lerp
 from OCRAlgo.PieceStatsTextOCR import generate_stats
+from OCRAlgo.PreviewOCR import calculateOffsets
 from PIL import Image, ImageDraw
 
 #splits rectangle by digits.
@@ -62,6 +63,24 @@ def highlight_calibration(img, c):
                     blockPercY = lerp(stats2Perc[1], stats2Perc[1] + stats2Perc[3], y / 2.0 + 1 / 4.0)
                     rect = (blockPercX - 0.01, blockPercY - 0.01, 0.02, 0.02)
                     draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill=blue)
+    
+    if c.capture_preview:
+        draw.rectangle(screenPercToPixels(img.width,img.height,c.previewPerc),fill=blue)
+        pixelWidth = c.previewPerc[2]/31.0
+        pixelHeight = c.previewPerc[3]/15.0
+
+        blockWidth = pixelWidth * 7
+        blockHeight = pixelHeight * 7
+
+        t1 = (c.previewPerc[0] + 4*pixelWidth, c.previewPerc[1], blockWidth, blockHeight)
+        t2 = (c.previewPerc[0] + 12*pixelWidth, c.previewPerc[1], blockWidth, blockHeight)
+        t3 = (c.previewPerc[0] + 20*pixelWidth, c.previewPerc[1], blockWidth, blockHeight)
+        t4 = (c.previewPerc[0] + 12*pixelWidth, c.previewPerc[1]+pixelHeight*8, blockWidth, blockHeight)
+        for rect in [t1,t2,t3,t4]:
+            draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill=orange)
+        for o in calculateOffsets():
+            rect = (o[0]-pixelWidth/2.0, o[1]-pixelHeight/2.0, pixelWidth, pixelHeight)
+            draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill='red')
 
     img.paste(poly,mask=poly)    
     del draw
