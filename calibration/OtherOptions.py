@@ -10,7 +10,7 @@ class OtherOptions(tk.Toplevel):
         self.config = config
 
         #multiprocessing
-        items = [i+1 for i in range(multiprocessing.cpu_count())]
+        items = [i + 1 for i in range(multiprocessing.cpu_count())]
         itemsStr = [str(item) for item in items]        
         mt = OptionChooser(self,'Use multi_thread', items, itemsStr, 
                            config.threads, self.changeMultiThread).pack(fill='both')        

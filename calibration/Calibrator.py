@@ -10,7 +10,7 @@ from calibration.OtherOptions import create_window
 from calibration.auto_calibrate import auto_calibrate_raw
 
 import time
-UPSCALE=4
+UPSCALE = 4
 class Calibrator(tk.Frame):
             
     def __init__(self, config):
@@ -127,7 +127,7 @@ class Calibrator(tk.Frame):
         self.root.destroy()
         
 def pixelSize(numDigits, upscale):
-    return ((7 * numDigits + numDigits-1) * upscale, 
+    return ((7 * numDigits + numDigits - 1) * upscale, 
              7 * upscale)
 
 #sources: PixelDimensions (w,h), RectPerc(x,y,w,h)
@@ -135,6 +135,6 @@ def pixelSize(numDigits, upscale):
 def pixelPercRect(dim,rectPerc):
     x1 = round(dim[0] * rectPerc[0])
     y1 = round(dim[1] * rectPerc[1])
-    x2 = round(x1 + dim[0]*rectPerc[2])
-    y2 = round(y1 + dim[1]*rectPerc[3])
+    x2 = round(x1 + dim[0] * rectPerc[2])
+    y2 = round(y1 + dim[1] * rectPerc[3])
     return (x1,y1,x2,y2)

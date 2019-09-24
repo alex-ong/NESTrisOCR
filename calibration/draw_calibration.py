@@ -5,15 +5,15 @@ from PIL import Image, ImageDraw
 #splits rectangle by digits.
 #assumes 7 pixels with 1 pixel gaps.
 def splitRect(perc, count):
-    totalPixels = count*7 + count-1
+    totalPixels = count * 7 + count - 1
     width = perc[2]
-    singlePixel = width/totalPixels
+    singlePixel = width / totalPixels
     
     result = []
     for i in range(count):
-        result.append([perc[0] + singlePixel*8*i,
+        result.append([perc[0] + singlePixel * 8 * i,
                     perc[1],
-                    7*singlePixel,
+                    7 * singlePixel,
                     perc[3]])
     return result
 
@@ -29,13 +29,13 @@ def highlight_calibration(img, c):
     scorePerc, linesPerc, levelPerc = (c.scorePerc, c.linesPerc, c.levelPerc)
     
     
-    for rect in splitRect(linesPerc,3): #lines
+    for rect in splitRect(linesPerc, 3): #lines
         draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill=red)
     
-    for rect in splitRect(scorePerc,6): #score   
+    for rect in splitRect(scorePerc, 6): #score
         draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill=green) 
 
-    for rect in splitRect(levelPerc,2):
+    for rect in splitRect(levelPerc, 2):
         draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill=blue) #level
 
     if c.capture_stats:
@@ -57,7 +57,7 @@ def highlight_calibration(img, c):
     img.paste(poly,mask=poly)    
     del draw
 
-#todo, return image or array of images with cropped out sections.    
+#todo, return image or array of images with cropped out sections.
 def draw_calibration(config):
     hwnd = getWindow()
     if hwnd is None:

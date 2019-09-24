@@ -48,7 +48,7 @@ def auto_calibrate(img):
     dst = cv2.perspectiveTransform(pts, transform)
     x, y, w, h = pts_to_params(dst)
     if h < 50 or w < 50 or not is_rect(dst):
-        print ("unable to find tetris board")
+        print("unable to find tetris board")
         return None
     return x, y, w, h
 
@@ -69,9 +69,4 @@ def pts_to_rect(pts):
 def is_rect(pts):
     x_coords = sorted([pts[x][0][0] for x in [0,1,2,3]])
     y_coords = sorted([pts[x][0][1] for x in [0,1,2,3]])
-    return not (
-        x_coords[1] - x_coords[0] > 5 or
-        x_coords[3] - x_coords[2] > 5 or
-        y_coords[1] - y_coords[0] > 5 or
-        y_coords[3] - y_coords[2] > 5
-    )
+    return not (x_coords[1] - x_coords[0] > 5 or x_coords[3] - x_coords[2] > 5 or y_coords[1] - y_coords[0] > 5 or y_coords[3] - y_coords[2] > 5)
