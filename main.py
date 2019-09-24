@@ -3,7 +3,7 @@ from OCRAlgo.DigitOCR import scoreImage
 from OCRAlgo.ScoreFixer import ScoreFixer
 from OCRAlgo.PieceStatsTextOCR import generate_stats
 import OCRAlgo.PieceStatsBoardOCR as PieceStatsBoardOCR
-
+import OCRAlgo.BoardOCR as BoardOCR
 from config import config
 from lib import * #bad!
 from CachedSender import CachedSender
@@ -32,9 +32,14 @@ STATS_ENABLE  = config.capture_stats
 STATS_COORDS  = generate_stats(config.CAPTURE_COORDS,config.statsPerc,config.scorePerc[3])
 STATS2_COORDS = mult_rect(config.CAPTURE_COORDS, config.stats2Perc)
 FIELD_COORDS = mult_rect(config.CAPTURE_COORDS, config.fieldPerc)
+
 STATS_METHOD  = config.stats_method #can be TEXT or FIELD. 
 
 USE_STATS_FIELD = (STATS_ENABLE and STATS_METHOD == 'FIELD')
+
+CAPTURE_FIELD = config.capture_field
+COLOR1 = mult_rect(config.CAPTURE_COORDS, config.color1Perc)
+COLOR2 = mult_rect(config.CAPTURE_COORDS, config.color2Perc)
 
 MULTI_THREAD = config.threads #shouldn't need more than four if using FieldStats + score/lines/level
 
@@ -52,17 +57,24 @@ def captureAndOCR(coords,hwnd,digitPattern,taskName,draw=False,red=False):
     img = WindowCapture.ImageCapture(coords,hwnd)    
     return taskName, scoreImage(img,digitPattern,draw,red)
 
-def captureAndOCRBoard(coords, hwnd):
+def captureAndOCRBoardPiece(coords, hwnd):
     img = WindowCapture.ImageCapture(coords, hwnd)
     rgbo = PieceStatsBoardOCR.parseImage(img)    
     return ('piece_stats_board', rgbo)
+
+def captureAndOCRBoard(coords, hwnd):
+    img = WindowCapture.ImageCapture(coords, hwnd)
+    col1 = WindowCapture.ImageCapture(COLOR1,hwnd)
+    col2 = WindowCapture.ImageCapture(COLOR2,hwnd)
+    field = BoardOCR.parseImage(img,col1,col2)
+    return ('field', field)
 
 #run this as fast as possible    
 def statsFieldMulti(ocr_stats, pool):
     while True:
         t = time.time()
         hwnd = getWindow()
-        _, pieceType = pool.apply(captureAndOCRBoard, (STATS2_COORDS, hwnd))
+        _, pieceType = pool.apply(captureAndOCRBoardPiece, (STATS2_COORDS, hwnd))
         ocr_stats.update(pieceType,t)
         if (time.time() - t > 1/60.0):
             print ("Warning, not scanning field fast enough", str(time.time() - t))
@@ -115,8 +127,11 @@ def main(onCap):
                 if STATS_METHOD == 'TEXT':                
                     rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,STATS_PATTERN,key,False,True)))
                 elif MULTI_THREAD == 1: #run FIELD_PIECE in main thread if necessary
-                    rawTasks.append((captureAndOCRBoard, (STATS2_COORDS, hwnd)))
-                    
+                    rawTasks.append((captureAndOCRBoardPiece, (STATS2_COORDS, hwnd)))
+            
+            if CAPTURE_FIELD:  
+                rawTasks.append((captureAndOCRBoard,(FIELD_COORDS,hwnd)))
+
             # run all tasks (in separate threads if MULTI_THREAD is enabled)
             result = runTasks(p, rawTasks)
 
