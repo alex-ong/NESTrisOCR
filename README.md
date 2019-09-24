@@ -69,8 +69,16 @@ You shouldnt get any errors. Then, exit python
 
 Calibration
 ===
-First, open the application that has your window capture. This will be OBS or an emulator.
-Note down it's game window name. Go into the game view (the one with the field).
+
+Setup the target window:
+
+1) First, open the application that has your window capture. This will be OBS or an emulator.
+
+2) Note down it's game window name. Go into the game view (the one with the field).
+
+3) Position and scale your application window to where you want it. **Since we capture the screen, any time you scale or move your application window, the calibration will be invalid**. 
+
+4) You can use Windows+arrow keys to position the window so it will lock to the side or quarter of the screen.
 
 Double-click on `calibrate.py`.
 
