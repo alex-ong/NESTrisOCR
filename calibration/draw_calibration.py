@@ -40,8 +40,7 @@ def highlight_calibration(img, c):
 
     if c.capture_stats:
         if c.stats_method == 'TEXT':
-            #pieces
-            #draw.rectangle(screenPercToPixels(img.width,img.height,c.statsPerc),fill=blue)
+            #pieces            
             for value in generate_stats(c.CAPTURE_COORDS,c.statsPerc,c.scorePerc[3],False).values():
                 draw.rectangle(screenPercToPixels(img.width,img.height,value),fill=orange)
         else: #c.stats_method == 'FIELD':
@@ -53,7 +52,18 @@ def highlight_calibration(img, c):
                     blockPercY = lerp(stats2Perc[1], stats2Perc[1] + stats2Perc[3], y / 2.0 + 1 / 4.0)
                     rect = (blockPercX - 0.01, blockPercY - 0.01, 0.02, 0.02)
                     draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill=red)
-        
+    
+    if c.capture_field:
+        fieldPerc = c.fieldPerc
+        for x in range(10):
+            for y in range(20):                
+                blockPercX = lerp(fieldPerc[0], fieldPerc[0] + fieldPerc[2], x / 10.0 + 1 / 20.0)
+                blockPercY = lerp(fieldPerc[1], fieldPerc[1] + fieldPerc[3], y / 20.0 + 1 / 40.0)
+                rect = (blockPercX - 0.01, blockPercY - 0.01, 0.02, 0.02)
+                draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill=red)
+        draw.rectangle(screenPercToPixels(img.width,img.height,c.color1Perc),fill=orange)
+        draw.rectangle(screenPercToPixels(img.width,img.height,c.color2Perc),fill=orange)
+
     img.paste(poly,mask=poly)    
     del draw
 

@@ -28,7 +28,6 @@ class OtherOptions(tk.Toplevel):
         if config.capture_stats:
             self.statsMethod.pack(fill='both')
 
-
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
         self.wm_title("NESTrisOCR Options")
 

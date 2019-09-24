@@ -1,7 +1,6 @@
 import configparser
 from configupdater import ConfigUpdater
 from ast import literal_eval #safe version of eval
-
 class Configuration:
     def __init__(self, filename, updater):
         self._filename = filename
@@ -14,7 +13,7 @@ class Configuration:
         #player
         self.player_name = parser['player']['name']
         self.twitch_url = parser['player']['twitch']        
-        #performance        
+        #performance
         self.threads = literal_eval(parser['performance']['multi_thread'])
         self.hexSupport = parser['performance'].getboolean('support_hex_score') 
         #stats
@@ -26,8 +25,13 @@ class Configuration:
         self.scorePerc = literal_eval(parser['calibration']['scoreperc'])
         self.linesPerc = literal_eval(parser['calibration']['linesperc'])
         self.levelPerc = literal_eval(parser['calibration']['levelperc'])
-        self.statsPerc  = literal_eval(parser['calibration']['statsperc'])
+        self.statsPerc = literal_eval(parser['calibration']['statsperc'])
         self.stats2Perc = literal_eval(parser['calibration']['stats2perc'])
+        #field
+        self.capture_field = parser['calibration'].getboolean('read_field')
+        self.fieldPerc = literal_eval(parser['calibration']['fieldperc'])
+        self.color1Perc = literal_eval(parser['calibration']['color1perc'])
+        self.color2Perc = literal_eval(parser['calibration']['color2perc'])
         #network
         self.host = parser['network']['host']
         self.port = literal_eval(parser['network']['port'])
@@ -79,6 +83,18 @@ class Configuration:
     def setStats2Perc(self, val):
         self.setItem('calibration','stats2perc', val)    
     
+    def setCaptureField(self,val):
+        self.setItem('calibration','read_field', val)
+        
+    def setFieldPerc(self, val):
+        self.setItem('calibration','fieldperc', val)    
+
+    def setColor1Perc(self, val):
+        self.setItem('calibration','color1perc', val)
+
+    def setColor2Perc(self, val):
+        self.setItem('calibration','color2perc', val)
+
     def setHost(self, val):
         self.setItem('network','host', val)    
     

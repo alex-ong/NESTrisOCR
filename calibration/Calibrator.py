@@ -44,7 +44,7 @@ class Calibrator(tk.Frame):
         autoCalibrate.pack(fill='both',expand=True)
 
         border = tk.Frame(self)
-        border.grid(row=3,rowspan=10)
+        border.grid(row=3,rowspan=7)
         border.config(relief=tk.FLAT,bd=5,background='orange')
         self.boardImage = ImageCanvas(border,512,224*2)        
         self.boardImage.pack()
