@@ -23,7 +23,7 @@ def highlight_calibration(img, c):
     
     red = (255,0,0,128)    
     green = (0,255,0,128)
-    blue = (0,0,255,128)       
+    blue = (0,100,255,128)       
     orange = (255,165,0,128)
     
     scorePerc, linesPerc, levelPerc = (c.scorePerc, c.linesPerc, c.levelPerc)
@@ -66,6 +66,6 @@ def draw_calibration(config):
     
     img = WindowCapture.ImageCapture(config.CAPTURE_COORDS, hwnd)
     highlight_calibration(img, config)   
-    img.thumbnail((512,480),Image.NEAREST)
+    img = img.resize((512,448),Image.ANTIALIAS)
     return img
     
