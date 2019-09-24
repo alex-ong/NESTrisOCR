@@ -5,10 +5,10 @@ from calibration.BoolChooser import BoolChooser
 INSTANCE = None
  
 class OtherOptions(tk.Toplevel):
-    def __init__(self, root, config):
+    def __init__(self, root, config, on_destroy):
         super().__init__(root)
         self.config = config
-
+        self.on_destroy = on_destroy
         #multiprocessing
         items = [i + 1 for i in range(multiprocessing.cpu_count())]
         itemsStr = [str(item) for item in items]        
@@ -17,6 +17,9 @@ class OtherOptions(tk.Toplevel):
         #hexSupport
         BoolChooser(self,'Support hex scores (scores past 999999 as A00000 to F99999)',
                     config.hexSupport,self.changeHexSupport).pack(fill='both')
+        #captureField
+        BoolChooser(self,'Capture game field',
+                    config.capture_field,self.changeCaptureField).pack(fill='both')
 
         #captureStats
         BoolChooser(self,'Capture Piece Stats', config.capture_stats, 
@@ -30,6 +33,7 @@ class OtherOptions(tk.Toplevel):
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
         self.wm_title("NESTrisOCR Options")
+        self.grab_set()
 
     def changeMultiThread(self, value):
         self.config.setThreads(value)
@@ -37,6 +41,9 @@ class OtherOptions(tk.Toplevel):
     def changeHexSupport(self, value):        
         self.config.setHexSupport(value)
     
+    def changeCaptureField(self, value):        
+        self.config.setCaptureField(value)
+
     def changeCaptureStats(self,value):
         self.config.setCaptureStats(value)
         if value:
@@ -50,10 +57,11 @@ class OtherOptions(tk.Toplevel):
     def on_exit(self):        
         global INSTANCE
         INSTANCE = None
+        self.on_destroy()
         self.destroy()
 
-def create_window(root, config):
+def create_window(root, config, on_destroy):
     global INSTANCE
     if INSTANCE is None:    
-        INSTANCE = OtherOptions(root,config)
+        INSTANCE = OtherOptions(root,config,on_destroy)
     
