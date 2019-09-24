@@ -78,13 +78,13 @@ Double-click on `calibrate.py`.
 
 Follow the steps in the picture:
 
-1) Enter the first few characters of the window name.
+1) Enter the first few characters of the window name. Your window should show up in the preview pane.
 
-2) Enter your name
+2) Enter your name 
 
-3) Press auto-calibrate. The window should snap into place
+3) Press auto-calibrate. The window should snap into place.
 
-4) Check that the game window has been detected. If not, press auto-calibrate again, and if that still doesnt work,
+4) Check that the game window has been detected. If not, press auto-calibrate another 3-4 times. If that still doesnt work,
    use the +- buttons in "capture window coords" to get the game window.
 
 5) Micro adjust so that the numbers are highlighted and the black regions are empty.
