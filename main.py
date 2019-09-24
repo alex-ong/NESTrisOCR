@@ -31,6 +31,7 @@ LEVEL_COORDS = mult_rect(config.CAPTURE_COORDS,config.levelPerc)
 STATS_ENABLE  = config.capture_stats
 STATS_COORDS  = generate_stats(config.CAPTURE_COORDS,config.statsPerc,config.scorePerc[3])
 STATS2_COORDS = mult_rect(config.CAPTURE_COORDS, config.stats2Perc)
+FIELD_COORDS = mult_rect(config.CAPTURE_COORDS, config.fieldPerc)
 STATS_METHOD  = config.stats_method #can be TEXT or FIELD. 
 
 USE_STATS_FIELD = (STATS_ENABLE and STATS_METHOD == 'FIELD')

@@ -26,16 +26,28 @@ class Configuration:
         self.linesPerc = literal_eval(parser['calibration']['linesperc'])
         self.levelPerc = literal_eval(parser['calibration']['levelperc'])
         self.statsPerc = literal_eval(parser['calibration']['statsperc'])
-        self.stats2Perc = literal_eval(parser['calibration']['stats2perc'])
+        
         #field
         self.capture_field = parser['calibration'].getboolean('read_field')
         self.fieldPerc = literal_eval(parser['calibration']['fieldperc'])
         self.color1Perc = literal_eval(parser['calibration']['color1perc'])
         self.color2Perc = literal_eval(parser['calibration']['color2perc'])
+
+        self.stats2Perc = self.subImage(self.fieldPerc)
         #network
         self.host = parser['network']['host']
         self.port = literal_eval(parser['network']['port'])
     
+    # gets the 2x4 region out of the fieldPerc
+    def subImage(self, rect):
+        #return middle 4 / 10 x values and  2 / 20 y values
+        tileX = rect[2]/10.0
+        tileY = rect[3]/20.0
+        return [rect[0] + tileX * 3,
+                rect[1],
+                tileX * 4,
+                tileY * 2]
+
     def refresh(self):
         self._updater.update_file()
         self.initFromParser()
@@ -79,9 +91,6 @@ class Configuration:
     
     def setStatsPerc(self, val):
         self.setItem('calibration','statsperc', val)    
-    
-    def setStats2Perc(self, val):
-        self.setItem('calibration','stats2perc', val)    
     
     def setCaptureField(self,val):
         self.setItem('calibration','read_field', val)
