@@ -1,4 +1,5 @@
 ﻿import tkinter as tk
+import tkinter.ttk as ttk
 from PIL import Image, ImageDraw
 from lib import *
 from OCRAlgo.PieceStatsTextOCR import generate_stats
@@ -44,42 +45,85 @@ class Calibrator(tk.Frame):
         autoCalibrate.pack(fill='both',expand=True)
 
         border = tk.Frame(self)
-        border.grid(row=3,rowspan=7)
+        border.grid(row=3,column=0,stick='nsew')
         border.config(relief=tk.FLAT,bd=5,background='orange')
-        self.boardImage = ImageCanvas(border,512,224*2)        
+        self.boardImage = ImageCanvas(border,512,224 * 2)        
         self.boardImage.pack()
         
-        canvasSize = pixelSize(6,UPSCALE)
-        CompactRectChooser(self,"lines (imagePerc)",config.linesPerc,True,self.updateLinesPerc).grid(row=3,column=1)
-        self.linesImage = ImageCanvas(self,canvasSize[0],canvasSize[1])        
-        self.linesImage.grid(row=4,column=1)
-        
-        CompactRectChooser(self,"score (imagePerc)", config.scorePerc,True,self.updateScorePerc).grid(row=5,column=1)
-        self.scoreImage = ImageCanvas(self,canvasSize[0],canvasSize[1])        
-        self.scoreImage.grid(row=6,column=1)
+        self.tabManager = ttk.Notebook(self)
+        self.tabManager.grid(row=3,column=1,sticky='nsew')
 
-        CompactRectChooser(self,"level (imagePerc)", config.levelPerc,True,self.updateLevelPerc).grid(row=7,column=1)
-        self.levelImage = ImageCanvas(self,canvasSize[0],canvasSize[1])        
-        self.levelImage.grid(row=8,column=1)
+        self.setupTab1()
+        self.setupTab2()
 
         self.redrawImages()
         self.lastUpdate = time.time()
+    
+    def setupTab1(self):
+        f = tk.Frame(self.tabManager)
+        canvasSize = pixelSize(6,UPSCALE)
+        CompactRectChooser(f,"lines (imagePerc)",config.linesPerc,True,self.updateLinesPerc).grid()
+        self.linesImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
+        self.linesImage.grid()
+        
+        CompactRectChooser(f,"score (imagePerc)", config.scorePerc,True,self.updateScorePerc).grid()
+        self.scoreImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
+        self.scoreImage.grid()
+
+        CompactRectChooser(f,"level (imagePerc)", config.levelPerc,True,self.updateLevelPerc).grid()
+        self.levelImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
+        self.levelImage.grid()
+        self.tabManager.add(f,text="NumberOCR")
+    
+    def setupTab2(self):
+        f = tk.Frame(self.tabManager)
+        CompactRectChooser(f,"field (imagePerc)",config.fieldPerc,True,self.updateFieldPerc).grid()        
+        CompactRectChooser(f,"Color1 (imagePerc)",config.color1Perc,True,self.updateColor1Perc).grid()
+        CompactRectChooser(f,"Color2 (imagePerc)",config.color2Perc,True,self.updateColor2Perc).grid()
+        self.pieceStats = CompactRectChooser(f,"pieceStats (imagePerc)",config.statsPerc,True,self.updateStatsPerc)
+        if self.config.capture_stats and self.config.stats_method == 'TEXT':
+            self.pieceStats.grid()
+        self.tabManager.add(f,text="FieldStats")
+    
+    def setStatsTextVisible(self):
+        if self.config.capture_stats and self.config.stats_method == 'TEXT':
+            self.pieceStats.grid()
+        else:
+            self.pieceStats.grid_forget()
+
+    def getActiveTab(self):
+        return self.tabManager.index(self.tabManager.select())
+
+    def updateRedraw(self, func, result):
+        func(result)
+        self.redrawImages()
 
     def updateLinesPerc(self, result):
-        self.config.setLinesPerc(result)
-        self.redrawImages()
+        self.updateRedraw(self.config.setLinesPerc, result)        
     
     def updateScorePerc(self, result):
-        self.config.setScorePerc(result)
-        self.redrawImages()
+        self.updateRedraw(self.config.setScorePerc, result)
     
     def updateLevelPerc(self, result):
-        self.config.setLevelPerc(result)
-        self.redrawImages()
+        self.updateRedraw(self.config.setLevelPerc, result)
+    
+    def updateLevelPerc(self, result):
+        self.updateRedraw(self.config.setLevelPerc, result)
 
     def updateWindowCoords(self, result):
-        self.config.setGameCoords(result)
-        self.redrawImages()
+        self.updateRedraw(self.config.setGameCoords, result)
+    
+    def updateFieldPerc(self, result):
+        self.updateRedraw(self.config.setFieldPerc, result)
+    
+    def updateColor1Perc(self, result):
+        self.updateRedraw(self.config.setColor1Perc, result)
+    
+    def updateColor2Perc(self, result):
+        self.updateRedraw(self.config.setColor2Perc, result)
+    
+    def updateStatsPerc(self, result):
+        self.updateRedraw(self.config.setStatsPerc, result)
 
     def redrawImages(self):
         self.lastUpdate = time.time()
@@ -92,28 +136,27 @@ class Calibrator(tk.Frame):
 
         dim = board.width, board.height        
         
-        lines_img = board.crop(pixelPercRect(dim, self.config.linesPerc))        
-        lines_img = lines_img.resize(pixelSize(3,4),Image.ANTIALIAS)
-
-        score_img = board.crop(pixelPercRect(dim, self.config.scorePerc))        
-        score_img = score_img.resize(pixelSize(6,4),Image.ANTIALIAS)
-
-        level_img = board.crop(pixelPercRect(dim, self.config.levelPerc))        
-        level_img = level_img.resize(pixelSize(2,4),Image.ANTIALIAS)
-
         self.boardImage.updateImage(board)
-        self.linesImage.updateImage(lines_img)
-        self.scoreImage.updateImage(score_img)
-        self.levelImage.updateImage(level_img)
-        
+
+        if self.getActiveTab() == 0:
+            lines_img = board.crop(pixelPercRect(dim, self.config.linesPerc))        
+            lines_img = lines_img.resize(pixelSize(3,4),Image.ANTIALIAS)
+
+            score_img = board.crop(pixelPercRect(dim, self.config.scorePerc))        
+            score_img = score_img.resize(pixelSize(6,4),Image.ANTIALIAS)
+
+            level_img = board.crop(pixelPercRect(dim, self.config.levelPerc))        
+            level_img = level_img.resize(pixelSize(2,4),Image.ANTIALIAS)
+            self.linesImage.updateImage(lines_img)
+            self.scoreImage.updateImage(score_img)
+            self.levelImage.updateImage(level_img)
 
     def getNewBoardImage(self):
         return draw_calibration(self.config)
 
     def autoDetectField(self):
         rect = auto_calibrate_raw(self.config)
-        if rect is not None:
-            #self.updateWindowCoords(rect)
+        if rect is not None:            
             self.winCoords.show(rect)
 
     def update(self):        
