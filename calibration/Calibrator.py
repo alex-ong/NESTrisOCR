@@ -70,6 +70,8 @@ class Calibrator(tk.Frame):
 
     def redrawImages(self):
         board = self.getNewBoardImage()
+        if board is None:
+            return
         dim = board.width, board.height        
         
         lines_img = board.crop(pixelPercRect(dim, self.config.linesPerc))        
