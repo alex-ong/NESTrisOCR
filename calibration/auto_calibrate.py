@@ -2,6 +2,18 @@ from PIL import Image
 import numpy as np
 import cv2
 
+from lib import getWindow, WindowCapture
+
+def auto_calibrate_raw(config):
+
+    hwnd = getWindow()
+    if hwnd is None:
+        print("Unable to find window with title:",  config.WINDOW_NAME)
+        return None
+    
+    img = WindowCapture.ImageCapture((0,0,1500,1500), hwnd)    
+    return auto_calibrate(img)
+
 '''
 Given an image, returns an (x,y,w,h) rectangle or None with
 the closest match.

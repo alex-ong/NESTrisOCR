@@ -7,7 +7,9 @@ from calibration.RectChooser import RectChooser, CompactRectChooser
 from calibration.ImageCanvas import ImageCanvas
 from calibration.draw_calibration import draw_calibration
 from calibration.OtherOptions import create_window
+from calibration.auto_calibrate import auto_calibrate_raw
 
+import time
 UPSCALE=4
 class Calibrator(tk.Frame):
             
@@ -30,7 +32,17 @@ class Calibrator(tk.Frame):
         r = RectChooser(self,"capture window coords (pixels)", config.CAPTURE_COORDS,False, self.updateWindowCoords)
         r.config(relief=tk.FLAT,bd=5,background='orange')
         r.grid(row=2)
+        self.winCoords = r
         
+        # auto calibrate
+        border = tk.Frame(self)
+        border.config(relief=tk.FLAT,bd=5,background='orange')
+        border.grid(row=2,column=1,sticky='nsew')
+
+        autoCalibrate = tk.Button(border,text="Automatically detect field", 
+                                  command=self.autoDetectField)        
+        autoCalibrate.pack(fill='both',expand=True)
+
         border = tk.Frame(self)
         border.grid(row=3,rowspan=10)
         border.config(relief=tk.FLAT,bd=5,background='orange')
@@ -51,6 +63,7 @@ class Calibrator(tk.Frame):
         self.levelImage.grid(row=8,column=1)
 
         self.redrawImages()
+        self.lastUpdate = time.time()
 
     def updateLinesPerc(self, result):
         self.config.setLinesPerc(result)
@@ -69,9 +82,14 @@ class Calibrator(tk.Frame):
         self.redrawImages()
 
     def redrawImages(self):
+        self.lastUpdate = time.time()
         board = self.getNewBoardImage()
         if board is None:
-            return
+            self.noBoard = True
+            return 
+        else:
+            self.noBoard = False
+
         dim = board.width, board.height        
         
         lines_img = board.crop(pixelPercRect(dim, self.config.linesPerc))        
@@ -87,12 +105,21 @@ class Calibrator(tk.Frame):
         self.linesImage.updateImage(lines_img)
         self.scoreImage.updateImage(score_img)
         self.levelImage.updateImage(level_img)
-    
+        
+
     def getNewBoardImage(self):
         return draw_calibration(self.config)
 
+    def autoDetectField(self):
+        rect = auto_calibrate_raw(self.config)
+        if rect is not None:
+            #self.updateWindowCoords(rect)
+            self.winCoords.show(rect)
+
     def update(self):        
         if not self.destroying:
+            if (time.time() - self.lastUpdate > 5.0 and self.noBoard):
+                self.redrawImages()
             super().update()
     
     def on_exit(self):                
