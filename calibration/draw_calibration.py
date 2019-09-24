@@ -2,6 +2,21 @@
 from OCRAlgo.PieceStatsTextOCR import generate_stats
 from PIL import Image, ImageDraw
 
+#splits rectangle by digits.
+#assumes 7 pixels with 1 pixel gaps.
+def splitRect(perc, count):
+    totalPixels = count*7 + count-1
+    width = perc[2]
+    singlePixel = width/totalPixels
+    
+    result = []
+    for i in range(count):
+        result.append([perc[0] + singlePixel*8*i,
+                    perc[1],
+                    7*singlePixel,
+                    perc[3]])
+    return result
+
 def highlight_calibration(img, c):    
     poly = Image.new('RGBA', (img.width,img.height))
     draw = ImageDraw.Draw(poly)
@@ -13,9 +28,16 @@ def highlight_calibration(img, c):
     
     scorePerc, linesPerc, levelPerc = (c.scorePerc, c.linesPerc, c.levelPerc)
     
-    draw.rectangle(screenPercToPixels(img.width,img.height,linesPerc),fill=red) #lines    
-    draw.rectangle(screenPercToPixels(img.width,img.height,scorePerc),fill=green) #score    
-    draw.rectangle(screenPercToPixels(img.width,img.height,levelPerc),fill=blue) #level
+    
+    for rect in splitRect(linesPerc,3): #lines
+        draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill=red)
+    
+    for rect in splitRect(scorePerc,6): #score   
+        draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill=green) 
+
+    for rect in splitRect(levelPerc,2):
+        draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill=blue) #level
+
     if c.capture_stats:
         if c.stats_method == 'TEXT':
             #pieces
