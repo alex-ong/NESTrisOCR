@@ -1,7 +1,7 @@
 ﻿import tkinter as tk
 import multiprocessing
 from calibration.OptionChooser import OptionChooser
-
+from calibration.BoolChooser import BoolChooser
 INSTANCE = None
  
 class OtherOptions(tk.Toplevel):
@@ -12,14 +12,28 @@ class OtherOptions(tk.Toplevel):
         #multiprocessing
         items = [i+1 for i in range(multiprocessing.cpu_count())]
         itemsStr = [str(item) for item in items]        
-        mt = OptionChooser(self,'Use multi_thread', items, itemsStr, config.threads, self.changeMultiThread).pack()        
+        mt = OptionChooser(self,'Use multi_thread', items, itemsStr, 
+                           config.threads, self.changeMultiThread).pack(fill='both')        
+        #hexSupport
+        BoolChooser(self,'Support hex scores (scores past 999999 as A00000 to F99999)',
+                    config.hexSupport,self.changeHexSupport).pack(fill='both')
+
+        #captureStats
+        BoolChooser(self,'Capture Piece Stats', config.capture_stats, 
+                    self.changeCaptureStats).pack(fill='both')
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
         self.wm_title("NESTrisOCR Options")
 
     def changeMultiThread(self, value):
         self.config.setThreads(value)
-
+    
+    def changeHexSupport(self, value):        
+        self.config.setHexSupport(value)
+    
+    def changeCaptureStats(self,value):
+        self.config.setCaptureStats(value)
+        
     def on_exit(self):        
         global INSTANCE
         INSTANCE = None

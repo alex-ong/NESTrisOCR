@@ -3,7 +3,7 @@
 class OptionChooser(tk.Frame):
     def __init__(self, master, name, itemsRaw, itemsStr, default, onChange):
         super().__init__(master)
-        tk.Label(self,text=name).pack(side=tk.LEFT)
+        tk.Label(self,text=name).pack(side=tk.LEFT,fill='both')
         self.stringVar = tk.StringVar()
         
         try:     
@@ -23,7 +23,7 @@ class OptionChooser(tk.Frame):
         self.itemsStr = itemsStr
         self.onChange = onChange
         self.optionMenu = tk.OptionMenu(self,self.stringVar, *itemsStr, command=self.valChanged)
-        self.optionMenu.pack()
+        self.optionMenu.pack(side=tk.RIGHT,fill='both')
     
     def valChanged(self, i):        
         rawItem = self.mapping[self.stringVar.get()]
