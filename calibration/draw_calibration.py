@@ -1,6 +1,7 @@
-﻿from lib import getWindow, WindowCapture, screenPercToPixels
+﻿from lib import getWindow, WindowCapture, screenPercToPixels, lerp
 from OCRAlgo.PieceStatsTextOCR import generate_stats
 from PIL import Image, ImageDraw
+
 def highlight_calibration(img, c):    
     poly = Image.new('RGBA', (img.width,img.height))
     draw = ImageDraw.Draw(poly)
@@ -31,7 +32,7 @@ def highlight_calibration(img, c):
                     rect = (blockPercX - 0.01, blockPercY - 0.01, 0.02, 0.02)
                     draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill=red)
         
-        img.paste(poly,mask=poly)    
+    img.paste(poly,mask=poly)    
     del draw
 
 #todo, return image or array of images with cropped out sections.    

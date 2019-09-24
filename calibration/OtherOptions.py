@@ -22,6 +22,13 @@ class OtherOptions(tk.Toplevel):
         BoolChooser(self,'Capture Piece Stats', config.capture_stats, 
                     self.changeCaptureStats).pack(fill='both')
 
+        self.statsMethod = OptionChooser(self,'Piece Stats capture method',
+                                         ['TEXT','FIELD'],['TEXT','FIELD'],
+                                         config.stats_method,self.changeStatsMethod)
+        if config.capture_stats:
+            self.statsMethod.pack(fill='both')
+
+
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
         self.wm_title("NESTrisOCR Options")
 
@@ -33,7 +40,14 @@ class OtherOptions(tk.Toplevel):
     
     def changeCaptureStats(self,value):
         self.config.setCaptureStats(value)
-        
+        if value:
+            self.statsMethod.pack(fill='both')
+        else:
+            self.statsMethod.pack_forget()
+    
+    def changeStatsMethod(self, value):
+        self.config.setStatsMethod(value)
+
     def on_exit(self):        
         global INSTANCE
         INSTANCE = None
