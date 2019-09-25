@@ -4,6 +4,8 @@ from OCRAlgo.ScoreFixer import ScoreFixer
 from OCRAlgo.PieceStatsTextOCR import generate_stats
 import OCRAlgo.PieceStatsBoardOCR as PieceStatsBoardOCR
 import OCRAlgo.BoardOCR as BoardOCR
+import OCRAlgo.PreviewOCR as PreviewOCR
+
 from config import config
 from lib import * #bad!
 from CachedSender import CachedSender
@@ -41,6 +43,9 @@ CAPTURE_FIELD = config.capture_field
 COLOR1 = mult_rect(config.CAPTURE_COORDS, config.color1Perc)
 COLOR2 = mult_rect(config.CAPTURE_COORDS, config.color2Perc)
 
+CAPTURE_PREVIEW = config.capture_preview
+PREVIEW_COORDS = mult_rect(config.CAPTURE_COORDS, config.previewPerc)
+
 MULTI_THREAD = config.threads #shouldn't need more than four if using FieldStats + score/lines/level
 
 #limit how fast we scan.
@@ -68,6 +73,11 @@ def captureAndOCRBoard(coords, hwnd):
     col2 = WindowCapture.ImageCapture(COLOR2,hwnd)
     field = BoardOCR.parseImage(img,col1,col2)
     return ('field', field)
+
+def captureAndOCRPreview(hwnd):
+    img = WindowCapture.ImageCapture(PREVIEW_COORDS,hwnd)
+    result = PreviewOCR.parseImage(img)
+    return ('preview', result)
 
 #run this as fast as possible    
 def statsFieldMulti(ocr_stats, pool):
@@ -131,6 +141,9 @@ def main(onCap):
             
             if CAPTURE_FIELD:  
                 rawTasks.append((captureAndOCRBoard,(FIELD_COORDS,hwnd)))
+            
+            if CAPTURE_PREVIEW:
+                rawTasks.append((captureAndOCRPreview, (hwnd,)))
 
             # run all tasks (in separate threads if MULTI_THREAD is enabled)
             result = runTasks(p, rawTasks)

@@ -79,7 +79,7 @@ def highlight_calibration(img, c):
         for rect in [t1,t2,t3,t4]:
             draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill=orange)
         for o in calculateOffsets():
-            rect = (o[0]-pixelWidth/2.0, o[1]-pixelHeight/2.0, pixelWidth, pixelHeight)
+            rect = (o[0], o[1], pixelWidth, pixelHeight)
             draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill='red')
 
     img.paste(poly,mask=poly)    

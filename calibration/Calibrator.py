@@ -31,22 +31,25 @@ class Calibrator(tk.Frame):
                   command=lambda: create_window(root, self.config,self.otherOptionsClosed)).grid(row=0,column=1)
         
         # window coords
-        r = RectChooser(self,"capture window coords (pixels)", config.CAPTURE_COORDS,False, self.updateWindowCoords)
+        f = tk.Frame(self)
+        r = RectChooser(f,"capture window coords (pixels)", config.CAPTURE_COORDS,False, self.updateWindowCoords)
         r.config(relief=tk.FLAT,bd=5,background='orange')
-        r.grid(row=2)
+        r.pack(side=tk.LEFT)
         self.winCoords = r
-        
         # auto calibrate
-        border = tk.Frame(self)
+        border = tk.Frame(f)
         border.config(relief=tk.FLAT,bd=5,background='orange')
-        border.grid(row=2,column=1,sticky='nsew')
-
+        border.pack(side=tk.RIGHT,fill='both')
         autoCalibrate = tk.Button(border,text="Automatically detect field", 
                                   command=self.autoDetectField)        
         autoCalibrate.pack(fill='both',expand=True)
-
+        f.grid(row=2,column=0)
+        
+        # refresh
+        tk.Button(self,text="Refresh Image", command=self.redrawImages).grid(row=2,column=1,sticky='nsew')
+        
         border = tk.Frame(self)
-        border.grid(row=3,column=0,stick='nsew')
+        border.grid(row=3,column=0,sticky='nsew')
         border.config(relief=tk.FLAT,bd=5,background='orange')
         self.boardImage = ImageCanvas(border,512,224 * 2)        
         self.boardImage.pack()
