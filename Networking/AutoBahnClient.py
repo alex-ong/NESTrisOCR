@@ -25,27 +25,34 @@
 ###############################################################################
 
 from twisted.internet.protocol import ReconnectingClientFactory
-
+from twisted.internet import reactor
 from autobahn.twisted.websocket import WebSocketClientProtocol, \
     WebSocketClientFactory
+try: 
+    from Networking import StoppableThread
+except ModuleNotFoundError:
+    import StoppableThread
 
+import threading
+
+def CreateClient(target, port):    
+    client = ThreadedClient(target, port)    
+    client.start()
+    
+    return client
+    
 
 class MyClientProtocol(WebSocketClientProtocol):
 
+    connections = []
     def onConnect(self, response):
         print("Server connected: {0}".format(response.peer))
-        self.factory.resetDelay()
-
+        self.factory.resetDelay()    
+        MyClientProtocol.connections.append(self)
+        
     def onOpen(self):
         print("WebSocket connection open.")
 
-        def hello():
-            self.sendMessage(u"Hello, world!".encode('utf8'))
-            self.sendMessage(b"\x00\x01\x03\x04", isBinary=True)
-            self.factory.reactor.callLater(1, hello)
-
-        # start sending messages every second ..
-        hello()
 
     #called when the server sends us a message.
     def onMessage(self, payload, isBinary):
@@ -55,33 +62,69 @@ class MyClientProtocol(WebSocketClientProtocol):
             print("Text message received: {0}".format(payload.decode('utf8')))
 
     def onClose(self, wasClean, code, reason):
-        print("WebSocket connection closed: {0}".format(reason))
-
-
+        if reason is not None:
+            print("WebSocket connection closed: {0}".format(reason))
+    
+    @classmethod
+    def broadcast_message(cls, data):                
+        for c in set(cls.connections):
+            reactor.callFromThread(c.sendMessage, data)
+    
+    @classmethod
+    def close_all(cls):
+        for c in set(cls.connections):
+            reactor.callFromThread(c.sendClose)
+        
+            
 class MyClientFactory(WebSocketClientFactory, ReconnectingClientFactory):
 
     protocol = MyClientProtocol
+    closing = False
+    def clientConnectionFailed(self, connector, reason):        
+        if not MyClientFactory.closing:
+            print("Client connection failed .. retrying ..")
+            self.retry(connector)
 
-    def clientConnectionFailed(self, connector, reason):
-        print("Client connection failed .. retrying ..")
-        self.retry(connector)
-
-    def clientConnectionLost(self, connector, reason):
-        print("Client connection lost .. retrying ..")
-        self.retry(connector)
-
-
-if __name__ == '__main__':
-
-    import sys
-
-    from twisted.python import log
-    from twisted.internet import reactor
-
-    log.startLogging(sys.stdout)
-
-    url = "ec2-13-237-232-112.ap-southeast-2.compute.amazonaws.com"
-    factory = MyClientFactory(u"ws://"+url+":3338")
+    def clientConnectionLost(self, connector, reason):        
+        if not MyClientFactory.closing:
+            print("Client connection lost .. retrying ..")
+            self.retry(connector)
     
-    reactor.connectTCP(url, 3338, factory)
-    reactor.run()
+
+class Connection(threading.Thread):
+    def __init__(self,target,port):        
+        super().__init__()        
+        self.port = port
+        self.host = target
+        self.factory = MyClientFactory(u"ws://"+target+":"+str(port))
+        
+    #reactor thread
+    def run(self):             
+        reactor.connectTCP(self.host, self.port, self.factory)        
+        reactor.run(installSignalHandlers=0)
+     
+    #called from main thread, enqueues to reactor thread
+    def send(self, data):
+        MyClientProtocol.broadcast_message(data)
+    
+    #called from main thread
+    def close(self):
+        MyClientFactory.closing = True
+        MyClientProtocol.close_all() #adds task to reactor thread
+        time.sleep(5)    
+        reactor.callFromThread(reactor.stop)
+        
+if __name__ == '__main__':
+    import time
+    connection = Connection("ec2-13-237-232-112.ap-southeast-2.compute.amazonaws.com",3338)
+    
+    connection.start()
+    print('started')
+    
+    for i in range (5):     
+        time.sleep(1)
+        connection.send(str(i).encode('utf8'))
+    
+    connection.close()   
+    connection.join()    
+
