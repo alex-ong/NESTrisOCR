@@ -66,9 +66,9 @@ class MyClientProtocol(WebSocketClientProtocol):
             ("WebSocket connection closed: {0}".format(reason))
     
     @classmethod
-    def broadcast_message(cls, data):  
+    def broadcast_message(cls, data, isBinary=False):  
         for c in set(cls.connections):
-            reactor.callFromThread(c.sendMessage, data)
+            reactor.callFromThread(c.sendMessage, data, isBinary)
     
     @classmethod
     def close_all(cls):
@@ -104,9 +104,10 @@ class Connection(threading.Thread):
         reactor.run(installSignalHandlers=0)
      
     #called from main thread, enqueues to reactor thread
-    def sendMessage(self, data):
-        payload = data.encode('utf8')
-        MyClientProtocol.broadcast_message(payload)
+    def sendMessage(self, data, isBinary=False):
+        if not isBinary:
+            data = data.encode('utf8')
+        MyClientProtocol.broadcast_message(data, isBinary)
     
     #called from main thread
     def close(self):
@@ -129,7 +130,7 @@ if __name__ == '__main__':
     
     for i in range (5):     
         time.sleep(1)
-        connection.send(str(i))
+        connection.sendMessage(str(i))
     
     connection.close()   
     connection.join()    

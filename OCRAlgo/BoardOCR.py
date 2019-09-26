@@ -29,5 +29,9 @@ def parseImage(img, color1, color2):
                     closest = i
             result[y][x] = closest
             
-    return result
+    result2 = []
+    for y in range(20):
+        temp = "".join(str(result[y][x]) for x in range(10))        
+        result2.append(temp)
+    return "".join(str(r) for r in result2)
     
