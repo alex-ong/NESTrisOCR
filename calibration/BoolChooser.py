@@ -14,3 +14,6 @@ class BoolChooser(tk.Frame):
     def valChanged(self):        
         rawItem = self.boolVar.get()
         self.onChange(rawItem)
+    
+    def refresh(self, value):
+        self.boolVar.set(value)

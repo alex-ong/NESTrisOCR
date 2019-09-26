@@ -28,3 +28,7 @@ class OptionChooser(tk.Frame):
     def valChanged(self, i):        
         rawItem = self.mapping[self.stringVar.get()]
         self.onChange(rawItem)
+    
+    def refresh(self, value):
+        self.stringVar.set(value)
+        

@@ -31,6 +31,7 @@ class NumberChooser(tk.Frame):
             value += amount
             self.value.set(str(value))
         #self.OnChange()
+
 class CompactNumberChooser(tk.Frame):
     def __init__(self, root, name, defaultValue, isFloat, OnChange, minCrement):
         super().__init__(root)
@@ -48,8 +49,7 @@ class CompactNumberChooser(tk.Frame):
         tk.Button(self,text='+',width=2,command=lambda:self.changeValue(+minCrement)).grid(row=0,column=4,sticky='nsew')
         tk.Button(self,text='++',width=2,command=lambda:self.changeValue(+minCrement * 10)).grid(row=0,column=5,sticky='nsew')
     
-    def changeValueText(self):
-        
+    def changeValueText(self):        
         success, value = self.checker(self.value.get())
         if success:
             self.OnChange(value)
