@@ -11,6 +11,7 @@ def preset_standalone(config):
     config.setStatsMethod('FIELD')        
     config.setHost("127.0.0.1")
     config.setPort(3338) 
+    config.setNetProtocol("LEGACY")
 
 #default das trainer preset. ideal for storing and recording das trainer
 def preset_dastrainer_standalone(config):
@@ -24,6 +25,7 @@ def preset_nestris99(config):
     config.setCapturePreview(True)
     config.setHost("13.237.232.112")
     config.setPort(3338)
+    config.setNetProtocol("AUTOBAHN")
     
 def preset_none(config):
     return

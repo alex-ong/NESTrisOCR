@@ -44,7 +44,8 @@ class Configuration:
         #network
         self.host = parser['network']['host']
         self.port = literal_eval(parser['network']['port'])
-    
+        self.netProtocol = parser['network']['protocol']
+
     # gets the 2x4 region out of the fieldPerc
     def subImage(self, rect):
         #return middle 4 / 10 x values and  2 / 20 y values
@@ -116,11 +117,15 @@ class Configuration:
 
     def setPreviewPerc(self, val):
         self.setItem('calibration','previewperc', val)    
+    
     def setHost(self, val):
         self.setItem('network','host', val)    
     
     def setPort(self, val):
         self.setItem('network','port', val)    
+    
+    def setNetProtocol(self, val):
+        self.setItem('network','protocol', val)
     
 updater = ConfigUpdater()        
 updater.read('config.ini')
