@@ -34,9 +34,9 @@ except ModuleNotFoundError:
     import StoppableThread
 
 import threading
-
+import time
 def CreateClient(target, port):    
-    client = ThreadedClient(target, port)    
+    client = Connection(target, port)    
     client.start()
     
     return client
@@ -63,10 +63,10 @@ class MyClientProtocol(WebSocketClientProtocol):
 
     def onClose(self, wasClean, code, reason):
         if reason is not None:
-            print("WebSocket connection closed: {0}".format(reason))
+            ("WebSocket connection closed: {0}".format(reason))
     
     @classmethod
-    def broadcast_message(cls, data):                
+    def broadcast_message(cls, data):  
         for c in set(cls.connections):
             reactor.callFromThread(c.sendMessage, data)
     
@@ -104,8 +104,9 @@ class Connection(threading.Thread):
         reactor.run(installSignalHandlers=0)
      
     #called from main thread, enqueues to reactor thread
-    def send(self, data):
-        MyClientProtocol.broadcast_message(data)
+    def sendMessage(self, data):
+        payload = data.encode('utf8')
+        MyClientProtocol.broadcast_message(payload)
     
     #called from main thread
     def close(self):
@@ -113,7 +114,12 @@ class Connection(threading.Thread):
         MyClientProtocol.close_all() #adds task to reactor thread
         time.sleep(5)    
         reactor.callFromThread(reactor.stop)
+    
+    def stop(self):
+        self.close()
+        super().stop()
         
+
 if __name__ == '__main__':
     import time
     connection = Connection("ec2-13-237-232-112.ap-southeast-2.compute.amazonaws.com",3338)
@@ -123,7 +129,7 @@ if __name__ == '__main__':
     
     for i in range (5):     
         time.sleep(1)
-        connection.send(str(i).encode('utf8'))
+        connection.send(str(i))
     
     connection.close()   
     connection.join()    

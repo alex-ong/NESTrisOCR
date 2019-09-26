@@ -11,8 +11,7 @@ from lib import * #bad!
 from CachedSender import CachedSender
 from multiprocessing import Pool
 import threading
-from Networking import TCPClient
-
+from Networking.NetworkClient import NetClient
 
 import time
 
@@ -51,12 +50,16 @@ MULTI_THREAD = config.threads #shouldn't need more than four if using FieldStats
 #limit how fast we scan.
 RATE_FIELDSTATS = 0.004
 RATE_TEXTONLY = 0.064
+RATE_FIELD = 1/60.0
 
 if USE_STATS_FIELD and MULTI_THREAD == 1:    
     RATE = RATE_FIELDSTATS
+elif CAPTURE_FIELD:
+    RATE = RATE_FIELD
 else:
     RATE = RATE_TEXTONLY
 
+SLEEP_TIME = 0.001
 def captureAndOCR(coords,hwnd,digitPattern,taskName,draw=False,red=False):
     t = time.time()
     img = WindowCapture.ImageCapture(coords,hwnd)    
@@ -91,7 +94,7 @@ def statsFieldMulti(ocr_stats, pool):
         
         # only sleep once.
         if time.time() < t + RATE_FIELDSTATS:
-            time.sleep(0.001)
+            time.sleep(SLEEP_TIME)
 
 
 def main(onCap):    
@@ -110,7 +113,6 @@ def main(onCap):
     
     scoreFixer = ScoreFixer(SCORE_PATTERN)
     
-    
     while True:
         # outer loop waits for the window to exists
         frame_start = time.time()
@@ -119,9 +121,9 @@ def main(onCap):
 
         if not hwnd:
             while time.time() < frame_end:
-                time.sleep(0.001)
+                time.sleep(SLEEP_TIME)
             continue
-
+       
         while checkWindow(hwnd):
             # inner loop gets fresh data for just the desired window
             frame_start  = time.time()
@@ -165,17 +167,17 @@ def main(onCap):
             
                 # warning for USE_STATS_FIELD if necessary
                 if MULTI_THREAD == 1 and time.time() > frame_start + 1/60.0:
-                    print ("Warning, not scanning field fast enough")
-                    
+                    print ("Warning, dropped frame scanning preview in field")
+            
+            if config.capture_field and time.time() > frame_start + 1/60.0:
+                print("Warning, dropped frame when capturing field")
             onCap(result)
-        
-            while time.time() < frame_end:
-                time.sleep(0.001)
-        
-
+                    
+            while time.time() < frame_end - SLEEP_TIME:
+                time.sleep(SLEEP_TIME)                        
         
 if __name__ == '__main__':
-    client = TCPClient.CreateClient('127.0.0.1',3338)
+    client = NetClient.CreateClient(config.host,int(config.port))
     cachedSender = CachedSender(client)
     try:
         main(cachedSender.sendResult)

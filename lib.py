@@ -51,7 +51,7 @@ def runTasks(pool, rawTasks):
         tasks = []
         for task in rawTasks:
             tasks.append(pool.apply_async(task[0],task[1]))                
-        taskResults = [res.get(timeout=1) for res in tasks]
+        taskResults = [res.get() for res in tasks]
         for key, number in taskResults:
             result[key] = number
         
