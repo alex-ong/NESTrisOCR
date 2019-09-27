@@ -179,7 +179,7 @@ def main(onCap):
         
 if __name__ == '__main__':
     import sys
-    if sys.argv[1] == '--calibrate':
+    if len(sys.argv) >= 2 and sys.argv[1] == '--calibrate':
         calibrateLoop()
         sys.exit()
     client = NetClient.CreateClient(config.host,int(config.port))
