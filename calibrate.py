@@ -1,8 +1,10 @@
 import calibration.Calibrator as Calibrator
 from config import config
 
-    
-if __name__ == '__main__':	
+def mainLoop():
     c = Calibrator.Calibrator(config)    
     while not c.destroying:
         c.update()
+
+if __name__ == '__main__':	
+    mainLoop()

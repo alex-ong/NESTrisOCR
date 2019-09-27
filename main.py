@@ -6,6 +6,7 @@ import OCRAlgo.PieceStatsBoardOCR as PieceStatsBoardOCR
 import OCRAlgo.BoardOCR as BoardOCR
 import OCRAlgo.PreviewOCR as PreviewOCR
 
+from calibrate import mainLoop as calibrateLoop
 from config import config
 from lib import * #bad!
 from CachedSender import CachedSender
@@ -177,6 +178,10 @@ def main(onCap):
                 time.sleep(SLEEP_TIME)                        
         
 if __name__ == '__main__':
+    import sys
+    if sys.argv[1] == '--calibrate':
+        calibrateLoop()
+        sys.exit()
     client = NetClient.CreateClient(config.host,int(config.port))
     cachedSender = CachedSender(client)
     try:

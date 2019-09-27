@@ -2,3 +2,6 @@
 /Networking/__pycache__/
 /.vs
 *__pycache__/
+/build/
+/dist/
+/main.spec
