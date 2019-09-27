@@ -125,8 +125,7 @@ if __name__ == '__main__':
     import time
     connection = Connection("ec2-13-237-232-112.ap-southeast-2.compute.amazonaws.com",3338)
     
-    connection.start()
-    print('started')
+    connection.start()    
     
     for i in range (5):     
         time.sleep(1)

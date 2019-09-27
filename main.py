@@ -166,10 +166,10 @@ def main(onCap):
                 lastLines = result['lines']
             
                 # warning for USE_STATS_FIELD if necessary
-                if MULTI_THREAD == 1 and time.time() > frame_start + 1/60.0:
+                if MULTI_THREAD == 1 and time.time() > frame_start + RATE_FIELD:
                     print ("Warning, dropped frame scanning preview in field")
             
-            if config.capture_field and time.time() > frame_start + 1/60.0:
+            if config.capture_field and time.time() > frame_start + RATE_FIELD:
                 print("Warning, dropped frame when capturing field")
             onCap(result)
                     
@@ -183,6 +183,8 @@ if __name__ == '__main__':
         main(cachedSender.sendResult)
     except KeyboardInterrupt:
         pass
+    
+        
     client.stop()
     client.join()
 
