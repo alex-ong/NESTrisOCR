@@ -182,6 +182,9 @@ if __name__ == '__main__':
     if len(sys.argv) >= 2 and sys.argv[1] == '--calibrate':
         calibrateLoop()
         sys.exit()
+        
+    multiprocessing.freeze_support()
+    
     client = NetClient.CreateClient(config.host,int(config.port))
     cachedSender = CachedSender(client)
     try:
