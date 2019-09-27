@@ -12,6 +12,7 @@ from calibration.auto_calibrate import auto_calibrate_raw
 
 import time
 UPSCALE = 4
+ENABLE_OTHER_OPTIONS = True
 class Calibrator(tk.Frame):
             
     def __init__(self, config):
@@ -27,8 +28,9 @@ class Calibrator(tk.Frame):
         root.config(background="black")
         StringChooser(self,"capture window starts with:", config.WINDOW_NAME, self.updateWindowName, 20).grid(row=0,sticky='nsew')
         StringChooser(self,"player name",config.player_name, config.setPlayerName,25).grid(row=1,sticky='nsew')
-        tk.Button(self,text="Other options", 
-                  command=lambda: create_window(root, self.config,self.otherOptionsClosed)).grid(row=0,column=1)
+        if ENABLE_OTHER_OPTIONS:
+            tk.Button(self,text="Other options", 
+                      command=lambda: create_window(root, self.config,self.otherOptionsClosed)).grid(row=0,column=1)
         
         # window coords
         f = tk.Frame(self)
