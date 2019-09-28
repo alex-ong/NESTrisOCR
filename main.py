@@ -174,6 +174,7 @@ def main(onCap):
             if config.capture_field and time.time() > frame_start + RATE_FIELD:
                 print("Warning, dropped frame when capturing field")
             
+            result['playername'] = config.player_name
             onCap(result)
                     
             while time.time() < frame_end - SLEEP_TIME:

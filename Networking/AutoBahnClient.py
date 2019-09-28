@@ -123,9 +123,9 @@ class Connection(threading.Thread):
 
 if __name__ == '__main__':
     import time
-    connection = Connection("ec2-13-237-232-112.ap-southeast-2.compute.amazonaws.com",3338)
-    
-    connection.start()    
+    url = "127.0.0.1"
+    #url = "ec2-13-237-232-112.ap-southeast-2.compute.amazonaws.com"
+    connection = CreateClient(url,3338)    
     
     for i in range (5):     
         time.sleep(1)
