@@ -11,6 +11,7 @@ from config import config
 from lib import * #bad!
 from CachedSender import CachedSender
 from multiprocessing import Pool
+import multiprocessing
 import threading
 from Networking.NetworkClient import NetClient
 
@@ -172,18 +173,20 @@ def main(onCap):
             
             if config.capture_field and time.time() > frame_start + RATE_FIELD:
                 print("Warning, dropped frame when capturing field")
+            
             onCap(result)
                     
             while time.time() < frame_end - SLEEP_TIME:
                 time.sleep(SLEEP_TIME)                        
         
 if __name__ == '__main__':
+    multiprocessing.freeze_support()
     import sys
     if len(sys.argv) >= 2 and sys.argv[1] == '--calibrate':
         calibrateLoop()
         sys.exit()
         
-    multiprocessing.freeze_support()
+    
     
     client = NetClient.CreateClient(config.host,int(config.port))
     cachedSender = CachedSender(client)
