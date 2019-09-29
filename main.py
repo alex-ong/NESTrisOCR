@@ -52,7 +52,7 @@ MULTI_THREAD = config.threads #shouldn't need more than four if using FieldStats
 #limit how fast we scan.
 RATE_FIELDSTATS = 0.004
 RATE_TEXTONLY = 0.064
-RATE_FIELD = 1/60.0
+RATE_FIELD = 1/30.0
 
 if USE_STATS_FIELD and MULTI_THREAD == 1:    
     RATE = RATE_FIELDSTATS
@@ -62,20 +62,19 @@ else:
     RATE = RATE_TEXTONLY
 
 SLEEP_TIME = 0.001
-def captureAndOCR(coords,hwnd,digitPattern,taskName,draw=False,red=False):
-    t = time.time()
+def captureAndOCR(coords,hwnd,digitPattern,taskName,draw=False,red=False):    
     img = WindowCapture.ImageCapture(coords,hwnd)    
     return taskName, scoreImage(img,digitPattern,draw,red)
-
+    
 def captureAndOCRBoardPiece(coords, hwnd):
     img = WindowCapture.ImageCapture(coords, hwnd)
     rgbo = PieceStatsBoardOCR.parseImage(img)    
     return ('piece_stats_board', rgbo)
 
-def captureAndOCRBoard(coords, hwnd):
+def captureAndOCRBoard(coords, hwnd):    
     img = WindowCapture.ImageCapture(coords, hwnd)
     col1 = WindowCapture.ImageCapture(COLOR1,hwnd)
-    col2 = WindowCapture.ImageCapture(COLOR2,hwnd)
+    col2 = WindowCapture.ImageCapture(COLOR2,hwnd)    
     field = BoardOCR.parseImage(img,col1,col2)
     return ('field', field)
 
@@ -175,6 +174,7 @@ def main(onCap):
                 print("Warning, dropped frame when capturing field")
             
             result['playername'] = config.player_name
+            
             onCap(result)
                     
             while time.time() < frame_end - SLEEP_TIME:
@@ -187,15 +187,16 @@ if __name__ == '__main__':
         calibrateLoop()
         sys.exit()
         
-    
-    
+    print ("Creating net client...")
     client = NetClient.CreateClient(config.host,int(config.port))
+    print ("Net client created.")
     cachedSender = CachedSender(client)
     try:
+        print ("Starting main loop")
         main(cachedSender.sendResult)
     except KeyboardInterrupt:
         pass
-    
+    print('main thread is here')
         
     client.stop()
     client.join()

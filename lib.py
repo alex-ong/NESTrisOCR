@@ -44,14 +44,20 @@ def screenPercToPixels(w,h,rect_xywh):
 def runFunc(func, args):
     return func(*args)
     
+FIRST = True
 #runs a bunch of tasks given a pool. Supports singleThread.
 def runTasks(pool, rawTasks):
+    global FIRST
+    
     result = {}
     if pool: #multithread
         tasks = []
         for task in rawTasks:
-            tasks.append(pool.apply_async(task[0],task[1]))                
-        taskResults = [res.get() for res in tasks]
+            tasks.append(pool.apply_async(task[0],task[1]))
+        
+        
+        taskResults = [(res.get() if FIRST else res.get(5.0)) for res in tasks]
+        FIRST = False
         for key, number in taskResults:
             result[key] = number
         
@@ -59,10 +65,9 @@ def runTasks(pool, rawTasks):
         for task in rawTasks:
             key, number = runFunc(task[0],task[1])
             result[key] = number
-            
+    
     return result
 
-#todo move this copy to Util.
 def tryGetInt(x):
     try:
         return (True, round(float(x)))

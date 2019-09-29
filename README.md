@@ -48,7 +48,7 @@ At the command line, run:
 
 `brew install python3 libtiff libjpeg webp little-cms2`
 
-`pip3 install -U pyobjc pillow numpy ConfigUpdater cv2`
+`pip3 install -U pyobjc pillow numba numpy ConfigUpdater cv2`
 
 You can verify the installation is correct by checking this:
 
@@ -57,6 +57,8 @@ You can verify the installation is correct by checking this:
 `import Quartz`
 
 `import numpy`
+
+`import numba`
 
 `import ConfigUpdater`
 

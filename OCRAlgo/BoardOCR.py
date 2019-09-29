@@ -1,23 +1,42 @@
 import PIL
 import numpy as np
-
-def parseImage(img, color1, color2):
+import time
+from numba import njit
+   
+def parseImage(img, color1, color2):    
     color1 = color1.resize((1,1), PIL.Image.ANTIALIAS)
     color1 = color1.getpixel((0,0))
 
     color2 = color2.resize((1,1), PIL.Image.ANTIALIAS)
     color2 = color2.getpixel((0,0))
+
+    img = img.resize((10,20),PIL.Image.NEAREST)
+    img = np.array(img,dtype=np.uint8)
+    
+    result = parseImage2(img,color1,color2)
+    
+    result2 = []
+    for y in range(20):
+        temp = "".join(str(result[y][x]) for x in range(10))        
+        result2.append(temp)
+
+    result = "".join(str(r) for r in result2)
+    
+    return result
+
+
+# atm this takes 12 millseconds to complete, with jit it takes <1ms.
+# we want to eventually compile this numba AOT, so we don't need numba.
+@njit(cache=True)
+def parseImage2(img,color1,color2):
+    
+    colors = [(25,25,25),(240,240,240),color1,color2]  
     
     result = [[0] * 10 for i in range(20)]
-    
-    img = img.resize((10,20),PIL.Image.NEAREST)
-
-    colors = [(25,25,25),(240,240,240),color1,color2]
-
     #todo: change to nparray to significantly speedup
     for x in range(10):
         for y in range(20):
-            pix = img.getpixel((x,y))
+            pix = img[y,x]
             closest = 0
             lowest_dist = (256*256)*3
             for i, color in enumerate(colors):
@@ -28,10 +47,11 @@ def parseImage(img, color1, color2):
                     lowest_dist = dist
                     closest = i
             result[y][x] = closest
-            
-    result2 = []
-    for y in range(20):
-        temp = "".join(str(result[y][x]) for x in range(10))        
-        result2.append(temp)
-    return "".join(str(r) for r in result2)
     
+    return result
+    
+    
+if __name__ == '__main__':
+    print(tester, len(''.join(tester)))
+    print(compress_image(tester))
+    print(len(compress_image(tester)))

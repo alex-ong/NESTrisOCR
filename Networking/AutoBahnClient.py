@@ -117,8 +117,7 @@ class Connection(threading.Thread):
         reactor.callFromThread(reactor.stop)
     
     def stop(self):
-        self.close()
-        super().stop()
+        self.close()        
         
 
 if __name__ == '__main__':
