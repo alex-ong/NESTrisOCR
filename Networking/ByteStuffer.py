@@ -1,7 +1,8 @@
-import numba
+from numba import njit
 import json
 import struct
 import numpy as np
+import random
 # this function converts a python dict to bytes for a small packet
 # to transfer across the network
 
@@ -159,6 +160,8 @@ def packStats(dataDict):
 # allocating a 200 element python array takes 0.1
 # it takes roughly 1ms at the moment.
 def packField(data):
+    if len(data) == FIELD_OFFSET:
+        return data
     result = bytearray(200)    
     four_byte_counter = 0
     currentByte = 0
@@ -175,6 +178,27 @@ def packField(data):
     
     return result
 
+def callprePackField():    
+    prePackField(data)
+
+@njit 
+def prePackField(data):
+    result = [0] * 50
+    index = 0
+    currentByte = 0
+    four_byte_counter = 0
+    for y in range(20):
+        for x in range(10):
+            currentByte += data[y,x]
+            four_byte_counter += 1
+            if four_byte_counter == 4:
+                result[index] = currentByte
+                four_byte_counter = 0
+                currentByte = 0
+                index += 1
+            currentByte = currentByte << 2
+            
+    return result
 
 def packPreview(letter):
     if letter is not None and letter in stats_order: #faster than try/catch
@@ -187,23 +211,41 @@ def packTime(timefloat):
     return struct.pack('>f', timefloat)        
 
 #one byte per item
+PLAYER_NAME = None
 def packPlayer(player):
-    playerEncoded = player.encode('ascii')
-    length = (len(playerEncoded)).to_bytes(1,'big')
-    return length + playerEncoded
+    global PLAYER_NAME
+    if PLAYER_NAME is None:
+        try:
+            playerEncoded = player.encode('ascii')
+        except:
+            playerEncoded = ('sore_loser_' + str(random.randint(100,10000))).encode('ascii')
+        length = (len(playerEncoded)).to_bytes(1,'big')
+        PLAYER_NAME = length + playerEncoded
+    return PLAYER_NAME
 
 if __name__ == '__main__':
-    temp = {"playername": "fluffy", "score": "008055", "lines": "015", "level": "01", "field": "03300000000133000000110000000011000000001100000000110000330021222233002223233310223333311022333331102233333330221133113022111111301222113330121133111012213311201123331120111331122021123111102212333110", "preview": "L", "time": 118.7786123752594}
-
-    #stuffed = stuffDictionary(temp)
+    temp = {"playername": "²fluffy", "score": "008055", "lines": "015", "level": "01", "field": "03300000000133000000110000000011000000001100000000110000330021222233002223233310223333311022333331102233333330221133113022111111301222113330121133111012213311201123331120111331122021123111102212333110", "preview": "L", "time": 118.7786123752594}
+    raw_data = temp['field']
+    data = np.zeros((20,10),dtype=np.uint8)
+    packed = prePackField(data)
+    temp['field'] = packed
+    
+    #temp = {"playername": "²fluffy", "score": "008055", "lines": "015", "level": "01", "preview": "L", "time": 118.7786123752594}
+    stuffed = stuffDictionary(temp)
+    print(stuffed)
     import time
-    t = time.time()
+    t = time.time()        
     for i in range(10000):
-        stuffDictionary(temp)
+        packField(temp["field"])
     print (time.time() - t)
     
     t = time.time()
     for i in range(10000):
-        json.dumps(temp['field'])
+        json.dumps(raw_data)
     print (time.time() - t)
         
+    
+    t = time.time()    
+    for i in range(10000):
+        prePackField(data)
+    print (time.time() - t)
