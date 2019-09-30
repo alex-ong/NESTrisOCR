@@ -33,7 +33,7 @@ def parseImage2(img,color1,color2):
     colors = [(10,10,10),(240,240,240),color1,color2]  
     
     result = [[0] * 10 for i in range(20)]
-    #todo: change to nparray to significantly speedup
+    
     for x in range(10):
         for y in range(20):
             pix = img[y,x]
