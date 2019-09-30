@@ -30,7 +30,7 @@ def parseImage(img, color1, color2):
 @njit(cache=True)
 def parseImage2(img,color1,color2):
     
-    colors = [(25,25,25),(240,240,240),color1,color2]  
+    colors = [(10,10,10),(240,240,240),color1,color2]  
     
     result = [[0] * 10 for i in range(20)]
     #todo: change to nparray to significantly speedup
