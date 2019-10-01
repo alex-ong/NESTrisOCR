@@ -11,7 +11,7 @@ from calibration.OtherOptions import create_window
 from calibration.auto_calibrate import auto_calibrate_raw
 
 import time
-UPSCALE = 4
+UPSCALE = 8
 ENABLE_OTHER_OPTIONS = True
 class Calibrator(tk.Frame):
             
@@ -68,15 +68,17 @@ class Calibrator(tk.Frame):
     
     def setupTab1(self):
         f = tk.Frame(self.tabManager)
-        canvasSize = pixelSize(6,UPSCALE)
+        canvasSize = pixelSize(3,UPSCALE)
         CompactRectChooser(f,"lines (imagePerc)",config.linesPerc,True,self.updateLinesPerc).grid()
         self.linesImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
         self.linesImage.grid()
         
+        canvasSize = pixelSize(6,UPSCALE)
         CompactRectChooser(f,"score (imagePerc)", config.scorePerc,True,self.updateScorePerc).grid()
         self.scoreImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
         self.scoreImage.grid()
 
+        canvasSize = pixelSize(2,UPSCALE)
         CompactRectChooser(f,"level (imagePerc)", config.levelPerc,True,self.updateLevelPerc).grid()
         self.levelImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
         self.levelImage.grid()
@@ -184,15 +186,16 @@ class Calibrator(tk.Frame):
         
         self.boardImage.updateImage(board)
 
+		#todo; scale this so it reflects reality.
         if self.getActiveTab() == 0:
             lines_img = board.crop(pixelPercRect(dim, self.config.linesPerc))        
-            lines_img = lines_img.resize(pixelSize(3,4),Image.ANTIALIAS)
+            lines_img = lines_img.resize(pixelSize(3,UPSCALE),Image.BOX)
 
             score_img = board.crop(pixelPercRect(dim, self.config.scorePerc))        
-            score_img = score_img.resize(pixelSize(6,4),Image.ANTIALIAS)
+            score_img = score_img.resize(pixelSize(6,UPSCALE),Image.BOX)
 
             level_img = board.crop(pixelPercRect(dim, self.config.levelPerc))        
-            level_img = level_img.resize(pixelSize(2,4),Image.ANTIALIAS)
+            level_img = level_img.resize(pixelSize(2,UPSCALE),Image.BOX)
             self.linesImage.updateImage(lines_img)
             self.scoreImage.updateImage(score_img)
             self.levelImage.updateImage(level_img)
