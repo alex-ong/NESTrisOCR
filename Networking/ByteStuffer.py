@@ -25,7 +25,7 @@ FIELD_OFFSET = 50
 PREVIEW_OFFSET = 1
 TIME_OFFSET = 4
 
-stats_order = 'TZJOSLI'
+stats_order = 'TJZOSLI'
 
 #for use with AutoBahn server to detect player name.
 def getPlayerOffset(byte_header):
@@ -133,13 +133,13 @@ def packLines(linesString):
 def packLevel(levelString):
     result = bytearray()
     if levelString is None:
-        result.append(1)
-        result.append(0)
-    else:
-        result.append(0)    
+        result.append(255)
+        result.append(255)
+    else:            
         first = hexToNibble(levelString[0])
         second = hexToNibble(levelString[1])        
-        result.append((first << 4) + second)        
+        result.append(first)    
+        result.append(second)        
     return result
 
 
@@ -234,7 +234,7 @@ if __name__ == '__main__':
     import time
     t = time.time()        
     for i in range(10000):
-        packField(temp["field"])
+        packField(raw_data)
     print (time.time() - t)
     
     t = time.time()
