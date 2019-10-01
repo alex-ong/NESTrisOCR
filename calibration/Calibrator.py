@@ -12,7 +12,7 @@ from calibration.auto_calibrate import auto_calibrate_raw
 
 import time
 UPSCALE = 4
-ENABLE_OTHER_OPTIONS = False
+ENABLE_OTHER_OPTIONS = True
 class Calibrator(tk.Frame):
             
     def __init__(self, config):
