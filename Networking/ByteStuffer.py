@@ -178,8 +178,6 @@ def packField(data):
     
     return result
 
-def callprePackField():    
-    prePackField(data)
 
 @njit 
 def prePackField(data):
