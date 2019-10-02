@@ -46,9 +46,9 @@ You need to have python3 and the pyobjc binding to access the Quartz APIs
 
 At the command line, run:
 
-`brew install python3 libtiff libjpeg webp little-cms2`
+`brew install python3 libtiff libjpeg webp little-cms2 opencv@2`
 
-`pip3 install -U pyobjc pillow numba numpy ConfigUpdater cv2`
+`pip3 install -r requirements-osx.txt`
 
 You can verify the installation is correct by checking this:
 
