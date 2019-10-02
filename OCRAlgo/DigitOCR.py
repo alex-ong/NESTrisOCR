@@ -22,6 +22,9 @@ IMAGE_MULT = 3
 GAP = (BLOCK_SIZE - IMAGE_SIZE) * IMAGE_MULT
 SCALED_IMAGE_SIZE = IMAGE_SIZE * IMAGE_MULT
 
+def finalImageSize(numDigits):
+    return (((BLOCK_SIZE)*numDigits-1)*IMAGE_MULT, SCALED_IMAGE_SIZE)
+
 def setupColour(prefix, outputDict, digitList):
     #setup white digits
     for digit in digitList:
@@ -97,8 +100,7 @@ def contrastImg(img):
 def convertImg(img, count, show):
     t = time.time()
     img = contrastImg(img)        
-    img = img.resize((((BLOCK_SIZE)*count-1)*IMAGE_MULT,
-                        SCALED_IMAGE_SIZE),PIL.Image.ANTIALIAS)
+    img = img.resize(finalImageSize(count),PIL.Image.ANTIALIAS)
     
     if show:
         img.show()

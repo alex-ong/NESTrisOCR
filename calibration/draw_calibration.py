@@ -1,4 +1,5 @@
-﻿from lib import getWindow, WindowCapture, screenPercToPixels, lerp
+﻿from lib import getWindow, WindowCapture, screenPercToPixels, lerp, mult_rect
+from OCRAlgo.DigitOCR import finalImageSize
 from OCRAlgo.PieceStatsTextOCR import generate_stats
 from OCRAlgo.PreviewOCR import calculateOffsets
 from PIL import Image, ImageDraw
@@ -18,6 +19,30 @@ def splitRect(perc, count):
                     perc[3]])
     return result
 
+
+def captureArea(coords):
+    hwnd = getWindow()
+    if hwnd is None:
+        return None
+    return WindowCapture.ImageCapture(coords, hwnd)
+
+def highlight_split_digits(c):    
+    scorePix = mult_rect(c.CAPTURE_COORDS,c.scorePerc)
+    linesPix = mult_rect(c.CAPTURE_COORDS,c.linesPerc)
+    levelPix = mult_rect(c.CAPTURE_COORDS,c.levelPerc)
+    
+    scoreImg = captureArea(scorePix)
+    linesImg = captureArea(linesPix)
+    levelImg = captureArea(levelPix)
+
+    scoreImg = scoreImg.resize(finalImageSize(6))
+    linesImg = linesImg.resize(finalImageSize(3))
+    levelImg = levelImg.resize(finalImageSize(2))
+
+    return (scoreImg,linesImg,levelImg)
+
+
+    
 def highlight_calibration(img, c):    
     poly = Image.new('RGBA', (img.width,img.height))
     draw = ImageDraw.Draw(poly)
@@ -52,7 +77,7 @@ def highlight_calibration(img, c):
 
     if c.capture_stats:
         if c.stats_method == 'TEXT':
-            #pieces            
+            #pieces
             for value in generate_stats(c.CAPTURE_COORDS,c.statsPerc,c.scorePerc[3],False).values():
                 draw.rectangle(screenPercToPixels(img.width,img.height,value),fill=orange)
         else: #c.stats_method == 'FIELD':
@@ -66,16 +91,16 @@ def highlight_calibration(img, c):
     
     if c.capture_preview:
         draw.rectangle(screenPercToPixels(img.width,img.height,c.previewPerc),fill=blue)
-        pixelWidth = c.previewPerc[2]/31.0
-        pixelHeight = c.previewPerc[3]/15.0
+        pixelWidth = c.previewPerc[2] / 31.0
+        pixelHeight = c.previewPerc[3] / 15.0
 
         blockWidth = pixelWidth * 7
         blockHeight = pixelHeight * 7
 
-        t1 = (c.previewPerc[0] + 4*pixelWidth, c.previewPerc[1], blockWidth, blockHeight)
-        t2 = (c.previewPerc[0] + 12*pixelWidth, c.previewPerc[1], blockWidth, blockHeight)
-        t3 = (c.previewPerc[0] + 20*pixelWidth, c.previewPerc[1], blockWidth, blockHeight)
-        t4 = (c.previewPerc[0] + 12*pixelWidth, c.previewPerc[1]+pixelHeight*8, blockWidth, blockHeight)
+        t1 = (c.previewPerc[0] + 4 * pixelWidth, c.previewPerc[1], blockWidth, blockHeight)
+        t2 = (c.previewPerc[0] + 12 * pixelWidth, c.previewPerc[1], blockWidth, blockHeight)
+        t3 = (c.previewPerc[0] + 20 * pixelWidth, c.previewPerc[1], blockWidth, blockHeight)
+        t4 = (c.previewPerc[0] + 12 * pixelWidth, c.previewPerc[1] + pixelHeight * 8, blockWidth, blockHeight)
         for rect in [t1,t2,t3,t4]:
             draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill=orange)
         for o in calculateOffsets():
@@ -96,4 +121,9 @@ def draw_calibration(config):
     highlight_calibration(img, config)   
     img = img.resize((512,448),Image.ANTIALIAS)
     return img
-    
+
+def captureArea(coords):
+    hwnd = getWindow()
+    if hwnd is None:
+        return None
+    return WindowCapture.ImageCapture(coords, hwnd)
