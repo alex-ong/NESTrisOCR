@@ -45,6 +45,9 @@ class Configuration:
         self.host = parser['network']['host']
         self.port = literal_eval(parser['network']['port'])
         self.netProtocol = parser['network']['protocol']
+        
+        #debug
+        self.printPacket = literal_eval(parser['debug']['print_packet'])
 
     # gets the 2x4 region out of the fieldPerc
     def subImage(self, rect):

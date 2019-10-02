@@ -138,7 +138,8 @@ def main(onCap):
             
             if STATS_ENABLE:
                 if STATS_METHOD == 'TEXT':                
-                    rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,STATS_PATTERN,key,False,True)))
+                    for key in STATS_COORDS.keys():
+                        rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,STATS_PATTERN,key,False,True)))
                 elif MULTI_THREAD == 1: #run FIELD_PIECE in main thread if necessary
                     rawTasks.append((captureAndOCRBoardPiece, (STATS2_COORDS, hwnd)))
             
@@ -190,7 +191,7 @@ if __name__ == '__main__':
     print ("Creating net client...")
     client = NetClient.CreateClient(config.host,int(config.port))
     print ("Net client created.")
-    cachedSender = CachedSender(client)
+    cachedSender = CachedSender(client,config.printPacket)
     try:
         print ("Starting main loop")
         main(cachedSender.sendResult)
