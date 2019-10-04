@@ -92,19 +92,17 @@ Follow the steps in the picture:
 
 2) Enter your name 
 
-3) Press auto-calibrate. The window should snap into place.
-
-4) Check that the game window has been detected. If not, press auto-calibrate another 3-4 times. If that still doesnt work,
+3) Press auto-calibrate. The window should snap into place. Check that hte game window has been detected. If not, press auto-calibrate another 3-4 times. If that still doesnt work,
    use the +- buttons in "capture window coords" to get the game window.
 
-5) Micro adjust so that the numbers are highlighted and the black regions are empty.
+4) Auto adjust Lines, Score and Level. Micro adjust so that the numbers are close and then re-auto-adjust to get best results.
 
-6) You can adjust other options such as multi-threading for performance and whether to capture piece stats or the field.
+5) You can adjust other options such as multi-threading for performance and whether to capture piece stats or the field.
 
-7) If capturing the field (whether for piece stats or field directly), calibrate the field in the field tab. There are also
+6) If capturing the field (whether for piece stats or field directly), calibrate the field in the field tab. There are also
    two squares that refer to the statistics portion of the screen so that we can ascertain block colors.
 
-8) If capturing the piece statistics via text, calibrate so that the red text is highlighted correctly.
+7) If capturing the piece statistics via text, calibrate so that the red text is highlighted correctly.
 
 Running
 ===

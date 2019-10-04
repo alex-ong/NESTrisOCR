@@ -11,7 +11,7 @@ def auto_calibrate_raw(config):
         print("Unable to find window with title:",  config.WINDOW_NAME)
         return None
     
-    img = WindowCapture.ImageCapture((0,0,1500,1500), hwnd)    
+    img = WindowCapture.ImageCapture((0,0,4000,2000), hwnd)    
     return auto_calibrate(img)
 
 '''

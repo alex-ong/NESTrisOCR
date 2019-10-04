@@ -1,15 +1,17 @@
 ﻿import tkinter as tk
 import tkinter.ttk as ttk
+import sys
 from PIL import Image, ImageDraw
 from lib import *
 from OCRAlgo.PieceStatsTextOCR import generate_stats
-from OCRAlgo.DigitOCR import finalImageSize
+from OCRAlgo.DigitOCR import finalImageSize, scoreImage0
 from calibration.StringChooser import StringChooser
 from calibration.RectChooser import RectChooser, CompactRectChooser
 from calibration.ImageCanvas import ImageCanvas
-from calibration.draw_calibration import draw_calibration, highlight_split_digits
+from calibration.draw_calibration import draw_calibration, highlight_split_digits, captureArea
 from calibration.OtherOptions import create_window
 from calibration.auto_calibrate import auto_calibrate_raw
+import multiprocessing
 
 import time
 UPSCALE = 2
@@ -44,7 +46,7 @@ class Calibrator(tk.Frame):
         border.config(relief=tk.FLAT,bd=5,background='orange')
         border.pack(side=tk.RIGHT,fill='both')
         autoCalibrate = tk.Button(border,text="Automatically detect field", 
-                                  command=self.autoDetectField)        
+                                  command=self.autoDetectField,bg='red')        
         autoCalibrate.pack(fill='both',expand=True)
         f.grid(row=2,column=0)
         
@@ -70,20 +72,25 @@ class Calibrator(tk.Frame):
     def setupTab1(self):
         f = tk.Frame(self.tabManager)
         canvasSize = [UPSCALE*i for i in finalImageSize(3)]
-        
-        CompactRectChooser(f,"lines (imagePerc)",config.linesPerc,True,self.updateLinesPerc).grid()
+        tk.Button(f,text="Auto Adjust Lines \nNeeds Lines = 000",command=self.autoLines,bg='red').grid(row=0,column=0)
+        self.linesPerc = CompactRectChooser(f,"lines (imagePerc)",config.linesPerc,True,self.updateLinesPerc)
+        self.linesPerc.grid(row=0,column=1)
         self.linesImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
-        self.linesImage.grid()
+        self.linesImage.grid(row=1,columnspan=2)
         
         canvasSize = [UPSCALE*i for i in finalImageSize(6)]
-        CompactRectChooser(f,"score (imagePerc)", config.scorePerc,True,self.updateScorePerc).grid()
+        tk.Button(f,text="Auto Adjust Score \n Needs Score = 000000",command=self.autoScore,bg='red').grid(row=2,column=0)
+        self.scorePerc = CompactRectChooser(f,"score (imagePerc)", config.scorePerc,True,self.updateScorePerc)
+        self.scorePerc.grid(row=2,column=1)
         self.scoreImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
-        self.scoreImage.grid()
+        self.scoreImage.grid(row=3,columnspan=2)
 
         canvasSize = [UPSCALE*i for i in finalImageSize(2)]
-        CompactRectChooser(f,"level (imagePerc)", config.levelPerc,True,self.updateLevelPerc).grid()
+        tk.Button(f,text="Auto Adjust Level \n Needs Level = 00",command=self.autoLevel,bg='red').grid(row=4,column=0)
+        self.levelPerc = CompactRectChooser(f,"level (imagePerc)", config.levelPerc,True,self.updateLevelPerc)
+        self.levelPerc.grid(row=4,column=1)
         self.levelImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
-        self.levelImage.grid()
+        self.levelImage.grid(row=5,columnspan=2)
         self.tabManager.add(f,text="NumberOCR")
     
     def setupTab2(self):
@@ -197,7 +204,31 @@ class Calibrator(tk.Frame):
             self.linesImage.updateImage(lines_img)
             self.scoreImage.updateImage(score_img)
             self.levelImage.updateImage(level_img)
-
+    
+    def autoLines(self):
+        bestRect = autoAdjustRectangle(self.config.CAPTURE_COORDS, self.config.linesPerc, 3)
+        if bestRect is not None:
+            self.linesPerc.show(str(item) for item in bestRect)
+            self.config.setLinesPerc(bestRect)        
+        else:
+            print ("Please have score on screen as 000")
+    
+    def autoScore(self):
+        bestRect = autoAdjustRectangle(self.config.CAPTURE_COORDS, self.config.scorePerc, 6)
+        if bestRect is not None:
+            self.scorePerc.show(str(item) for item in bestRect)
+            self.config.setScorePerc(bestRect)        
+        else:
+            print ("Please have score on screen as 000000")
+        
+    def autoLevel(self):
+        bestRect = autoAdjustRectangle(self.config.CAPTURE_COORDS, self.config.levelPerc, 2)
+        if bestRect is not None:
+            self.levelPerc.show(str(item) for item in bestRect)
+            self.config.setLevelPerc(bestRect)        
+        else:
+            print ("Please have score on screen as 00")
+        
     def getNewBoardImage(self):
         return draw_calibration(self.config)
 
@@ -231,3 +262,53 @@ def pixelPercRect(dim,rectPerc):
     x2 = round(x1 + dim[0] * rectPerc[2])
     y2 = round(y1 + dim[1] * rectPerc[3])
     return (x1,y1,x2,y2)
+
+def autoAdjustRectangle(capture_coords, rect, numDigits):
+    p = multiprocessing.Pool()
+    lowestScore = None
+    lowestOffset = None
+    bestRect = None
+    pattern = 'D'*numDigits
+    left,right = -3, 4
+    results = []
+    for x in range (left,right):
+        for y in range (left,right):
+            for w in range(left,right):
+                for h in range(left,right):                        
+                    newRect = (rect[0] + x * 0.001,
+                              rect[1] + y * 0.001,
+                              rect[2] + w * 0.001,
+                              rect[3] + h * 0.001)
+                    pixRect = mult_rect(capture_coords,newRect)
+                    results.append(p.apply_async(adjustTask,(pixRect,pattern,newRect)))
+    
+    for (i, r) in enumerate(results):       
+        result, newRect = r.get()     
+        progressBar(i,len(results))        
+        if result is not None:            
+            if lowestScore is None or result < lowestScore:
+                bestRect = newRect
+                lowestScore = result
+                lowestOffset = (x,y,w,h)
+    p.close()
+    p.join()
+    return bestRect
+    
+def adjustTask(pixRect, pattern, newRect):
+    result = 0
+    for i in range (3):
+        img = captureArea(pixRect)
+        result2 = scoreImage0(img,pattern)
+        if result2 is not None and result is not None:
+            result += result2
+        else:
+            result = None
+    return (result,newRect)
+    
+def progressBar(value, endvalue, bar_length=20):
+    percent = float(value) / endvalue
+    arrow = '-' * int(round(percent * bar_length)-1) + '>'
+    spaces = ' ' * (bar_length - len(arrow))
+
+    sys.stdout.write("\rPercent: [{0}] {1}%".format(arrow + spaces, int(round(percent * 100))))
+    sys.stdout.flush()

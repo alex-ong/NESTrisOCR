@@ -1,5 +1,5 @@
 import PIL
-from PIL import Image, ImageEnhance
+from PIL import Image, ImageEnhance, ImageFilter
 import time
 #todo: remove NP_SUPPORTED and only use numpy
 try:
@@ -86,7 +86,7 @@ def getDigit(img, pattern, startX, startY, red):
             lowest_score = score
             lowest_digit = digit
 
-    return lowest_digit
+    return (lowest_digit, lowest_score)
 
 #convert to black/white, with custom threshold    
 def contrastImg(img):  
@@ -99,7 +99,7 @@ def contrastImg(img):
     
 def convertImg(img, count, show):
     t = time.time()
-    img = contrastImg(img)        
+    img = contrastImg(img)    
     img = img.resize(finalImageSize(count),PIL.Image.ANTIALIAS)
     
     if show:
@@ -115,13 +115,28 @@ def convertImg(img, count, show):
     
     return img    
 
-
+#used for autocalibration.
+def scoreImage0(img, digitPattern):
+    score = []
+    count = len(digitPattern)
+    img = convertImg(img,count,False)
+    
+    for (i, pattern) in enumerate(digitPattern):
+        result = getDigit(img, pattern, i*(BLOCK_SIZE*IMAGE_MULT),0,False)
+        if result[0] != '0':
+            return None
+        else:            
+            score.append(result[1])
+    
+    return sum(score)
+    
+    
 def scoreImage(img, digitPattern, show=False, red=False):
     count = len(digitPattern)
     img = convertImg(img,count,show)
     label = ""
     for (i, pattern) in enumerate(digitPattern):
-        result = getDigit(img, pattern, i*(BLOCK_SIZE*IMAGE_MULT),0, red)
+        result = getDigit(img, pattern, i*(BLOCK_SIZE*IMAGE_MULT),0, red)[0]
         if result == 'null':
             return None
         else:

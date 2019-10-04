@@ -122,8 +122,3 @@ def draw_calibration(config):
     img = img.resize((512,448),Image.ANTIALIAS)
     return img
 
-def captureArea(coords):
-    hwnd = getWindow()
-    if hwnd is None:
-        return None
-    return WindowCapture.ImageCapture(coords, hwnd)
