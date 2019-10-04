@@ -5,6 +5,7 @@ from OCRAlgo.PieceStatsTextOCR import generate_stats
 import OCRAlgo.PieceStatsBoardOCR as PieceStatsBoardOCR
 import OCRAlgo.BoardOCR as BoardOCR
 import OCRAlgo.PreviewOCR as PreviewOCR
+from OCRAlgo.NewGameDetector import NewGameDetector
 
 from calibrate import mainLoop as calibrateLoop
 from config import config
@@ -114,6 +115,8 @@ def main(onCap):
     
     scoreFixer = ScoreFixer(SCORE_PATTERN)
     
+    gameIDParser = NewGameDetector()
+    
     while True:
         # outer loop waits for the window to exists
         frame_start = time.time()
@@ -174,7 +177,9 @@ def main(onCap):
             if config.capture_field and time.time() > frame_start + RATE_FIELD:
                 print("Warning, dropped frame when capturing field")
             
+            
             result['playername'] = config.player_name
+            result['gameid'] = gameIDParser.getGameID(result['score'],result['lines'],result['level'])
             
             onCap(result)
                     

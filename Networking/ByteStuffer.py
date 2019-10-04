@@ -15,7 +15,9 @@ STATS = 3 # needs to support 0-9 * 3 and null for 7 pieces.
 FIELD = 4 # needs to support 0-4 * 200 cells. 4 bits * 200 = 100 bytes
 PREVIEW = 5 #needs to support 7 types + null, so can fit into a byte
 TIME = 6 # 4 byte floating point.
-PLAYERNAME = 7 #ascii only; 10 chars?
+GAMEID = 7 #1 byte.
+PLAYERNAME = 8 #ascii only; 10 chars?
+
 
 SCORE_OFFSET = 3
 LINES_OFFSET = 2
@@ -24,6 +26,7 @@ STATS_OFFSET = LINES_OFFSET*7
 FIELD_OFFSET = 50
 PREVIEW_OFFSET = 1
 TIME_OFFSET = 4
+GAMEID_OFFSET = 1
 
 stats_order = 'TJZOSLI'
 
@@ -44,6 +47,8 @@ def getPlayerOffset(byte_header):
         result += PREVIEW_OFFSET
     if byte_header & (1 << TIME):
         result += TIME_OFFSET
+    if byte_header & (1 << GAMEID):
+        result += GAMEID_OFFSET
     
     return result
 
@@ -63,10 +68,11 @@ def calculateMask(startdict):
         result += 1 << PREVIEW
     if 'time' in startdict:
         result += 1 << TIME
+    if 'gameid' in startdict:
+        result += 1 << GAMEID
     if 'playername' in startdict:
-        result += 1 << PLAYERNAME
+        result += 1 << PLAYERNAME    
     
-
     return result
 
 INFO_MASK = None
@@ -76,8 +82,8 @@ def stuffDictionary(input):
         INFO_MASK = calculateMask(input)
     result = bytearray()
     
-    result.append(0) #in case we need to expand info_mask
-    result.append(INFO_MASK)
+    
+    result.extend(struct.pack('>H',INFO_MASK))
 
     if INFO_MASK & (1 << SCORE):
         result.extend(packScore(input['score']))
@@ -93,6 +99,8 @@ def stuffDictionary(input):
         result.extend(packPreview(input['preview']))
     if INFO_MASK & (1 << TIME):
         result.extend(packTime(input['time']))
+    if INFO_MASK & (1 << GAMEID):
+        result.extend(packGameID(input['gameid']))
     if INFO_MASK & (1 << PLAYERNAME):
         result.extend(packPlayer(input['playername']))
 
@@ -208,6 +216,10 @@ def packPreview(letter):
 def packTime(timefloat):
     return struct.pack('>f', timefloat)        
 
+def packGameID(gameid):
+    gameid = int(gameid) % 0x100    
+    return struct.pack('>B', gameid)        
+    
 #one byte per item
 PLAYER_NAME = None
 def packPlayer(player):
