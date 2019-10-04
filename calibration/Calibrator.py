@@ -3,15 +3,16 @@ import tkinter.ttk as ttk
 from PIL import Image, ImageDraw
 from lib import *
 from OCRAlgo.PieceStatsTextOCR import generate_stats
+from OCRAlgo.DigitOCR import finalImageSize
 from calibration.StringChooser import StringChooser
 from calibration.RectChooser import RectChooser, CompactRectChooser
 from calibration.ImageCanvas import ImageCanvas
-from calibration.draw_calibration import draw_calibration
+from calibration.draw_calibration import draw_calibration, highlight_split_digits
 from calibration.OtherOptions import create_window
 from calibration.auto_calibrate import auto_calibrate_raw
 
 import time
-UPSCALE = 8
+UPSCALE = 2
 ENABLE_OTHER_OPTIONS = True
 class Calibrator(tk.Frame):
             
@@ -68,17 +69,18 @@ class Calibrator(tk.Frame):
     
     def setupTab1(self):
         f = tk.Frame(self.tabManager)
-        canvasSize = pixelSize(3,UPSCALE)
+        canvasSize = [UPSCALE*i for i in finalImageSize(3)]
+        
         CompactRectChooser(f,"lines (imagePerc)",config.linesPerc,True,self.updateLinesPerc).grid()
         self.linesImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
         self.linesImage.grid()
         
-        canvasSize = pixelSize(6,UPSCALE)
+        canvasSize = [UPSCALE*i for i in finalImageSize(6)]
         CompactRectChooser(f,"score (imagePerc)", config.scorePerc,True,self.updateScorePerc).grid()
         self.scoreImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
         self.scoreImage.grid()
 
-        canvasSize = pixelSize(2,UPSCALE)
+        canvasSize = [UPSCALE*i for i in finalImageSize(2)]
         CompactRectChooser(f,"level (imagePerc)", config.levelPerc,True,self.updateLevelPerc).grid()
         self.levelImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
         self.levelImage.grid()
@@ -188,14 +190,10 @@ class Calibrator(tk.Frame):
 
 		#todo; scale this so it reflects reality.
         if self.getActiveTab() == 0:
-            lines_img = board.crop(pixelPercRect(dim, self.config.linesPerc))        
-            lines_img = lines_img.resize(pixelSize(3,UPSCALE),Image.BOX)
-
-            score_img = board.crop(pixelPercRect(dim, self.config.scorePerc))        
-            score_img = score_img.resize(pixelSize(6,UPSCALE),Image.BOX)
-
-            level_img = board.crop(pixelPercRect(dim, self.config.levelPerc))        
-            level_img = level_img.resize(pixelSize(2,UPSCALE),Image.BOX)
+            score_img,lines_img,level_img = highlight_split_digits(self.config)            
+            score_img = score_img.resize((UPSCALE * i for i in score_img.size))
+            lines_img = lines_img.resize((UPSCALE * i for i in lines_img.size))
+            level_img = level_img.resize((UPSCALE * i for i in level_img.size))
             self.linesImage.updateImage(lines_img)
             self.scoreImage.updateImage(score_img)
             self.levelImage.updateImage(level_img)
@@ -224,9 +222,6 @@ class Calibrator(tk.Frame):
         self.destroying = True
         self.root.destroy()
         
-def pixelSize(numDigits, upscale):
-    return ((7 * numDigits + numDigits - 1) * upscale, 
-             7 * upscale)
 
 #sources: PixelDimensions (w,h), RectPerc(x,y,w,h)
 #out: RectPixel(x,y,x2,y2)
