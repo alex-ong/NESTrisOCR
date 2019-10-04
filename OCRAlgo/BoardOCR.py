@@ -2,7 +2,9 @@ import PIL
 import numpy as np
 import time
 from numba import njit
-   
+from config import config
+from Networking.ByteStuffer import prePackField
+
 def parseImage(img, color1, color2):    
     color1 = color1.resize((1,1), PIL.Image.ANTIALIAS)
     color1 = color1.getpixel((0,0))
@@ -15,24 +17,27 @@ def parseImage(img, color1, color2):
     
     result = parseImage2(img,color1,color2)
     
-    result2 = []
-    for y in range(20):
-        temp = "".join(str(result[y][x]) for x in range(10))        
-        result2.append(temp)
-
-    result = "".join(str(r) for r in result2)
+    if config.netProtocol == 'AUTOBAHN_V2':
+        result = prePackField(result)
+        result = result.tobytes()
+    else:
+        result2 = []
+        for y in range(20):
+            temp = "".join(str(result[y, x]) for x in range(10))        
+            result2.append(temp)
+        result = "".join(str(r) for r in result2)
     
     return result
 
 
 # atm this takes 12 millseconds to complete, with jit it takes <1ms.
 # we want to eventually compile this numba AOT, so we don't need numba.
-@njit(cache=True)
+@njit()
 def parseImage2(img,color1,color2):
     
     colors = [(10,10,10),(240,240,240),color1,color2]  
     
-    result = [[0] * 10 for i in range(20)]
+    result = np.zeros((20,10),dtype=np.uint8)
     
     for x in range(10):
         for y in range(20):
@@ -46,7 +51,7 @@ def parseImage2(img,color1,color2):
                 if dist < lowest_dist:
                     lowest_dist = dist
                     closest = i
-            result[y][x] = closest
+            result[y,x] = closest
     
     return result
     

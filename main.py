@@ -196,7 +196,7 @@ if __name__ == '__main__':
     print ("Creating net client...")
     client = NetClient.CreateClient(config.host,int(config.port))
     print ("Net client created.")
-    cachedSender = CachedSender(client,config.printPacket)
+    cachedSender = CachedSender(client,config.printPacket,config.netProtocol)
     try:
         print ("Starting main loop")
         main(cachedSender.sendResult)

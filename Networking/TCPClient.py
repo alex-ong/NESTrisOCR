@@ -29,7 +29,7 @@ class ThreadedClient(StoppableThread.StoppableThread):
         self.messageQueue = queue.Queue()
         super().__init__(*args)    
         
-    def sendMessage(self, message):        
+    def sendMessage(self, message, *args):        
         self.messageQueue.put(message)
         
     def run(self):        
