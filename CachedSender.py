@@ -38,7 +38,7 @@ def packMessage(dictionary, protocol):
     if protocol == 'LEGACY' or protocol == 'AUTOBAHN':
         return (json.dumps(dictionary), False)
     elif protocol == 'AUTOBAHN_V2':
-        return (stuffDictionary(dictionary), True)
+        return (bytes(stuffDictionary(dictionary)), True)
 
 def sameMessage(dict1, dict2):
     if dict1 is None:
