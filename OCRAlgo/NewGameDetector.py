@@ -6,15 +6,22 @@ class NewGameDetector():
         self.level = None
         self.gameId = 0
         
-    def getGameID(self, score, lines,level):
+    #we only consider transitioning from all null to all '0' and vice versa.
+    def getGameID(self, score, lines, level):
         if (self.score == None and
             self.lines == None and
             self.level == None):
             if score == '000000' and lines == '000':
                 self.gameId += 1
-        self.score = score
-        self.lines = lines
-        self.level = level
+                self.score = score
+                self.lines = lines
+                self.level = level
+        elif (score == None and
+              lines == None and
+              level == None):
+            self.score = score
+            self.lines = lines
+            self.level = level
         
         return self.gameId
             
