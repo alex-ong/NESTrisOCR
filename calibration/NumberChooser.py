@@ -1,4 +1,5 @@
 import tkinter as tk
+from .Widgets import Button
 from lib import tryGetFloat
 from lib import tryGetInt
 
@@ -12,12 +13,17 @@ class NumberChooser(tk.Frame):
         self.OnChange = OnChange
         self.checker = tryGetFloat if self.isFloat else tryGetInt
         self.config(bd=1,relief=tk.RAISED)
-        tk.Label(self,text=name).grid(row=0,column=0)
-        tk.Entry(self,textvariable=self.value,width=5).grid(row=0,column=1,columnspan=1)
-        tk.Button(self,text='--',width=2,command=lambda:self.changeValue(-minCrement * 10)).grid(row=1,column=0,sticky='nsew')
-        tk.Button(self,text='-',width=2,command=lambda:self.changeValue(-minCrement)).grid(row=1,column=1,sticky='nsew')
-        tk.Button(self,text='+',width=2,command=lambda:self.changeValue(+minCrement)).grid(row=1,column=2,sticky='nsew')
-        tk.Button(self,text='++',width=2,command=lambda:self.changeValue(+minCrement * 10)).grid(row=1,column=3,sticky='nsew')
+
+        f = tk.Frame(self)
+        #row 1
+        f.grid(row=0,column=0,columnspan=4)
+        tk.Label(f,text=name).grid(row=0,column=0)
+        tk.Entry(f,textvariable=self.value,width=5).grid(row=0,column=1)
+        #row 2
+        Button(self,text='--',width=2,command=lambda:self.changeValue(-minCrement * 10)).grid(row=1,column=0,sticky='nsew')
+        Button(self,text='-',width=2,command=lambda:self.changeValue(-minCrement)).grid(row=1,column=1,sticky='nsew')
+        Button(self,text='+',width=2,command=lambda:self.changeValue(+minCrement)).grid(row=1,column=2,sticky='nsew')
+        Button(self,text='++',width=2,command=lambda:self.changeValue(+minCrement * 10)).grid(row=1,column=3,sticky='nsew')
     
     def changeValueText(self):
         
@@ -44,10 +50,10 @@ class CompactNumberChooser(tk.Frame):
         self.config(bd=1,relief=tk.RAISED)
         tk.Label(self,text=name).grid(row=0,column=0)
         tk.Entry(self,textvariable=self.value,width=5).grid(row=0,column=1)
-        tk.Button(self,text='--',width=2,command=lambda:self.changeValue(-minCrement * 10)).grid(row=0,column=2,sticky='nsew')
-        tk.Button(self,text='-',width=2,command=lambda:self.changeValue(-minCrement)).grid(row=0,column=3,sticky='nsew')
-        tk.Button(self,text='+',width=2,command=lambda:self.changeValue(+minCrement)).grid(row=0,column=4,sticky='nsew')
-        tk.Button(self,text='++',width=2,command=lambda:self.changeValue(+minCrement * 10)).grid(row=0,column=5,sticky='nsew')
+        Button(self,text='--',width=2,command=lambda:self.changeValue(-minCrement * 10)).grid(row=0,column=2,sticky='nsew')
+        Button(self,text='-',width=2,command=lambda:self.changeValue(-minCrement)).grid(row=0,column=3,sticky='nsew')
+        Button(self,text='+',width=2,command=lambda:self.changeValue(+minCrement)).grid(row=0,column=4,sticky='nsew')
+        Button(self,text='++',width=2,command=lambda:self.changeValue(+minCrement * 10)).grid(row=0,column=5,sticky='nsew')
     
     def changeValueText(self):        
         success, value = self.checker(self.value.get())

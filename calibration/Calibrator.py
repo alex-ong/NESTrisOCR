@@ -1,5 +1,6 @@
 ﻿import tkinter as tk
 import tkinter.ttk as ttk
+from .Widgets import Button
 import sys
 from PIL import Image, ImageDraw
 from lib import *
@@ -32,7 +33,7 @@ class Calibrator(tk.Frame):
         StringChooser(self,"capture window starts with:", config.WINDOW_NAME, self.updateWindowName, 20).grid(row=0,sticky='nsew')
         StringChooser(self,"player name",config.player_name, config.setPlayerName,20).grid(row=1,sticky='nsew')
         if ENABLE_OTHER_OPTIONS:
-            tk.Button(self,text="Other options", 
+            Button(self,text="Other options", 
                       command=lambda: create_window(root, self.config,self.otherOptionsClosed)).grid(row=0,column=1)
         
         # window coords
@@ -45,13 +46,13 @@ class Calibrator(tk.Frame):
         border = tk.Frame(f)
         border.config(relief=tk.FLAT,bd=5,background='orange')
         border.pack(side=tk.RIGHT,fill='both')
-        autoCalibrate = tk.Button(border,text="Automatically detect field", 
+        autoCalibrate = Button(border,text="Automatically detect field", 
                                   command=self.autoDetectField,bg='red')        
         autoCalibrate.pack(fill='both',expand=True)
         f.grid(row=2,column=0)
         
         # refresh
-        tk.Button(self,text="Refresh Image", command=self.redrawImages).grid(row=2,column=1,sticky='nsew')
+        Button(self,text="Refresh Image", command=self.redrawImages).grid(row=2,column=1,sticky='nsew')
         
         border = tk.Frame(self)
         border.grid(row=3,column=0,sticky='nsew')
@@ -72,21 +73,21 @@ class Calibrator(tk.Frame):
     def setupTab1(self):
         f = tk.Frame(self.tabManager)
         canvasSize = [UPSCALE*i for i in finalImageSize(3)]
-        tk.Button(f,text="Auto Adjust Lines \nNeeds Lines = 000",command=self.autoLines,bg='red').grid(row=0,column=0)
+        Button(f,text="Auto Adjust Lines \nNeeds Lines = 000",command=self.autoLines,bg='red').grid(row=0,column=0)
         self.linesPerc = CompactRectChooser(f,"lines (imagePerc)",config.linesPerc,True,self.updateLinesPerc)
         self.linesPerc.grid(row=0,column=1)
         self.linesImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
         self.linesImage.grid(row=1,columnspan=2)
         
         canvasSize = [UPSCALE*i for i in finalImageSize(6)]
-        tk.Button(f,text="Auto Adjust Score \n Needs Score = 000000",command=self.autoScore,bg='red').grid(row=2,column=0)
+        Button(f,text="Auto Adjust Score \n Needs Score = 000000",command=self.autoScore,bg='red').grid(row=2,column=0)
         self.scorePerc = CompactRectChooser(f,"score (imagePerc)", config.scorePerc,True,self.updateScorePerc)
         self.scorePerc.grid(row=2,column=1)
         self.scoreImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
         self.scoreImage.grid(row=3,columnspan=2)
 
         canvasSize = [UPSCALE*i for i in finalImageSize(2)]
-        tk.Button(f,text="Auto Adjust Level \n Needs Level = 00",command=self.autoLevel,bg='red').grid(row=4,column=0)
+        Button(f,text="Auto Adjust Level \n Needs Level = 00",command=self.autoLevel,bg='red').grid(row=4,column=0)
         self.levelPerc = CompactRectChooser(f,"level (imagePerc)", config.levelPerc,True,self.updateLevelPerc)
         self.levelPerc.grid(row=4,column=1)
         self.levelImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
