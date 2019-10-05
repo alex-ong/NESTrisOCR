@@ -170,7 +170,7 @@ def packStats(dataDict):
 def packField(data):
     if len(data) == FIELD_OFFSET:
         return data
-    result = bytearray(200)    
+    result = bytearray(FIELD_OFFSET)    
     four_byte_counter = 0
     currentByte = 0
     index = 0
