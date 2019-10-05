@@ -13,7 +13,7 @@ class ImageCanvas(tk.Canvas):
         
     def updateImage(self, image):        
         if image is not None:            
-            self.ph = ImageTk.PhotoImage(image)
+            self.ph = ImageTk.PhotoImage(image.convert('RGB'))
             
             # create image if not existing...
             if self._img is None:
