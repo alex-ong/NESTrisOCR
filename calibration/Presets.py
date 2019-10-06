@@ -23,9 +23,9 @@ def preset_nestris99(config):
     config.setCaptureStats(False)        
     config.setCaptureField(True)
     config.setCapturePreview(True)
-    config.setHost("13.237.232.112")
+    config.setHost("ec2-13-237-232-112.ap-southeast-2.compute.amazonaws.com")
     config.setPort(3338)
-    config.setNetProtocol("AUTOBAHN")
+    config.setNetProtocol("AUTOBAHN_V2")
     
 def preset_none(config):
     return

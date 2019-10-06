@@ -35,13 +35,28 @@ except ModuleNotFoundError:
 
 import threading
 import time
+import json
+import simpleaudio as sa
+
+
+def safeLoadAudio(path):
+    try: 
+        result = sa.WaveObject.from_wave_file(path)
+        return result
+    except FileNotFoundError as e:
+        print(e)    
+    return None
+
+THREE_COUNTDOWN = safeLoadAudio("assets/wav/three.wav")
+TEN_COUNTDOWN = safeLoadAudio("assets/wav/ten.wav")
+
 def CreateClient(target, port):    
     client = Connection(target, port)    
     client.start()
     
     return client
     
-
+VERSION = '20191006'
 class MyClientProtocol(WebSocketClientProtocol):
 
     connections = []
@@ -49,6 +64,9 @@ class MyClientProtocol(WebSocketClientProtocol):
         print("Server connected: {0}".format(response.peer))
         self.factory.resetDelay()    
         MyClientProtocol.connections.append(self)
+        versionMessage = {'version': VERSION }
+        message = json.dumps(versionMessage).encode('utf8')
+        self.sendMessage(message)
         
     def onOpen(self):
         print("WebSocket connection open.")
@@ -59,7 +77,16 @@ class MyClientProtocol(WebSocketClientProtocol):
         if isBinary:
             print("Binary message received: {0} bytes".format(len(payload)))
         else:
-            print("Text message received: {0}".format(payload.decode('utf8')))
+            payload = payload.decode('utf8')
+            if payload.startswith('{'):
+                message = json.loads(payload)
+                if "start_game" in message:
+                    if message["start_game"] == 10 and TEN_COUNTDOWN is not None:
+                        TEN_COUNTDOWN.play()
+                    elif message["start_game"] == 3 and THREE_COUNTDOWN is not None:
+                        THREE_COUNTDOWN.play()
+            else:
+                print("Text message received: {0}".format(payload))
 
     def onClose(self, wasClean, code, reason):
         if reason is not None:
