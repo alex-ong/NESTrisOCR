@@ -42,7 +42,7 @@ class QuartzCapture(object):
         bpr = Quartz.CGImageGetBytesPerRow(cgimg)
 
         # Convert to PIL Image.  Note: CGImage's pixeldata is BGRA
-        return Image.frombuffer("RGBA", (width, height), pixeldata, "raw", "BGRA", bpr, 1)
+        return Image.frombuffer("RGBA", (width, height), pixeldata, "raw", "BGRA", bpr, 1).convert('RGB')
 
 
 imgCap = QuartzCapture()
