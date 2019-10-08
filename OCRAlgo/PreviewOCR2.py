@@ -56,19 +56,24 @@ def parseImage(img):
             grid[y][x] = np.sum(img[yStart:yEnd,xStart:xEnd]) > int(49*COUNT_PERC)
     
     if grid[0][0] and grid[0][1] and grid[0][2]: #j, t, l
-        if grid[1][0]:
-            return 'L'
-        if grid[1][1]:
-            return 'T'
-        if grid[1][2]:
-            return 'J'
+        if grid[1][0]:    # 1 1 1
+            return 'L'    # 1 ? ?
+        
+        if grid[1][1]:    # 1 1 1
+            return 'T'    # ? 1 ?
+        
+        if grid[1][2]:    # 1 1 1
+            return 'J'    # ? ? 1
+            
         return None
     
     if not grid[0][0] and grid[0][1] and grid[0][2]:
-        return 'S'
+        return 'S'   # 0 1 1
+                     # ? ? ?
     
     if grid[0][0] and grid[0][1] and not grid[0][2]:
-        return 'Z'
+        return 'Z'   # 1 1 0 
+                     # ? ? ?
     
     return None
     
