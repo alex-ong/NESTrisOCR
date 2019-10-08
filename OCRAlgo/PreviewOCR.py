@@ -1,4 +1,4 @@
-﻿from config import config
+﻿from config import config   
 from lib import lerp
 from PIL import Image, ImageEnhance
 
@@ -59,3 +59,13 @@ def whichPiece(o,r,p):
         return 'J'
     else:
         return 'I'
+
+
+if __name__ == '__main__':
+    #run this from parent directory as "python -m OCRAlgo.PreviewOCR2"
+    img = Image.open('assets/test/s.png')
+    import time
+    t = time.time()
+    for i in range(10000):
+        parseImage(img)
+    print (time.time() - t, (time.time() - t) / 10000)
