@@ -4,7 +4,7 @@ from OCRAlgo.ScoreFixer import ScoreFixer
 from OCRAlgo.PieceStatsTextOCR import generate_stats
 import OCRAlgo.PieceStatsBoardOCR as PieceStatsBoardOCR
 import OCRAlgo.BoardOCR as BoardOCR
-import OCRAlgo.PreviewOCR as PreviewOCR
+import OCRAlgo.PreviewOCR2 as PreviewOCR
 from OCRAlgo.NewGameDetector import NewGameDetector
 
 from calibrate import mainLoop as calibrateLoop
