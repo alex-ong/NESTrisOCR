@@ -1,17 +1,26 @@
 import PIL
 import numpy as np
 import time
-from numba import njit
+
 from config import config
 from Networking.ByteStuffer import prePackField
 
+try:
+    from OCRAlgo.board_ocr import parseImage2 #if it's built
+    #print("loading parseImage2 from compiled")
+except:
+    from OCRAlgo.BoardOCR2 import parseImage2
+    #print("loading parseImage2 from llvmlite")
+
+    
 def parseImage(img, color1, color2):    
     color1 = color1.resize((1,1), PIL.Image.ANTIALIAS)
     color1 = color1.getpixel((0,0))
-
+    color1 = np.array(color1,dtype=np.uint8)
     color2 = color2.resize((1,1), PIL.Image.ANTIALIAS)
     color2 = color2.getpixel((0,0))
-
+    color2 = np.array(color2,dtype=np.uint8)
+    
     img = img.resize((10,20),PIL.Image.NEAREST)
     img = np.array(img,dtype=np.uint8)
     
@@ -30,33 +39,18 @@ def parseImage(img, color1, color2):
     return result
 
 
-# atm this takes 12 millseconds to complete, with jit it takes <1ms.
-# we want to eventually compile this numba AOT, so we don't need numba.
-@njit()
-def parseImage2(img,color1,color2):
-    
-    colors = [(10,10,10),(240,240,240),color1,color2]  
-    
-    result = np.zeros((20,10),dtype=np.uint8)
-    
-    for x in range(10):
-        for y in range(20):
-            pix = img[y,x]
-            closest = 0
-            lowest_dist = (256*256)*3
-            for i, color in enumerate(colors):
-                dist = ((color[0] - pix[0]) * (color[0] - pix[0]) +
-                       (color[1] - pix[1]) * (color[1] - pix[1]) +
-                       (color[2] - pix[2]) * (color[2] - pix[2]))
-                if dist < lowest_dist:
-                    lowest_dist = dist
-                    closest = i
-            result[y,x] = closest
-    
-    return result
+
+#run as python -m OCRAlgo.BoardOCR
+if __name__ == '__main__':    
     
     
-if __name__ == '__main__':
-    print(tester, len(''.join(tester)))
-    print(compress_image(tester))
-    print(len(compress_image(tester)))
+    from PIL import Image
+    img = Image.open("assets/test/board.jpg")
+    color1 = Image.open("assets/test/color1.jpg")
+    color2 = Image.open("assets/test/color2.jpg")
+    t = time.time()
+    for i in range(100):
+        parseImage(img, color1, color2)
+    print(time.time() - t)
+    
+    
