@@ -8,6 +8,7 @@ BLACK_LIMIT = 15
 COUNT_PERC = 0.7
 COUNT_PERC_O = 0.8
 
+PreviewImageSize = (31,15)
 
 def isNotBlack(pixel):
     if pixel > BLACK_LIMIT:

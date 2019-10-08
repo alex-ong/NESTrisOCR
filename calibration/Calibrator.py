@@ -6,10 +6,11 @@ from PIL import Image, ImageDraw
 from lib import *
 from OCRAlgo.PieceStatsTextOCR import generate_stats
 from OCRAlgo.DigitOCR import finalImageSize, scoreImage0
+from OCRAlgo.PreviewOCR2 import PreviewImageSize
 from calibration.StringChooser import StringChooser
 from calibration.RectChooser import RectChooser, CompactRectChooser
 from calibration.ImageCanvas import ImageCanvas
-from calibration.draw_calibration import draw_calibration, highlight_split_digits, captureArea
+from calibration.draw_calibration import draw_calibration, highlight_split_digits, highlight_preview, captureArea
 from calibration.OtherOptions import create_window
 from calibration.auto_calibrate import auto_calibrate_raw
 import multiprocessing
@@ -114,6 +115,9 @@ class Calibrator(tk.Frame):
         self.previewPiece = CompactRectChooser(f,"Next Piece (imagePerc)",config.previewPerc,True,self.updatePreviewPerc)                
         self.previewPiece.grid()
         
+        canvasSize = [UPSCALE*2 * i for i in PreviewImageSize]
+        self.previewImage  = ImageCanvas(f, canvasSize[0],canvasSize[1])
+        self.previewImage.grid()
         self.setPreviewTextVisible()
         
         self.tabManager.add(f, text="PreviewPiece")
@@ -140,8 +144,10 @@ class Calibrator(tk.Frame):
         show = self.config.capture_preview 
         if show:
             self.previewPiece.grid()
+            self.previewImage.grid()
         else:
             self.previewPiece.grid_forget()
+            self.previewImage.grid_forget()
 
     def getActiveTab(self):
         return self.tabManager.index(self.tabManager.select())
@@ -195,9 +201,8 @@ class Calibrator(tk.Frame):
         dim = board.width, board.height        
         
         self.boardImage.updateImage(board)
-
-		#todo; scale this so it reflects reality.
-        if self.getActiveTab() == 0:
+		
+        if self.getActiveTab() == 0: #text
             score_img,lines_img,level_img = highlight_split_digits(self.config)            
             score_img = score_img.resize((UPSCALE * i for i in score_img.size))
             lines_img = lines_img.resize((UPSCALE * i for i in lines_img.size))
@@ -205,6 +210,11 @@ class Calibrator(tk.Frame):
             self.linesImage.updateImage(lines_img)
             self.scoreImage.updateImage(score_img)
             self.levelImage.updateImage(level_img)
+        if self.getActiveTab() == 2: #preview
+            preview_img = highlight_preview(self.config)
+            preview_img = preview_img.resize((UPSCALE * 2 * i for i in preview_img.size))
+            self.previewImage.updateImage(preview_img)
+            
     
     def autoLines(self):
         bestRect = autoAdjustRectangle(self.config.CAPTURE_COORDS, self.config.linesPerc, 3)

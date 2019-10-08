@@ -5,6 +5,8 @@ from PIL import Image, ImageEnhance
 cachedOffsets = []
 cachedPPP = None
 
+PreviewImageSize = (31,15)
+
 #assuming that we have a 31 NES pixel by 15 NES Pixel capture area:
 pixOffsets = ((10,12),(17,12),(21,12))
 #only used by calibrator
@@ -35,7 +37,7 @@ def isNotBlack(pixel):
 
 #look at assets/doc for description
 def parseImage(img):
-    img = img.resize((31,15),Image.BOX)
+    img = img.resize(PreviewImageSize, Image.BOX)
     img = ImageEnhance.Contrast(img).enhance(3.0)
     o = isNotBlack(img.getpixel(pixOffsets[0]))
     r = isNotBlack(img.getpixel(pixOffsets[1]))

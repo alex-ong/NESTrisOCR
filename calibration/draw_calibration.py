@@ -1,7 +1,7 @@
 ﻿from lib import getWindow, WindowCapture, screenPercToPixels, lerp, mult_rect
 from OCRAlgo.DigitOCR import finalImageSize
 from OCRAlgo.PieceStatsTextOCR import generate_stats
-from OCRAlgo.PreviewOCR import calculateOffsets
+from OCRAlgo.PreviewOCR import calculateOffsets, PreviewImageSize
 from PIL import Image, ImageDraw
 
 #splits rectangle by digits.
@@ -41,7 +41,11 @@ def highlight_split_digits(c):
 
     return (scoreImg,linesImg,levelImg)
 
-
+def highlight_preview(c):    
+    previewPix = mult_rect(c.CAPTURE_COORDS,c.previewPerc)    
+    previewImg = captureArea(previewPix)
+    previewImg = previewImg.resize(PreviewImageSize, Image.BOX)
+    return previewImg
     
 def highlight_calibration(img, c):    
     poly = Image.new('RGBA', (img.width,img.height))
