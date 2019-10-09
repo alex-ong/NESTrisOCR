@@ -4,7 +4,7 @@ try:
     #print ("loaded compiled prePackField")
 except:
     from Networking.ByteStuffer2 import prePackField
-    #print ("Loaded njit prePackField")
+    print ("Warning: loaded non-compiled prePackField, please run buildByteStuffer2.py to make a compiled version")
 import json
 import struct
 import random

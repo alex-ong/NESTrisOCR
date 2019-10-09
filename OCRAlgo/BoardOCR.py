@@ -10,7 +10,7 @@ try:
     #print("loading parseImage2 from compiled")
 except:
     from OCRAlgo.BoardOCR2 import parseImage2
-    #print("loading parseImage2 from llvmlite")
+    print("Warning, loaded parseImage2 from llvmlite: please run buildBoardOCR2 to build a compiled version")
 
     
 def parseImage(img, color1, color2):    

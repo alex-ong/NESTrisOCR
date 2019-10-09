@@ -1,20 +1,22 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
 
 block_cipher = None
 
 template_dir = "assets/sprite_templates"
 
+addedPath = os.getcwd() #adds current path to analysis search
 sprite_templates = (template_dir+"/*", template_dir )
 config = ('config.ini', '.')
 added_files = [sprite_templates, config]
 a = Analysis(['main.py'],
-             pathex=['D:\\Dev\\NESTrisOCR'],
+             pathex=[addedPath],
              binaries=[],
              datas=added_files,
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
-             excludes=[],
+             excludes=['numba'],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
              cipher=block_cipher,
@@ -29,7 +31,7 @@ exe = EXE(pyz,
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
-          upx=True,
+          upx=False,
           console=True )
 coll = COLLECT(exe,
                a.binaries,

@@ -10,7 +10,5 @@ rem python buildBoardOCR2.py
 rem the following spec file assumes we don't need llvmlite since we've excluded numba.
 pyinstaller -D main.spec
 
-rem the following spec file assumes we need llvmlite
-rem pyinstaller -D main-llvmlite.spec
 
 
