@@ -117,7 +117,7 @@ def packScore(scoreString):
 
     startValue = scoreString[0]
     if startValue in 'ABCDEF':
-        hundred_k = ord(startValue) - ord('A')
+        hundred_k = ord(startValue) - ord('A') + 10
     else:
         hundred_k = int(startValue)
     hundred_k *= 100000
