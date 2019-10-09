@@ -1,7 +1,12 @@
-from numba import njit
+
+try:
+    from Networking.byte_stuffer2 import prePackField
+    #print ("loaded compiled prePackField")
+except:
+    from Networking.ByteStuffer2 import prePackField
+    #print ("Loaded njit prePackField")
 import json
 import struct
-import numpy as np
 import random
 # this function converts a python dict to bytes for a small packet
 # to transfer across the network
@@ -186,26 +191,6 @@ def packField(data):
     
     return result
 
-
-@njit('uint8[:](uint8[:,:])')
-def prePackField(data):
-    result = np.zeros((50,),dtype=np.uint8)
-    index = 0
-    currentByte = 0
-    four_byte_counter = 0
-    for y in range(20):
-        for x in range(10):
-            currentByte += data[y,x]
-            four_byte_counter += 1
-            if four_byte_counter == 4:
-                result[index] = (currentByte)
-                four_byte_counter = 0
-                currentByte = 0
-                index += 1
-            currentByte = currentByte << 2
-            
-    return result
-
 def packPreview(letter):
     if letter is not None and letter in stats_order: #faster than try/catch
         index = stats_order.index(letter)
@@ -234,6 +219,7 @@ def packPlayer(player):
     return PLAYER_NAME
 
 if __name__ == '__main__':
+    import numpy as np
     temp = {"playername": "²fluffy", "score": "008055", "lines": "015", "level": "01", "field": "03300000000133000000110000000011000000001100000000110000330021222233002223233310223333311022333331102233333330221133113022111111301222113330121133111012213311201123331120111331122021123111102212333110", "preview": "L", "time": 118.7786123752594}
     raw_data = temp['field']
     data = np.zeros((20,10),dtype=np.uint8)
