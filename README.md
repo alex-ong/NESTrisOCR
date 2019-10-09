@@ -18,26 +18,10 @@ You need a working python installation to get everything running.
 
 When installing, make sure you `add to path` - this lets you run python from command prompt from any folder.
 
-Double click `install-requirements.bat`. This will install all the other libraries required.
+Open a command prompt in the projects base folder and run `install-requirements.bat`. This will install all the other libraries required. Note that MSVC 14.0 or greater is required to build simpleaudio. Eventually a .whl file will be provided for it, but
+for now, you may have to install [MSVC build tools](https://wiki.python.org/moin/WindowsCompilers#Microsoft_Visual_C.2B-.2B-_14.2_standalone:_Build_Tools_for_Visual_Studio_2019_.28x86.2C_x64.2C_ARM.2C_ARM64.29)
 
 You can verify they are installed by running python from the command prompt and then importing the modules
-
-`python`
-
-`import PIL` 
-
-`import win32ui`
-
-`import numpy`
-
-`import ConfigUpdater`
-
-`import cv2`
-
-
-You shouldnt get any errors. Then, exit python
-`exit()`
-
 
 OSX
 =====
