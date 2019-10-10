@@ -1,12 +1,8 @@
 import PIL
 from PIL import Image, ImageEnhance, ImageFilter
 import time
-#todo: remove NP_SUPPORTED and only use numpy
-try:
-    import numpy as np
-    NP_SUPPORTED = True
-except:
-    NP_SUPPORTED = False
+import numpy as np
+    
     
 import sys
 
@@ -37,12 +33,11 @@ def setupColour(prefix, outputDict, digitList):
         if IMAGE_MULT != 1:
             img = img.resize((SCALED_IMAGE_SIZE,
                               SCALED_IMAGE_SIZE),PIL.Image.ANTIALIAS)
-        if NP_SUPPORTED:
-            img = img.getdata()
-            img = np.asarray(img)
-            img = np.reshape(img, (SCALED_IMAGE_SIZE, SCALED_IMAGE_SIZE))
-        else:
-            img = img.load()
+        
+        img = img.getdata()
+        img = np.asarray(img)
+        img = np.reshape(img, (SCALED_IMAGE_SIZE, SCALED_IMAGE_SIZE))
+        
 
         outputDict[digit] = img
         
@@ -54,30 +49,16 @@ def setupData():
 def getDigit(img, pattern, startX, startY, red):
     template = redData if red else data
     validDigits = digitsLetters if pattern == 'A' else digits
+    
+    scores = {}
+    #img in y, x format
+    subImage = img[:,startX:startX + SCALED_IMAGE_SIZE]
 
-    if NP_SUPPORTED:
-        scores = {}
-        #img in y, x format
-        subImage = img[:,startX:startX + SCALED_IMAGE_SIZE]
-
-        for digit in validDigits:
-            diff = np.subtract(subImage, template[digit])
-            diff = np.abs(diff)
-            scores[digit] = np.sum(diff)
-
-    else:
-        scores = {digit:0 for digit in validDigits}
-
-        for y in range(SCALED_IMAGE_SIZE):
-            for x in range(SCALED_IMAGE_SIZE):
-                b = img[startX + x, startY + y]
-
-                for digit in digits:
-                    a = template[digit][x, y]
-
-                    sub = a - b
-                    scores[digit] += sub * sub # adding distance
-
+    for digit in validDigits:
+        diff = np.subtract(subImage, template[digit])
+        diff = np.abs(diff)
+        scores[digit] = np.sum(diff)
+   
     lowest_score = float("inf")
     lowest_digit = None
 
@@ -104,14 +85,10 @@ def convertImg(img, count, show):
     
     if show:
         img.show()
-    
-    if NP_SUPPORTED:
-        img = img.getdata()
-        img = np.asarray(img)
-        #img is in y,x format
-        img = np.reshape(img,(SCALED_IMAGE_SIZE,-1))
-    else:
-        img = img.load()
+        
+    img = img.getdata()
+    img = np.asarray(img)    
+    img = np.reshape(img,(SCALED_IMAGE_SIZE,-1)) #img is in y,x format    
     
     return img    
 
@@ -129,8 +106,7 @@ def scoreImage0(img, digitPattern):
             score.append(result[1])
     
     return sum(score)
-    
-    
+        
 def scoreImage(img, digitPattern, show=False, red=False):
     count = len(digitPattern)
     img = convertImg(img,count,show)
