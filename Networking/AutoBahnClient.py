@@ -92,10 +92,12 @@ class MyClientProtocol(WebSocketClientProtocol):
     
     def initiateKick(self, reason):
         MyClientFactory.kickMessage = reason
+        MyClientFactory.closing = True
         
     def onClose(self, wasClean, code, reason):
         if reason is not None:
             ("WebSocket connection closed: {0}".format(reason))
+        self.connections.remove(self)
     
     @classmethod
     def broadcast_message(cls, data, isBinary=False):  
@@ -149,9 +151,8 @@ class Connection(threading.Thread):
     #called from main thread
     def close(self):
         MyClientFactory.closing = True
-        MyClientProtocol.close_all() #adds task to reactor thread
-        time.sleep(5)    
-        reactor.callFromThread(reactor.stop)
+        reactor.callLater(1, MyClientProtocol.close_all) #adds task to reactor thread    
+        reactor.callLater(5, reactor.stop)
     
     def stop(self):
         self.close()        

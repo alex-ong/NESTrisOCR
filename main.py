@@ -15,7 +15,7 @@ from multiprocessing import Pool
 import multiprocessing
 import threading
 from Networking.NetworkClient import NetClient
-
+from tkinter import messagebox, Tk
 import time
 
 
@@ -208,15 +208,14 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
     print('main thread is here')
-            
-    client.stop()
-    
+    print(result)
+        
     if result is not None:
-        from tkinter import messagebox, Tk
-        root = Tk()
-        root.withdraw()
-        messagebox.showerror("NESTrisOCR", "You have been kicked. Reason: " + str(result))        
-    
+        #root = Tk()
+        #root.withdraw()
+        messagebox.showerror("NESTrisOCR", "You have been kicked. Reason: " + str(result)) 
+        
+    client.stop() 
     client.join()
     
 
