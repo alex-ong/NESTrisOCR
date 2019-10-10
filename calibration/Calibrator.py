@@ -118,6 +118,22 @@ class Calibrator(tk.Frame):
         canvasSize = [UPSCALE*2 * i for i in PreviewImageSize]
         self.previewImage  = ImageCanvas(f, canvasSize[0],canvasSize[1])
         self.previewImage.grid()
+                
+        self.samplePreviewImage = ImageCanvas(f,canvasSize[0],canvasSize[1])
+        img = LoadSamplePreview()
+        img = img.resize(canvasSize)
+        self.samplePreviewImage.updateImage(img)
+        self.samplePreviewImage.grid()        
+        self.samplePreviewLabel = tk.Label(f,text="Crop to a 2x4 block area with no black pixel borders")
+        self.samplePreviewLabel.grid()
+        
+        self.wsamplePreviewImage = ImageCanvas(f,canvasSize[0],canvasSize[1])
+        img = LoadSamplePreview2()
+        img = img.resize(canvasSize)
+        self.wsamplePreviewImage.updateImage(img)
+        self.wsamplePreviewImage.grid()        
+        self.wsamplePreviewLabel = tk.Label(f,text="Example of bad calibration (extra pixel borders)")
+        self.wsamplePreviewLabel.grid()
         self.setPreviewTextVisible()
         
         self.tabManager.add(f, text="PreviewPiece")
@@ -145,9 +161,13 @@ class Calibrator(tk.Frame):
         if show:
             self.previewPiece.grid()
             self.previewImage.grid()
+            self.samplePreviewImage.grid()
+            self.samplePreviewLabel.grid()
         else:
             self.previewPiece.grid_forget()
             self.previewImage.grid_forget()
+            self.samplePreviewImage.grid_forget()
+            self.samplePreviewLabel.grid_forget()
 
     def getActiveTab(self):
         return self.tabManager.index(self.tabManager.select())
@@ -323,3 +343,11 @@ def progressBar(value, endvalue, bar_length=20):
 
     sys.stdout.write("\rPercent: [{0}] {1}%".format(arrow + spaces, int(round(percent * 100))))
     sys.stdout.flush()
+    
+def LoadSamplePreview():
+    im = Image.open("assets/sprite_templates/preview-reference.png")
+    return im
+
+def LoadSamplePreview2():
+    im = Image.open("assets/sprite_templates/preview-reference-border.png")
+    return im
