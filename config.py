@@ -16,6 +16,8 @@ class Configuration:
         #performance
         self.threads = literal_eval(parser['performance']['multi_thread'])
         self.hexSupport = parser['performance'].getboolean('support_hex_score') 
+        self.scanRate = literal_eval(parser['performance']['scan_rate'])
+        
         #stats
         self.capture_stats = parser['stats'].getboolean('read_stats')
         self.stats_method = parser['stats']['stats_method'].upper()

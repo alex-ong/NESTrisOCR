@@ -79,4 +79,10 @@ def tryGetFloat(x):
         return (True, float(x))
     except:
         return (False, 0)
-        
+
+def clamp(smol,big,value):
+    if value < smol:
+        return smol
+    if value > big:
+        return big
+    return value

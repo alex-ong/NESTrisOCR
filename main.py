@@ -53,7 +53,7 @@ MULTI_THREAD = config.threads #shouldn't need more than four if using FieldStats
 #limit how fast we scan.
 RATE_FIELDSTATS = 0.004
 RATE_TEXTONLY = 0.064
-RATE_FIELD = 1/60.0
+RATE_FIELD = 1.0 / clamp(15,60,config.scanRate)
 
 if USE_STATS_FIELD and MULTI_THREAD == 1:    
     RATE = RATE_FIELDSTATS
