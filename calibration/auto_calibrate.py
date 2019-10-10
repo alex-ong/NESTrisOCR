@@ -11,9 +11,18 @@ def auto_calibrate_raw(config):
         print("Unable to find window with title:",  config.WINDOW_NAME)
         return None
     
-    img = WindowCapture.ImageCapture((0,0,4000,2000), hwnd)    
-    return auto_calibrate(img)
+    captureAreas = ((0,0,4000,2000), #4k screens fullscreen
+                    (0,0,1500,1500)) #reasonably sized screens
+    result = None
+    
+    for captureArea in captureAreas:    
+        img = WindowCapture.ImageCapture(captureArea, hwnd)    
+        result = auto_calibrate(img)
+        if result is not None:
+            return result
 
+    return None
+    
 '''
 Given an image, returns an (x,y,w,h) rectangle or None with
 the closest match.
