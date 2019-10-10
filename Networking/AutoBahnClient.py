@@ -47,8 +47,9 @@ def safeLoadAudio(path):
         print(e)    
     return None
 
-THREE_COUNTDOWN = safeLoadAudio("assets/wav/three.wav")
-TEN_COUNTDOWN = safeLoadAudio("assets/wav/ten.wav")
+TWENTY_FIVE_COUNTDOWN = safeLoadAudio("assets/wav/25.wav")
+THREE_COUNTDOWN = safeLoadAudio("assets/wav/3.wav")
+TEN_COUNTDOWN = safeLoadAudio("assets/wav/10.wav")
 
 def CreateClient(target, port):    
     client = Connection(target, port)    
@@ -56,7 +57,7 @@ def CreateClient(target, port):
     
     return client
     
-VERSION = '20191006'
+VERSION = '20191010'
 class MyClientProtocol(WebSocketClientProtocol):
 
     connections = []
@@ -81,7 +82,9 @@ class MyClientProtocol(WebSocketClientProtocol):
             if payload.startswith('{'):
                 message = json.loads(payload)
                 if "start_game" in message:
-                    if message["start_game"] == 10 and TEN_COUNTDOWN is not None:
+                    if message["start_game"] == 25 and TEN_COUNTDOWN is not None:
+                        TWENTY_FIVE_COUNTDOWN.play()
+                    elif message["start_game"] == 10 and TEN_COUNTDOWN is not None:
                         TEN_COUNTDOWN.play()
                     elif message["start_game"] == 3 and THREE_COUNTDOWN is not None:
                         THREE_COUNTDOWN.play()
