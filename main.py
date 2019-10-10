@@ -99,7 +99,7 @@ def statsFieldMulti(ocr_stats, pool):
             time.sleep(SLEEP_TIME)
 
 
-def main(onCap):    
+def main(onCap, checkNetworkClose):    
     if MULTI_THREAD >= 2:
         p = Pool(MULTI_THREAD)    
     else:
@@ -182,29 +182,42 @@ def main(onCap):
             result['gameid'] = gameIDParser.getGameID(result['score'],result['lines'],result['level'])
             
             onCap(result)
-                    
+            error = checkNetworkClose()   
+            if error is not None:
+                return error
             while time.time() < frame_end - SLEEP_TIME:
                 time.sleep(SLEEP_TIME)                        
-        
+    
 if __name__ == '__main__':
     multiprocessing.freeze_support()
     import sys
     if len(sys.argv) >= 2 and sys.argv[1] == '--calibrate':
         calibrateLoop()
         sys.exit()
-        
+
+
     print ("Creating net client...")
     client = NetClient.CreateClient(config.host,int(config.port))
     print ("Net client created.")
     cachedSender = CachedSender(client,config.printPacket,config.netProtocol)
+    
+    result = None
     try:
         print ("Starting main loop")
-        main(cachedSender.sendResult)
+        result = main(cachedSender.sendResult, client.checkNetworkClose)
     except KeyboardInterrupt:
         pass
     print('main thread is here')
-        
+            
     client.stop()
+    
+    if result is not None:
+        from tkinter import messagebox, Tk
+        root = Tk()
+        root.withdraw()
+        messagebox.showerror("NESTrisOCR", "You have been kicked. Reason: " + str(result))        
+    
     client.join()
+    
 
         

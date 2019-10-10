@@ -31,6 +31,9 @@ class ThreadedClient(StoppableThread.StoppableThread):
         
     def sendMessage(self, message, *args):        
         self.messageQueue.put(message)
+    
+    def checkNetworkClose(self):
+        return None
         
     def run(self):        
         # Create a socket (SOCK_STREAM means a TCP socket)

@@ -85,9 +85,14 @@ class MyClientProtocol(WebSocketClientProtocol):
                         TEN_COUNTDOWN.play()
                     elif message["start_game"] == 3 and THREE_COUNTDOWN is not None:
                         THREE_COUNTDOWN.play()
+                if "kick" in message:
+                    self.initiateKick(message["kick"])
             else:
                 print("Text message received: {0}".format(payload))
-
+    
+    def initiateKick(self, reason):
+        MyClientFactory.kickMessage = reason
+        
     def onClose(self, wasClean, code, reason):
         if reason is not None:
             ("WebSocket connection closed: {0}".format(reason))
@@ -107,6 +112,8 @@ class MyClientFactory(WebSocketClientFactory, ReconnectingClientFactory):
 
     protocol = MyClientProtocol
     closing = False
+    kickMessage = None
+    
     def clientConnectionFailed(self, connector, reason):        
         if not MyClientFactory.closing:
             print("Client connection failed .. retrying ..")
@@ -136,6 +143,9 @@ class Connection(threading.Thread):
             data = data.encode('utf8')
         MyClientProtocol.broadcast_message(data, isBinary)
     
+    def checkNetworkClose(self):
+        return MyClientFactory.kickMessage
+        
     #called from main thread
     def close(self):
         MyClientFactory.closing = True
