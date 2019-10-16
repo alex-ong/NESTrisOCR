@@ -23,6 +23,7 @@ class Configuration:
         self.stats_method = parser['stats']['stats_method'].upper()
         
         #calibration
+        self.captureMethod = parser['calibration']['capture_method']
         self.WINDOW_NAME = parser['calibration']['window_name']
         self.CAPTURE_COORDS = literal_eval(parser['calibration']['game_coords'])        
         self.scorePerc = literal_eval(parser['calibration']['scoreperc'])

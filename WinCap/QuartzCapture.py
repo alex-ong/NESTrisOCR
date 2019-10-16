@@ -50,3 +50,7 @@ imgCap = QuartzCapture()
 def ImageCapture(rectangle, window_dict):
     global imgCap
     return imgCap.ImageCapture(rectangle, window_dict)
+
+
+def NextFrame():
+    return True

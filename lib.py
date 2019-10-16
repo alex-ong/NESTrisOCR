@@ -3,10 +3,13 @@ import json
 from config import config
 import platform
 
-if platform.system() == 'Darwin':
+#decide which file capture method we are using.
+if config.captureMethod == 'FILE':
+    import WinCap.FileCapture as WindowCapture
+    from WinCap.FileCapture import WindowMgr
+elif platform.system() == 'Darwin':
     import WinCap.QuartzCapture as WindowCapture
     from WinCap.QuartzWindowMgr import WindowMgr
-
 else:
     import WinCap.Win32UICapture as WindowCapture
     from WinCap.Win32WindowMgr import WindowMgr

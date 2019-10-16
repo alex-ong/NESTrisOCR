@@ -62,6 +62,14 @@ elif CAPTURE_FIELD:
 else:
     RATE = RATE_TEXTONLY
 
+#how are we calculating timestamp? Time.time, or from the file?
+getTimeStamp = time.time
+if config.captureMethod == 'FILE':
+    MULTI_THREAD = 1
+    if config.netProtocol == 'FILE':
+        RATE = 0.000        
+        getTimeStamp = WindowCapture.TimeStamp
+
 SLEEP_TIME = 0.001
 def captureAndOCR(coords,hwnd,digitPattern,taskName,draw=False,red=False):    
     img = WindowCapture.ImageCapture(coords,hwnd)    
@@ -180,13 +188,16 @@ def main(onCap, checkNetworkClose):
             
             result['playername'] = config.player_name
             result['gameid'] = gameIDParser.getGameID(result['score'],result['lines'],result['level'])
-            
-            onCap(result)
+                        
+            onCap(result, getTimeStamp())
             error = checkNetworkClose()   
             if error is not None:
                 return error
             while time.time() < frame_end - SLEEP_TIME:
-                time.sleep(SLEEP_TIME)                        
+                time.sleep(SLEEP_TIME)
+            
+            if not WindowCapture.NextFrame(): #finished reading video
+                break
     
 if __name__ == '__main__':
     multiprocessing.freeze_support()

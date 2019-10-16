@@ -2,6 +2,7 @@ import json
 import time
 import sys
 from Networking.ByteStuffer import stuffDictionary
+
 #sends json messages across network
 #sends only when there is change or more than a time period has elapsed  
 
@@ -18,15 +19,16 @@ class CachedSender(object):
         self.protocol = protocol
         
     #convert message to jsonstr and then send if its new.
-    def sendResult(self, message):             
+    def sendResult(self, message, timeStamp):             
         isSame = sameMessage(self.lastMessage, message)
         t = time.time()
         if t - self.lastSend > self.RATE or (not isSame):
             #print(self.lastMessage,'\n',message)
             self.lastMessage = message.copy()
-            message['time'] = t - self.startTime
+            message['time'] = timeStamp
             
-            packed, binary = packMessage(message, self.protocol)            
+            packed, binary = packMessage(message, self.protocol)   
+                 
             self.client.sendMessage(packed, binary)
             if self.printPacket:
                 print(self.lastMessage)
@@ -35,7 +37,7 @@ class CachedSender(object):
             
 
 def packMessage(dictionary, protocol):
-    if protocol == 'LEGACY' or protocol == 'AUTOBAHN':
+    if protocol == 'LEGACY' or protocol == 'AUTOBAHN' or protocol == 'FILE':
         return (json.dumps(dictionary), False)
     elif protocol == 'AUTOBAHN_V2':
         return (bytes(stuffDictionary(dictionary)), True)
