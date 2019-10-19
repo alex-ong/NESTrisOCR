@@ -63,7 +63,11 @@ else:
     RATE = RATE_TEXTONLY
 
 #how are we calculating timestamp? Time.time, or from the file?
-getTimeStamp = time.time
+firstTime = time.time()
+def getRealTimeStamp():
+    return time.time() - firstTime
+    
+getTimeStamp = getRealTimeStamp
 if config.captureMethod == 'FILE':
     MULTI_THREAD = 1
     if config.netProtocol == 'FILE':

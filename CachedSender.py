@@ -26,12 +26,12 @@ class CachedSender(object):
             #print(self.lastMessage,'\n',message)
             self.lastMessage = message.copy()
             message['time'] = timeStamp
-            
+            if self.printPacket:
+                print(message)
             packed, binary = packMessage(message, self.protocol)   
                  
             self.client.sendMessage(packed, binary)
-            if self.printPacket:
-                print(self.lastMessage)
+            
             
             self.lastSend = time.time()
             
