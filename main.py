@@ -252,8 +252,9 @@ def main(onCap, checkNetworkClose):
             # run all tasks (in separate threads if MULTI_THREAD is enabled)
             result = runTasks(p, rawTasks)
 
-            #fix score's first digit. 8 to B and B to 8 depending on last state.
-            result['score'] = scoreFixer.fix(result['score'])
+            if config.hexSupport:
+                #fix score's first digit. 8 to B and B to 8 depending on last state.
+                result['score'] = scoreFixer.fix(result['score'])
 
             # update our accumulator
             if USE_STATS_FIELD:
