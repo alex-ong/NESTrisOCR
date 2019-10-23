@@ -1,4 +1,3 @@
-from functools import partial
 from PIL import Image, ImageDraw
 from OCRAlgo.DigitOCR import scoreImage
 from OCRAlgo.ScoreFixer import ScoreFixer
@@ -95,46 +94,56 @@ def getWindowAreaAndPartialTasks():
     # prepare list of tasks to run at each loop
     for key, coords in areas.items():
         if key in ['score', 'lines', 'level']:
-            partials.append(partial(
+            partials.append((
                 extractAndOCR,
-                XYWHOffsetAndConvertToLTBR(offset, coords),
-                PATTERNS[key],
-                key,
-                False
+                (
+                    XYWHOffsetAndConvertToLTBR(offset, coords),
+                    PATTERNS[key],
+                    key,
+                    False,
+                )
             ))
 
         elif key == 'preview':
-            partials.append(partial(
+            partials.append((
                 extractAndOCRPreview,
-                XYWHOffsetAndConvertToLTBR(offset, coords)
+                (
+                    XYWHOffsetAndConvertToLTBR(offset, coords),
+                )
             ))
 
         elif key == 'stats':
             stats_coords = generate_stats(config.CAPTURE_COORDS, config.statsPerc ,config.scorePerc[3])
 
             for pieceKey, pieceCoords in stats_coords.items():
-                partials.append(partial(
+                partials.append((
                     extractAndOCR,
-                    XYWHOffsetAndConvertToLTBR(offset, pieceCoords),
-                    PATTERNS[key],
-                    pieceKey,
-                    True
+                    (
+                        XYWHOffsetAndConvertToLTBR(offset, pieceCoords),
+                        PATTERNS[key],
+                        pieceKey,
+                        True,
+                    )
                 ))
 
         elif key == 'stats2':
             # stats2 will only be read as a task in the main loop IF multithreading is disabled
             if MULTI_THREAD == 1:
-                partials.append(partial(
+                partials.append((
                     extractAndOCRBoardPiece,
-                    XYWHOffsetAndConvertToLTBR(offset, coords)
+                    (
+                        XYWHOffsetAndConvertToLTBR(offset, coords),
+                    )
                 ))
 
         elif key == 'field':
-            partials.append(partial(
+            partials.append((
                 extractAndOCRBoard,
-                XYWHOffsetAndConvertToLTBR(offset, coords),
-                XYWHOffsetAndConvertToLTBR(offset, areas['color1']),
-                XYWHOffsetAndConvertToLTBR(offset, areas['color2'])
+                (
+                    XYWHOffsetAndConvertToLTBR(offset, coords),
+                    XYWHOffsetAndConvertToLTBR(offset, areas['color1']),
+                    XYWHOffsetAndConvertToLTBR(offset, areas['color2']),
+                )
             ))
 
     return (minWindowAreaXYWH, partials)
@@ -169,14 +178,14 @@ if config.captureMethod == 'FILE':
         getTimeStamp = WindowCapture.TimeStamp
 
 SLEEP_TIME = 0.001
-def extractAndOCR(fieldCoords, digitPattern, taskName, red, img):
+def extractAndOCR(img, fieldCoords, digitPattern, taskName, red):
     return (taskName, scoreImage(img.crop(fieldCoords), digitPattern, False, red))
 
-def extractAndOCRBoardPiece(boardPieceCoords, img):
+def extractAndOCRBoardPiece(img, boardPieceCoords):
     rgbo = PieceStatsBoardOCR.parseImage(img.crop(boardPieceCoords))
     return ('piece_stats_board', rgbo)
 
-def extractAndOCRBoard(boardCoords, color1Coords, color2Coords, img):
+def extractAndOCRBoard(img, boardCoords, color1Coords, color2Coords):
     field = BoardOCR.parseImage(
         img.crop(boardCoords),
         img.crop(color1Coords),
@@ -184,7 +193,7 @@ def extractAndOCRBoard(boardCoords, color1Coords, color2Coords, img):
     )
     return ('field', field)
 
-def extractAndOCRPreview(previewCoords, img):
+def extractAndOCRPreview(img, previewCoords):
     result = PreviewOCR.parseImage(img.crop(previewCoords))
     return ('preview', result)
     
@@ -247,7 +256,7 @@ def main(onCap, checkNetworkClose):
             img = WindowCapture.ImageCapture(windowMinCoords, hwnd)
 
             # inject captured image to complete partial tasks
-            rawTasks = [(func, (img,)) for func in partialTasks]
+            rawTasks = [(func, (img,) + args) for func, args in partialTasks]
 
             # run all tasks (in separate threads if MULTI_THREAD is enabled)
             result = runTasks(p, rawTasks)
