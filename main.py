@@ -91,13 +91,21 @@ def getWindowAreaAndPartialTasks():
 
     partials = []
 
+    def processCoordinates(coords):
+        if config.tasksCaptureMethod == 'WINDOW_N_SLICE':
+            return XYWHOffsetAndConvertToLTBR(offset, coords)
+        else:
+            return coords
+
+    methodPrefix = 'extract' if config.tasksCaptureMethod == 'WINDOW_N_SLICE' else 'capture'
+
     # prepare list of tasks to run at each loop
     for key, coords in areas.items():
         if key in ['score', 'lines', 'level']:
             partials.append((
-                extractAndOCR,
+                eval(methodPrefix + 'AndOCR'),
                 (
-                    XYWHOffsetAndConvertToLTBR(offset, coords),
+                    processCoordinates(coords),
                     PATTERNS[key],
                     key,
                     False,
@@ -106,9 +114,9 @@ def getWindowAreaAndPartialTasks():
 
         elif key == 'preview':
             partials.append((
-                extractAndOCRPreview,
+                eval(methodPrefix + 'AndOCRPreview'),
                 (
-                    XYWHOffsetAndConvertToLTBR(offset, coords),
+                    processCoordinates(coords),
                 )
             ))
 
@@ -117,9 +125,9 @@ def getWindowAreaAndPartialTasks():
 
             for pieceKey, pieceCoords in stats_coords.items():
                 partials.append((
-                    extractAndOCR,
+                    eval(methodPrefix + 'AndOCR'),
                     (
-                        XYWHOffsetAndConvertToLTBR(offset, pieceCoords),
+                        processCoordinates(pieceCoords),
                         PATTERNS[key],
                         pieceKey,
                         True,
@@ -130,19 +138,19 @@ def getWindowAreaAndPartialTasks():
             # stats2 will only be read as a task in the main loop IF multithreading is disabled
             if MULTI_THREAD == 1:
                 partials.append((
-                    extractAndOCRBoardPiece,
+                    eval(methodPrefix + 'AndOCRBoardPiece'),
                     (
-                        XYWHOffsetAndConvertToLTBR(offset, coords),
+                        processCoordinates(coords),
                     )
                 ))
 
         elif key == 'field':
             partials.append((
-                extractAndOCRBoard,
+                eval(methodPrefix + 'AndOCRBoard'),
                 (
-                    XYWHOffsetAndConvertToLTBR(offset, coords),
-                    XYWHOffsetAndConvertToLTBR(offset, areas['color1']),
-                    XYWHOffsetAndConvertToLTBR(offset, areas['color2']),
+                    processCoordinates(coords),
+                    processCoordinates(areas['color1']),
+                    processCoordinates(areas['color2']),
                 )
             ))
 
@@ -178,36 +186,53 @@ if config.captureMethod == 'FILE':
         getTimeStamp = WindowCapture.TimeStamp
 
 SLEEP_TIME = 0.001
-def extractAndOCR(img, fieldCoords, digitPattern, taskName, red):
-    return (taskName, scoreImage(img.crop(fieldCoords), digitPattern, False, red))
+def captureAndOCR(hwnd, coords, digitPattern, taskName, red):
+    img = WindowCapture.ImageCapture(coords, hwnd)
+    return (taskName, scoreImage(img, digitPattern, False, red))
 
-def extractAndOCRBoardPiece(img, boardPieceCoords):
-    rgbo = PieceStatsBoardOCR.parseImage(img.crop(boardPieceCoords))
+def captureAndOCRBoardPiece(hwnd, coords):
+    img = WindowCapture.ImageCapture(coords, hwnd)
+    rgbo = PieceStatsBoardOCR.parseImage(img)
     return ('piece_stats_board', rgbo)
 
-def extractAndOCRBoard(img, boardCoords, color1Coords, color2Coords):
-    field = BoardOCR.parseImage(
-        img.crop(boardCoords),
-        img.crop(color1Coords),
-        img.crop(color2Coords)
-    )
+def captureAndOCRBoard(hwnd, boardCoords, color1Coords, color2Coords):
+    img = WindowCapture.ImageCapture(boardCoords, hwnd)
+    col1 = WindowCapture.ImageCapture(color1Coords, hwnd)
+    col2 = WindowCapture.ImageCapture(color2Coords, hwnd)
+    field = BoardOCR.parseImage(img, col1, col2)
+    return ('field', field)
+
+def captureAndOCRPreview(hwnd, previewCoords):
+    img = WindowCapture.ImageCapture(previewCoords, hwnd)
+    result = PreviewOCR.parseImage(img)
+    return ('preview', result)
+
+def extractAndOCR(sourceImg, fieldCoords, digitPattern, taskName, red):
+    img = sourceImg.crop(fieldCoords)
+    return (taskName, scoreImage(img, digitPattern, False, red))
+
+def extractAndOCRBoardPiece(sourceImg, boardPieceCoords):
+    img = sourceImg.crop(boardPieceCoords)
+    rgbo = PieceStatsBoardOCR.parseImage(img)
+    return ('piece_stats_board', rgbo)
+
+def extractAndOCRBoard(sourceImg, boardCoords, color1Coords, color2Coords):
+    img = sourceImg.crop(boardCoords)
+    col1 = sourceImg.crop(color1Coords)
+    col2 = sourceImg.crop(color2Coords)
+    field = BoardOCR.parseImage(img, col1, col2)
     return ('field', field)
 
 def extractAndOCRPreview(img, previewCoords):
     result = PreviewOCR.parseImage(img.crop(previewCoords))
     return ('preview', result)
-    
-def captureAndOCRBoardPiece(coords, hwnd):
-    img = WindowCapture.ImageCapture(coords, hwnd)
-    rgbo = PieceStatsBoardOCR.parseImage(img)    
-    return ('piece_stats_board', rgbo)
 
 #run this as fast as possible    
 def statsFieldMulti(ocr_stats, pool):
     while True:
         t = time.time()
         hwnd = getWindow()
-        _, pieceType = pool.apply(captureAndOCRBoardPiece, (STATS2_COORDS, hwnd))
+        _, pieceType = pool.apply(captureAndOCRBoardPiece, (hwnd, STATS2_COORDS))
         ocr_stats.update(pieceType,t)
         if (time.time() - t > 1/60.0):
             print ("Warning, not scanning field fast enough", str(time.time() - t))
@@ -247,16 +272,22 @@ def main(onCap, checkNetworkClose):
             continue
 
         windowMinCoords, partialTasks = getWindowAreaAndPartialTasks()
+
+        windowAndSlice = config.tasksCaptureMethod == 'WINDOW_N_SLICE'
        
         while checkWindow(hwnd):
             # inner loop gets fresh data for just the desired window
             frame_start  = time.time()
             frame_end = frame_start + RATE
 
-            img = WindowCapture.ImageCapture(windowMinCoords, hwnd)
+            if windowAndSlice:
+                # capture min window area in one command first, will be sliced later
+                source = WindowCapture.ImageCapture(windowMinCoords, hwnd)
+            else:
+                source = hwnd
 
-            # inject captured image to complete partial tasks
-            rawTasks = [(func, (img,) + args) for func, args in partialTasks]
+            # inject source to complete partial tasks
+            rawTasks = [(func, (source,) + args) for func, args in partialTasks]
 
             # run all tasks (in separate threads if MULTI_THREAD is enabled)
             result = runTasks(p, rawTasks)
