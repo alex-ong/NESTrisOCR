@@ -6,7 +6,6 @@ cachedPPP = None
 
 BLACK_LIMIT = 15
 COUNT_PERC = 0.7
-COUNT_PERC_O = 0.8
 
 PreviewImageSize = (31,15)
 
@@ -36,14 +35,6 @@ def parseImage(img):
     if i_pixels:
         return "I"
     
-    o_pixels_row1 = np.sum(img[:7,8:22]) #perfect score is 98
-    o_pixels_row2 = np.sum(img[8:,8:22]) #perfect score is 98
-    
-    o_pixels = (o_pixels_row1 > int(98 * COUNT_PERC_O) and
-                o_pixels_row2 > int(98 * COUNT_PERC_O))
-    
-    if o_pixels:
-        return "O"
 
     #now we can simplify to 3x2 grid.
     grid = [[0,0,0], 
@@ -76,6 +67,15 @@ def parseImage(img):
         return 'Z'   # 1 1 0 
                      # ? ? ?
     
+    #finally, check for O
+    o_pixels_row1 = np.sum(img[:7,8:22]) #perfect score is 98
+    o_pixels_row2 = np.sum(img[8:,8:22]) #perfect score is 98
+    
+    o_pixels = (o_pixels_row1 > int(98 * COUNT_PERC) and
+                o_pixels_row2 > int(98 * COUNT_PERC))    
+    if o_pixels:
+        return "O"
+        
     return None
     
 if __name__ == '__main__':
