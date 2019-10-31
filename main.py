@@ -22,31 +22,142 @@ import time
 #patterns for digits. 
 #A = 0->9 + A->F, 
 #D = 0->9
-SCORE_PATTERN = 'ADDDDD' if config.hexSupport else 'DDDDDD'
-LINES_PATTERN = 'DDD'
-LEVEL_PATTERN = 'AA'
-STATS_PATTERN = 'DDD'
+PATTERNS = {
+    'score': 'ADDDDD' if config.hexSupport else 'DDDDDD',
+    'lines': 'DDD',
+    'level': 'AA',
+    'stats': 'DDD'
+}
 
-SCORE_COORDS = mult_rect(config.CAPTURE_COORDS,config.scorePerc)
-LINES_COORDS = mult_rect(config.CAPTURE_COORDS,config.linesPerc)
-LEVEL_COORDS = mult_rect(config.CAPTURE_COORDS,config.levelPerc)
-
-#piece stats and method. Recommend using FIELD
+STATS_METHOD  = config.stats_method #can be TEXT or FIELD.
+CAPTURE_FIELD = config.capture_field
+CAPTURE_PREVIEW = config.capture_preview
 STATS_ENABLE  = config.capture_stats
-STATS_COORDS  = generate_stats(config.CAPTURE_COORDS,config.statsPerc,config.scorePerc[3])
-STATS2_COORDS = mult_rect(config.CAPTURE_COORDS, config.stats2Perc)
-FIELD_COORDS = mult_rect(config.CAPTURE_COORDS, config.fieldPerc)
-
-STATS_METHOD  = config.stats_method #can be TEXT or FIELD. 
-
 USE_STATS_FIELD = (STATS_ENABLE and STATS_METHOD == 'FIELD')
 
-CAPTURE_FIELD = config.capture_field
-COLOR1 = mult_rect(config.CAPTURE_COORDS, config.color1Perc)
-COLOR2 = mult_rect(config.CAPTURE_COORDS, config.color2Perc)
+# coords is supplied in XYWH format
+def XYWHOffsetAndConvertToLTBR(offset, coords):
+    return (
+        coords[0] - offset[0],
+        coords[1] - offset[1],
+        coords[0] - offset[0] + coords[2],
+        coords[1] - offset[1] + coords[3]
+    )
 
-CAPTURE_PREVIEW = config.capture_preview
-PREVIEW_COORDS = mult_rect(config.CAPTURE_COORDS, config.previewPerc)
+# The list of tasks to execute can be computed at bootstrap time
+# to remove all conditional processing from the main running loop
+def getWindowAreaAndPartialTasks():
+    # gather list of all areas that need capturing
+    # that will be used to determine the minimum window area to capture
+    areas = {
+        'score': mult_rect(config.CAPTURE_COORDS,config.scorePerc),
+        'lines': mult_rect(config.CAPTURE_COORDS,config.linesPerc),
+        'level': mult_rect(config.CAPTURE_COORDS,config.levelPerc)
+    }
+
+    if CAPTURE_FIELD:
+        areas['field'] = mult_rect(config.CAPTURE_COORDS, config.fieldPerc)
+        areas['color1'] = mult_rect(config.CAPTURE_COORDS, config.color1Perc)
+        areas['color2'] = mult_rect(config.CAPTURE_COORDS, config.color2Perc)
+
+    if USE_STATS_FIELD:
+        areas['stats2'] = mult_rect(config.CAPTURE_COORDS, config.stats2Perc)
+    elif STATS_ENABLE:
+        areas['stats'] = mult_rect(config.CAPTURE_COORDS, config.statsPerc)
+
+    if CAPTURE_PREVIEW:
+        areas['preview'] = mult_rect(config.CAPTURE_COORDS, config.previewPerc)
+
+    coords_list = areas.values()
+
+    # compute the minimum window area to capture to cover all fields
+    minWindowAreaTLRB = (
+        min((coords[0] for coords in coords_list)),
+        min((coords[1] for coords in coords_list)),
+        max((coords[0] + coords[2] for coords in coords_list)),
+        max((coords[1] + coords[3] for coords in coords_list)),
+    )
+
+    # convert minimum window coordinates to XYWH (needed by capture API)
+    minWindowAreaXYWH = (
+        minWindowAreaTLRB[0],
+        minWindowAreaTLRB[1],
+        minWindowAreaTLRB[2] - minWindowAreaTLRB[0],
+        minWindowAreaTLRB[3] - minWindowAreaTLRB[1]
+    )
+
+    # Extract offset from minimal capture area
+    offset = minWindowAreaXYWH[:2]
+
+    partials = []
+
+    def processCoordinates(coords):
+        if config.tasksCaptureMethod == 'WINDOW_N_SLICE':
+            return XYWHOffsetAndConvertToLTBR(offset, coords)
+        else:
+            return coords
+
+    methodPrefix = 'extract' if config.tasksCaptureMethod == 'WINDOW_N_SLICE' else 'capture'
+
+    # prepare list of tasks to run at each loop
+    for key, coords in areas.items():
+        if key in ['score', 'lines', 'level']:
+            partials.append((
+                eval(methodPrefix + 'AndOCR'),
+                (
+                    processCoordinates(coords),
+                    PATTERNS[key],
+                    key,
+                    False,
+                )
+            ))
+
+        elif key == 'preview':
+            partials.append((
+                eval(methodPrefix + 'AndOCRPreview'),
+                (
+                    processCoordinates(coords),
+                )
+            ))
+
+        elif key == 'stats':
+            stats_coords = generate_stats(config.CAPTURE_COORDS, config.statsPerc ,config.scorePerc[3])
+
+            for pieceKey, pieceCoords in stats_coords.items():
+                partials.append((
+                    eval(methodPrefix + 'AndOCR'),
+                    (
+                        processCoordinates(pieceCoords),
+                        PATTERNS[key],
+                        pieceKey,
+                        True,
+                    )
+                ))
+
+        elif key == 'stats2':
+            # stats2 will only be read as a task in the main loop IF multithreading is disabled
+            if MULTI_THREAD == 1:
+                partials.append((
+                    eval(methodPrefix + 'AndOCRBoardPiece'),
+                    (
+                        processCoordinates(coords),
+                    )
+                ))
+
+        elif key == 'field':
+            partials.append((
+                eval(methodPrefix + 'AndOCRBoard'),
+                (
+                    processCoordinates(coords),
+                    processCoordinates(areas['color1']),
+                    processCoordinates(areas['color2']),
+                )
+            ))
+
+    return (minWindowAreaXYWH, partials)
+
+#piece stats and method. Recommend using FIELD
+STATS2_COORDS = mult_rect(config.CAPTURE_COORDS, config.stats2Perc)
 
 MULTI_THREAD = config.threads #shouldn't need more than four if using FieldStats + score/lines/level
 
@@ -75,25 +186,45 @@ if config.captureMethod == 'FILE':
         getTimeStamp = WindowCapture.TimeStamp
 
 SLEEP_TIME = 0.001
-def captureAndOCR(coords,hwnd,digitPattern,taskName,draw=False,red=False):    
-    img = WindowCapture.ImageCapture(coords,hwnd)    
-    return taskName, scoreImage(img,digitPattern,draw,red)
-    
-def captureAndOCRBoardPiece(coords, hwnd):
+def captureAndOCR(hwnd, coords, digitPattern, taskName, red):
     img = WindowCapture.ImageCapture(coords, hwnd)
-    rgbo = PieceStatsBoardOCR.parseImage(img)    
+    return (taskName, scoreImage(img, digitPattern, False, red))
+
+def captureAndOCRBoardPiece(hwnd, coords):
+    img = WindowCapture.ImageCapture(coords, hwnd)
+    rgbo = PieceStatsBoardOCR.parseImage(img)
     return ('piece_stats_board', rgbo)
 
-def captureAndOCRBoard(coords, hwnd):    
-    img = WindowCapture.ImageCapture(coords, hwnd)
-    col1 = WindowCapture.ImageCapture(COLOR1,hwnd)
-    col2 = WindowCapture.ImageCapture(COLOR2,hwnd)    
-    field = BoardOCR.parseImage(img,col1,col2)
+def captureAndOCRBoard(hwnd, boardCoords, color1Coords, color2Coords):
+    img = WindowCapture.ImageCapture(boardCoords, hwnd)
+    col1 = WindowCapture.ImageCapture(color1Coords, hwnd)
+    col2 = WindowCapture.ImageCapture(color2Coords, hwnd)
+    field = BoardOCR.parseImage(img, col1, col2)
     return ('field', field)
 
-def captureAndOCRPreview(hwnd):
-    img = WindowCapture.ImageCapture(PREVIEW_COORDS,hwnd)
+def captureAndOCRPreview(hwnd, previewCoords):
+    img = WindowCapture.ImageCapture(previewCoords, hwnd)
     result = PreviewOCR.parseImage(img)
+    return ('preview', result)
+
+def extractAndOCR(sourceImg, fieldCoords, digitPattern, taskName, red):
+    img = sourceImg.crop(fieldCoords)
+    return (taskName, scoreImage(img, digitPattern, False, red))
+
+def extractAndOCRBoardPiece(sourceImg, boardPieceCoords):
+    img = sourceImg.crop(boardPieceCoords)
+    rgbo = PieceStatsBoardOCR.parseImage(img)
+    return ('piece_stats_board', rgbo)
+
+def extractAndOCRBoard(sourceImg, boardCoords, color1Coords, color2Coords):
+    img = sourceImg.crop(boardCoords)
+    col1 = sourceImg.crop(color1Coords)
+    col2 = sourceImg.crop(color2Coords)
+    field = BoardOCR.parseImage(img, col1, col2)
+    return ('field', field)
+
+def extractAndOCRPreview(img, previewCoords):
+    result = PreviewOCR.parseImage(img.crop(previewCoords))
     return ('preview', result)
 
 #run this as fast as possible    
@@ -101,7 +232,7 @@ def statsFieldMulti(ocr_stats, pool):
     while True:
         t = time.time()
         hwnd = getWindow()
-        _, pieceType = pool.apply(captureAndOCRBoardPiece, (STATS2_COORDS, hwnd))
+        _, pieceType = pool.apply(captureAndOCRBoardPiece, (hwnd, STATS2_COORDS))
         ocr_stats.update(pieceType,t)
         if (time.time() - t > 1/60.0):
             print ("Warning, not scanning field fast enough", str(time.time() - t))
@@ -125,7 +256,7 @@ def main(onCap, checkNetworkClose):
             thread.daemon = True
             thread.start()        
     
-    scoreFixer = ScoreFixer(SCORE_PATTERN)
+    scoreFixer = ScoreFixer(PATTERNS['score'])
     
     gameIDParser = NewGameDetector()
     
@@ -139,37 +270,32 @@ def main(onCap, checkNetworkClose):
             while time.time() < frame_end:
                 time.sleep(SLEEP_TIME)
             continue
+
+        windowMinCoords, partialTasks = getWindowAreaAndPartialTasks()
+
+        windowAndSlice = config.tasksCaptureMethod == 'WINDOW_N_SLICE'
        
         while checkWindow(hwnd):
             # inner loop gets fresh data for just the desired window
             frame_start  = time.time()
             frame_end = frame_start + RATE
 
-            result = {}
-            rawTasks = []
-            rawTasks.append((captureAndOCR,(SCORE_COORDS,hwnd,SCORE_PATTERN,"score")))
-            rawTasks.append((captureAndOCR,(LINES_COORDS,hwnd,LINES_PATTERN,"lines")))
-            rawTasks.append((captureAndOCR,(LEVEL_COORDS,hwnd,LEVEL_PATTERN,"level")))
-            
-            if STATS_ENABLE:
-                if STATS_METHOD == 'TEXT':                
-                    for key in STATS_COORDS.keys():
-                        rawTasks.append((captureAndOCR,(STATS_COORDS[key],hwnd,STATS_PATTERN,key,False,True)))
-                elif MULTI_THREAD == 1: #run FIELD_PIECE in main thread if necessary
-                    rawTasks.append((captureAndOCRBoardPiece, (STATS2_COORDS, hwnd)))
-            
-            if CAPTURE_FIELD:  
-                rawTasks.append((captureAndOCRBoard,(FIELD_COORDS,hwnd)))
-            
-            if CAPTURE_PREVIEW:
-                rawTasks.append((captureAndOCRPreview, (hwnd,)))
+            if windowAndSlice:
+                # capture min window area in one command first, will be sliced later
+                source = WindowCapture.ImageCapture(windowMinCoords, hwnd)
+            else:
+                source = hwnd
+
+            # inject source to complete partial tasks
+            rawTasks = [(func, (source,) + args) for func, args in partialTasks]
 
             # run all tasks (in separate threads if MULTI_THREAD is enabled)
             result = runTasks(p, rawTasks)
 
-            #fix score's first digit. 8 to B and B to 8 depending on last state.
-            result['score'] = scoreFixer.fix(result['score'])
-            
+            if config.hexSupport:
+                #fix score's first digit. 8 to B and B to 8 depending on last state.
+                result['score'] = scoreFixer.fix(result['score'])
+
             # update our accumulator
             if USE_STATS_FIELD:
                 if lastLines is None and result['lines'] == '000':
@@ -192,7 +318,7 @@ def main(onCap, checkNetworkClose):
             
             result['playername'] = config.player_name
             result['gameid'] = gameIDParser.getGameID(result['score'],result['lines'],result['level'])
-                        
+
             onCap(result, getTimeStamp())
             error = checkNetworkClose()   
             if error is not None:
@@ -232,6 +358,4 @@ if __name__ == '__main__':
         
     client.stop() 
     client.join()
-    
 
-        
