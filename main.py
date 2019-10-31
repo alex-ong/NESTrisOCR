@@ -34,7 +34,7 @@ CAPTURE_FIELD = config.capture_field
 CAPTURE_PREVIEW = config.capture_preview
 STATS_ENABLE  = config.capture_stats
 USE_STATS_FIELD = (STATS_ENABLE and STATS_METHOD == 'FIELD')
-
+WINDOW_N_SLICE = config.tasksCaptureMethod == 'WINDOW_N_SLICE'
 # coords is supplied in XYWH format
 def XYWHOffsetAndConvertToLTBR(offset, coords):
     return (
@@ -92,12 +92,12 @@ def getWindowAreaAndPartialTasks():
     partials = []
 
     def processCoordinates(coords):
-        if config.tasksCaptureMethod == 'WINDOW_N_SLICE':
+        if WINDOW_N_SLICE:
             return XYWHOffsetAndConvertToLTBR(offset, coords)
         else:
             return coords
 
-    methodPrefix = 'extract' if config.tasksCaptureMethod == 'WINDOW_N_SLICE' else 'capture'
+    methodPrefix = 'extract' if WINDOW_N_SLICE else 'capture'
 
     # prepare list of tasks to run at each loop
     for key, coords in areas.items():
@@ -162,7 +162,7 @@ STATS2_COORDS = mult_rect(config.CAPTURE_COORDS, config.stats2Perc)
 MULTI_THREAD = config.threads #shouldn't need more than four if using FieldStats + score/lines/level
 
 #limit how fast we scan.
-RATE_FIELDSTATS = 0.004
+RATE_FIELDSTATS = 1/60.0 if WINDOW_N_SLICE else 1/120.0
 RATE_TEXTONLY = 0.064
 RATE_FIELD = 1.0 / clamp(15,60,config.scanRate)
 
@@ -273,14 +273,12 @@ def main(onCap, checkNetworkClose):
 
         windowMinCoords, partialTasks = getWindowAreaAndPartialTasks()
 
-        windowAndSlice = config.tasksCaptureMethod == 'WINDOW_N_SLICE'
-       
         while checkWindow(hwnd):
             # inner loop gets fresh data for just the desired window
             frame_start  = time.time()
             frame_end = frame_start + RATE
 
-            if windowAndSlice:
+            if WINDOW_N_SLICE:
                 # capture min window area in one command first, will be sliced later
                 source = WindowCapture.ImageCapture(windowMinCoords, hwnd)
             else:
