@@ -89,3 +89,12 @@ def clamp(smol,big,value):
     if value > big:
         return big
     return value
+
+# coords is supplied in XYWH format
+def XYWHOffsetAndConvertToLTBR(offset, coords):
+    return (
+        coords[0] - offset[0],
+        coords[1] - offset[1],
+        coords[0] - offset[0] + coords[2],
+        coords[1] - offset[1] + coords[3]
+    )

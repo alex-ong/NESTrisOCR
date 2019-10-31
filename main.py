@@ -41,15 +41,6 @@ if WINDOW_N_SLICE and config.threads != 1:
     messagebox.showerror("NESTrisOCR", "WINDOW_N_SLICE only supports one thread. Please change number of threads to 1") 
     sys.exit()
     
-# coords is supplied in XYWH format
-def XYWHOffsetAndConvertToLTBR(offset, coords):
-    return (
-        coords[0] - offset[0],
-        coords[1] - offset[1],
-        coords[0] - offset[0] + coords[2],
-        coords[1] - offset[1] + coords[3]
-    )
-
 # The list of tasks to execute can be computed at bootstrap time
 # to remove all conditional processing from the main running loop
 def getWindowAreaAndPartialTasks():
