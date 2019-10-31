@@ -17,7 +17,7 @@ import threading
 from Networking.NetworkClient import NetClient
 from tkinter import messagebox, Tk
 import time
-
+import sys
 
 #patterns for digits. 
 #A = 0->9 + A->F, 
@@ -35,6 +35,12 @@ CAPTURE_PREVIEW = config.capture_preview
 STATS_ENABLE  = config.capture_stats
 USE_STATS_FIELD = (STATS_ENABLE and STATS_METHOD == 'FIELD')
 WINDOW_N_SLICE = config.tasksCaptureMethod == 'WINDOW_N_SLICE'
+
+#quick check for num_threads:
+if WINDOW_N_SLICE and config.threads != 1:    
+    messagebox.showerror("NESTrisOCR", "WINDOW_N_SLICE only supports one thread. Please change number of threads to 1") 
+    sys.exit()
+    
 # coords is supplied in XYWH format
 def XYWHOffsetAndConvertToLTBR(offset, coords):
     return (
@@ -316,7 +322,7 @@ def main(onCap, checkNetworkClose):
             
             result['playername'] = config.player_name
             result['gameid'] = gameIDParser.getGameID(result['score'],result['lines'],result['level'])
-
+            print(time.time() - frame_start)
             onCap(result, getTimeStamp())
             error = checkNetworkClose()   
             if error is not None:
