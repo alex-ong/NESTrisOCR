@@ -256,8 +256,8 @@ def main(onCap, checkNetworkClose):
     scoreFixer = ScoreFixer(PATTERNS['score'])
     
     gameIDParser = NewGameDetector()
-    
-    while True:
+    finished = False
+    while not finished:
         # outer loop waits for the window to exists
         frame_start = time.time()
         frame_end = frame_start + RATE
@@ -313,7 +313,7 @@ def main(onCap, checkNetworkClose):
             
             result['playername'] = config.player_name
             result['gameid'] = gameIDParser.getGameID(result['score'],result['lines'],result['level'])
-            print(time.time() - frame_start)
+            
             onCap(result, getTimeStamp())
             error = checkNetworkClose()   
             if error is not None:
@@ -322,6 +322,7 @@ def main(onCap, checkNetworkClose):
                 time.sleep(SLEEP_TIME)
             
             if not WindowCapture.NextFrame(): #finished reading video
+                finished = True
                 break
     
 if __name__ == '__main__':
