@@ -17,7 +17,10 @@ class ScoreFixer(object):
         else:
             item = chr(ord('A') + (item-10))
         return item
-        
+    
+    def reset(self):
+        self.lastGoodValue = None
+
     def fix(self,stringNumber):
         if not self.doFix:
             return stringNumber

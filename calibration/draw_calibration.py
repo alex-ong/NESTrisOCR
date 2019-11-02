@@ -123,8 +123,9 @@ def draw_calibration(config):
         return None
     
     img = WindowCapture.ImageCapture(config.CAPTURE_COORDS, hwnd)
-    for i in range(10):
-        WindowCapture.NextFrame()
+    if config.captureMethod == 'FILE':
+        for i in range(10):
+           WindowCapture.NextFrame()
     highlight_calibration(img, config)   
     img = img.resize((512,448),Image.ANTIALIAS)
     return img

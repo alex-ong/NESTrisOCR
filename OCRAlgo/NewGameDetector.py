@@ -8,6 +8,7 @@ class NewGameDetector():
         
     #we only consider transitioning from all null to all '0' and vice versa.
     def getGameID(self, score, lines, level):
+        changed = False
         if (self.score == None and
             self.lines == None and
             self.level == None):
@@ -16,6 +17,7 @@ class NewGameDetector():
                 self.score = score
                 self.lines = lines
                 self.level = level
+                changed = True
         elif (score == None and
               lines == None and
               level == None):
@@ -23,5 +25,5 @@ class NewGameDetector():
             self.lines = lines
             self.level = level
         
-        return self.gameId
+        return (self.gameId, changed)
             
