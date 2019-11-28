@@ -4,7 +4,10 @@ from config import config
 import platform
 
 #decide which file capture method we are using.
-if config.captureMethod == 'FILE':
+if config.captureMethod == 'OPENCV':
+    import WinCap.OpenCVCapture as WindowCapture
+    from WinCap.OpenCVCapture import WindowMgr
+elif config.captureMethod == 'FILE':
     import WinCap.FileCapture as WindowCapture
     from WinCap.FileCapture import WindowMgr
 elif platform.system() == 'Darwin':
