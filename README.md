@@ -75,7 +75,7 @@ Follow the steps in the picture:
 
 2) Enter your name 
 
-3) Press auto-calibrate. The window should snap into place. Check that hte game window has been detected. If not, press auto-calibrate another 3-4 times. If that still doesnt work,
+3) Press auto-calibrate. The window should snap into place. Check that the game window has been detected. If not, press auto-calibrate another 3-4 times. If that still doesnt work,
    use the +- buttons in "capture window coords" to get the game window.
 
 4) Auto adjust Lines, Score and Level. Micro adjust so that the numbers are close and then re-auto-adjust to get best results.
