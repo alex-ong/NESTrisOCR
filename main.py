@@ -19,14 +19,17 @@ from tkinter import messagebox, Tk
 import time
 import sys
 
-#patterns for digits. 
-#A = 0->9 + A->F, 
+#patterns for digits.
+#A = 0->9 + A->F,
 #D = 0->9
+#B = 0->1 (das value only 00 to 16, so first digit can check 0 or 1 only) (B for Binary)
+#T = 0->2 (majority of humans play up to 30, so first digit of level could be 0-2 only) (T for Triplet)
 PATTERNS = {
     'score': 'ADDDDD' if config.hexSupport else 'DDDDDD',
     'lines': 'DDD',
     'level': 'AA',
-    'stats': 'DDD'
+    'stats': 'DDD',
+    'das':   'BD'
 }
 
 STATS_METHOD  = config.stats_method #can be TEXT or FIELD.
