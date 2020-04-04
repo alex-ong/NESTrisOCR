@@ -27,7 +27,7 @@ import sys
 PATTERNS = {
     'score': 'ADDDDD' if config.hexSupport else 'DDDDDD',
     'lines': 'DDD',
-    'level': 'AA',
+    'level': 'TD',
     'stats': 'DDD',
     'das':   'BD'
 }
