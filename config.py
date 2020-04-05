@@ -16,6 +16,7 @@ class Configuration:
         #performance
         self.threads = literal_eval(parser['performance']['multi_thread'])
         self.hexSupport = parser['performance'].getboolean('support_hex_score') 
+        self.beyondLevel29Support = parser['performance'].getboolean('support_beyond_level_29')
         self.scanRate = literal_eval(parser['performance']['scan_rate'])
         self.tasksCaptureMethod = parser['performance']['tasks_capture_method']
         
@@ -81,8 +82,11 @@ class Configuration:
         self.setItem('performance','multi_thread', threads)    
     
     def setHexSupport(self, support):
-        self.setItem('performance','support_hex_score', support)    
-    
+        self.setItem('performance','support_hex_score', support)
+
+    def setBeyondLevel29Support(self, support):
+        self.setItem('performance','support_beyond_level_29', support)
+
     def setCaptureStats(self, toCapture):
         self.setItem('stats','read_stats', toCapture)    
     
