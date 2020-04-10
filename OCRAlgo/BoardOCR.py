@@ -12,6 +12,20 @@ except:
     from OCRAlgo.BoardOCR2 import parseImage2
     print("Warning, loaded parseImage2 from llvmlite: please run buildBoardOCR2 to build a compiled version")
 
+
+def parseImageSmart(img, color1, color2, pre_calculated):
+    if not pre_calculated:
+        color1 = color1.resize((1,1), PIL.Image.ANTIALIAS)
+        color1 = color1.getpixel((0,0))
+        color1 = np.array(color1,dtype=np.uint8)
+        color2 = color2.resize((1,1), PIL.Image.ANTIALIAS)
+        color2 = color2.getpixel((0,0))
+        color2 = np.array(color2,dtype=np.uint8)
+    result = {}
+    result['field'] = parseImage2(img,color1,color2)
+    result['color1'] = color1
+    result['color2'] = color2
+    return result
     
 def parseImage(img, color1, color2):    
     color1 = color1.resize((1,1), PIL.Image.ANTIALIAS)
