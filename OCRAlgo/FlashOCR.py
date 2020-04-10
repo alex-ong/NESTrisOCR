@@ -7,7 +7,6 @@ def parseBoard(board):
 def parseImage(img, limit):
     img = img.resize((1,1), Image.BOX)
     color1 = img.getpixel((0,0))
-    print (color1)
     result = (color1[0] > limit)
     return result
     
