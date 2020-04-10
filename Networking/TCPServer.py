@@ -1,14 +1,15 @@
 import socketserver
 import threading
 import socket
+import struct
+
 try:
     from Networking.StoppableThread import StoppableThread
 except:    
     from StoppableThread import StoppableThread
     
-        
-START_TOKEN = '\x00'    
-END_TOKEN = '\x01'
+INT_SIZE = 4        
+
 def CreateServer(target, port, onRecvMessage):    
     server = ThreadedServer(target, port, onRecvMessage)    
     server.start()
@@ -48,39 +49,26 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                                 socket.SO_REUSEADDR, 1)
     def handle(self):            
         # potential improvement - dont use python strings as buffer                    
-        dataBuffer = ''
+        dataBuffer = b''
         while self.server.serverThreadAlive():
             try:                       
                 data = self.request.recv(1024)    
                     
                 if not data:
                     break  # disconnection 
-                
-                data = data.decode("utf-8")  # change from array of bytes to utf8 string
+
                 dataBuffer += data
-                while END_TOKEN in dataBuffer:
-                    endIndex = dataBuffer.index(END_TOKEN)
-                    # check for buffer index of start...
-                    try:
-                        startIndex = dataBuffer.index(START_TOKEN)
-                    except:  # malformed packet
-                        print ("TCPServerRecv: Malformed packet, no start_token")
-                        self.dataBuffer = self.dataBuffer[endIndex + 1:]
-                        continue
+                while len(dataBuffer) >= INT_SIZE:
+                    header = dataBuffer[:INT_SIZE]
+                    data_len = struct.unpack('<i',header)[0]
+                    target_idx = data_len+INT_SIZE
+                    if len(dataBuffer) < target_idx:
+                        break
                     
-                    if startIndex > endIndex:  # malformed packet. Delete everyting including endIndex
-                        dataBuffer = self.dataBuffer[endIndex + 1:]
-                        continue
-                    
-                    # by this point we have good packet structure.
-                    if startIndex != 0:
-                        print ('Unhandled exception, flushing dataBuffer...')
-                        dataBuffer = ''
-                        continue
-                    
-                    message = dataBuffer[1:endIndex]
-                    self.server.onRecvMessage(message)
-                    dataBuffer = dataBuffer[endIndex + 1:]
+                    msg = dataBuffer[INT_SIZE:target_idx]
+                    dataBuffer = dataBuffer[target_idx:]
+                    self.server.onRecvMessage(msg)
+
             except ConnectionResetError:
                 print ("Client disconnected!")
                 break
