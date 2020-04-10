@@ -26,13 +26,15 @@ class Configuration:
         
         #calibration
         self.captureMethod = parser['calibration']['capture_method']
+        self.flashMethod = parser['calibration']['flash_method']
         self.WINDOW_NAME = parser['calibration']['window_name']
         self.CAPTURE_COORDS = literal_eval(parser['calibration']['game_coords'])        
         self.scorePerc = literal_eval(parser['calibration']['scoreperc'])
         self.linesPerc = literal_eval(parser['calibration']['linesperc'])
         self.levelPerc = literal_eval(parser['calibration']['levelperc'])
         self.statsPerc = literal_eval(parser['calibration']['statsperc'])
-        
+        self.flashPerc = literal_eval(parser['calibration']['flashperc'])
+        self.flashLimit = literal_eval(parser['calibration']['flashlimit'])
         #field
         self.capture_field = parser['calibration'].getboolean('read_field')
         self.fieldPerc = literal_eval(parser['calibration']['fieldperc'])
@@ -56,9 +58,9 @@ class Configuration:
 
     # gets the 2x4 region out of the fieldPerc
     def subImage(self, rect):
-        #return middle 4 / 10 x values and  2 / 20 y values
-        tileX = rect[2]/10.0
-        tileY = rect[3]/20.0
+        #return middle 4 / 10 x values and 2 / 20 y values
+        tileX = rect[2] / 10.0
+        tileY = rect[3] / 20.0
         return [rect[0] + tileX * 3,
                 rect[1],
                 tileX * 4,
@@ -109,8 +111,14 @@ class Configuration:
         self.setItem('calibration','levelperc', val)    
     
     def setStatsPerc(self, val):
-        self.setItem('calibration','statsperc', val)    
+        self.setItem('calibration','statsperc', val)
     
+    def setFlashPerc(self, val):
+        self.setItem('calibration','flashperc', val)
+
+    def setFlashMethod(self, val):
+        self.setItem('calibration','flash_method', val)
+
     def setCaptureField(self,val):
         self.setItem('calibration','read_field', val)
 

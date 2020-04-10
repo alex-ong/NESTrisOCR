@@ -55,7 +55,8 @@ def highlight_calibration(img, c):
     green = (0,255,0,128)
     blue = (0,100,255,128)       
     orange = (255,165,0,128)
-    
+    yellow = (255,255,0,128)
+
     scorePerc, linesPerc, levelPerc = (c.scorePerc, c.linesPerc, c.levelPerc)
     
     
@@ -110,6 +111,9 @@ def highlight_calibration(img, c):
         for o in calculateOffsets():
             rect = (o[0], o[1], pixelWidth, pixelHeight)
             draw.rectangle(screenPercToPixels(img.width,img.height,rect),fill='red')
+
+    if c.flashMethod == 'BACKGROUND':
+        draw.rectangle(screenPercToPixels(img.width,img.height,c.flashPerc),fill=yellow)
 
     img.paste(poly,mask=poly)    
     del draw

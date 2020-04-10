@@ -73,21 +73,21 @@ class Calibrator(tk.Frame):
     
     def setupTab1(self):
         f = tk.Frame(self.tabManager)
-        canvasSize = [UPSCALE*i for i in finalImageSize(3)]
+        canvasSize = [UPSCALE * i for i in finalImageSize(3)]
         Button(f,text="Auto Adjust Lines \nNeeds Lines = 000",command=self.autoLines,bg='red').grid(row=0,column=0)
         self.linesPerc = CompactRectChooser(f,"lines (imagePerc)",config.linesPerc,True,self.updateLinesPerc)
         self.linesPerc.grid(row=0,column=1)
         self.linesImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
         self.linesImage.grid(row=1,columnspan=2)
         
-        canvasSize = [UPSCALE*i for i in finalImageSize(6)]
+        canvasSize = [UPSCALE * i for i in finalImageSize(6)]
         Button(f,text="Auto Adjust Score \n Needs Score = 000000",command=self.autoScore,bg='red').grid(row=2,column=0)
         self.scorePerc = CompactRectChooser(f,"score (imagePerc)", config.scorePerc,True,self.updateScorePerc)
         self.scorePerc.grid(row=2,column=1)
         self.scoreImage = ImageCanvas(f,canvasSize[0],canvasSize[1])        
         self.scoreImage.grid(row=3,columnspan=2)
 
-        canvasSize = [UPSCALE*i for i in finalImageSize(2)]
+        canvasSize = [UPSCALE * i for i in finalImageSize(2)]
         Button(f,text="Auto Adjust Level \n Needs Level = 00",command=self.autoLevel,bg='red').grid(row=4,column=0)
         self.levelPerc = CompactRectChooser(f,"level (imagePerc)", config.levelPerc,True,self.updateLevelPerc)
         self.levelPerc.grid(row=4,column=1)
@@ -100,11 +100,16 @@ class Calibrator(tk.Frame):
         a = CompactRectChooser(f,"field (imagePerc)",config.fieldPerc,True,self.updateFieldPerc)        
         b = CompactRectChooser(f,"Color1 (imagePerc)",config.color1Perc,True,self.updateColor1Perc)
         c = CompactRectChooser(f,"Color2 (imagePerc)",config.color2Perc,True,self.updateColor2Perc)
+        d = CompactRectChooser(f,"Flash (imagePerc)", config.flashPerc,True,self.updateFlashPerc)
+        
+        self.flashPosition = d
         self.fieldCaptures = [a,b,c]
         self.pieceStats = CompactRectChooser(f,"pieceStats (imagePerc)",config.statsPerc,True,self.updateStatsPerc)
         a.grid()
         b.grid()
         c.grid()
+        d.grid()
+        
         self.pieceStats.grid()
         self.setFieldTextVisible()
         self.setStatsTextVisible()
@@ -115,8 +120,8 @@ class Calibrator(tk.Frame):
         self.previewPiece = CompactRectChooser(f,"Next Piece (imagePerc)",config.previewPerc,True,self.updatePreviewPerc)                
         self.previewPiece.grid()
         
-        canvasSize = [UPSCALE*2 * i for i in PreviewImageSize]
-        self.previewImage  = ImageCanvas(f, canvasSize[0],canvasSize[1])
+        canvasSize = [UPSCALE * 2 * i for i in PreviewImageSize]
+        self.previewImage = ImageCanvas(f, canvasSize[0],canvasSize[1])
         self.previewImage.grid()
                 
         self.samplePreviewImage = ImageCanvas(f,canvasSize[0],canvasSize[1])
@@ -138,10 +143,19 @@ class Calibrator(tk.Frame):
         
         self.tabManager.add(f, text="PreviewPiece")
     
+    def setFlashVisible(self):
+        show = False
+        if (self.config.flashMethod == 'BACKGROUND'):
+            show = True
+        
+        if show:
+            self.flashPosition.grid()
+        else:
+            self.flashPosition.grid_forget()
+    
     def setFieldTextVisible(self):
         show = False
-        if (self.config.capture_field or 
-           (self.config.capture_stats and self.config.stats_method == 'FIELD')):
+        if (self.config.capture_field or (self.config.capture_stats and self.config.stats_method == 'FIELD')):
                show = True
 
         for item in self.fieldCaptures:
@@ -197,6 +211,9 @@ class Calibrator(tk.Frame):
     def updateFieldPerc(self, result):
         self.updateRedraw(self.config.setFieldPerc, result)
     
+    def updateFlashPerc(self, result):
+        self.updateRedraw(self.config.setFlashPerc, result)
+
     def updateColor1Perc(self, result):
         self.updateRedraw(self.config.setColor1Perc, result)
     
@@ -221,7 +238,7 @@ class Calibrator(tk.Frame):
         dim = board.width, board.height        
         
         self.boardImage.updateImage(board)
-		
+
         if self.getActiveTab() == 0: #text
             score_img,lines_img,level_img = highlight_split_digits(self.config)            
             score_img = score_img.resize((UPSCALE * i for i in score_img.size))
@@ -242,7 +259,7 @@ class Calibrator(tk.Frame):
             self.linesPerc.show(str(item) for item in bestRect)
             self.config.setLinesPerc(bestRect)        
         else:
-            print ("Please have score on screen as 000")
+            print("Please have score on screen as 000")
     
     def autoScore(self):
         bestRect = autoAdjustRectangle(self.config.CAPTURE_COORDS, self.config.scorePerc, 6)
@@ -250,7 +267,7 @@ class Calibrator(tk.Frame):
             self.scorePerc.show(str(item) for item in bestRect)
             self.config.setScorePerc(bestRect)        
         else:
-            print ("Please have score on screen as 000000")
+            print("Please have score on screen as 000000")
         
     def autoLevel(self):
         bestRect = autoAdjustRectangle(self.config.CAPTURE_COORDS, self.config.levelPerc, 2)
@@ -258,7 +275,7 @@ class Calibrator(tk.Frame):
             self.levelPerc.show(str(item) for item in bestRect)
             self.config.setLevelPerc(bestRect)        
         else:
-            print ("Please have score on screen as 00")
+            print("Please have score on screen as 00")
         
     def getNewBoardImage(self):
         return draw_calibration(self.config)
@@ -278,6 +295,7 @@ class Calibrator(tk.Frame):
         self.redrawImages()
         self.setStatsTextVisible()
         self.setFieldTextVisible()
+        self.setFlashVisible()
         self.setPreviewTextVisible()
 
     def on_exit(self):                
@@ -299,11 +317,11 @@ def autoAdjustRectangle(capture_coords, rect, numDigits):
     lowestScore = None
     lowestOffset = None
     bestRect = None
-    pattern = 'D'*numDigits
+    pattern = 'D' * numDigits
     left,right = -3, 4
     results = []
-    for x in range (left,right):
-        for y in range (left,right):
+    for x in range(left,right):
+        for y in range(left,right):
             for w in range(left,right):
                 for h in range(left,right):                        
                     newRect = (rect[0] + x * 0.001,
@@ -327,7 +345,7 @@ def autoAdjustRectangle(capture_coords, rect, numDigits):
     
 def adjustTask(pixRect, pattern, newRect):
     result = 0
-    for i in range (3):
+    for i in range(3):
         img = captureArea(pixRect)
         result2 = scoreImage0(img,pattern)
         if result2 is not None and result is not None:
@@ -338,7 +356,7 @@ def adjustTask(pixRect, pattern, newRect):
     
 def progressBar(value, endvalue, bar_length=20):
     percent = float(value) / endvalue
-    arrow = '-' * int(round(percent * bar_length)-1) + '>'
+    arrow = '-' * int(round(percent * bar_length) - 1) + '>'
     spaces = ' ' * (bar_length - len(arrow))
 
     sys.stdout.write("\rPercent: [{0}] {1}%".format(arrow + spaces, int(round(percent * 100))))

@@ -5,6 +5,7 @@ from OCRAlgo.PieceStatsTextOCR import generate_stats
 import OCRAlgo.PieceStatsBoardOCR as PieceStatsBoardOCR
 import OCRAlgo.BoardOCR as BoardOCR
 import OCRAlgo.PreviewOCR2 as PreviewOCR
+import OCRAlgo.FlashOCR as FlashOCR
 from OCRAlgo.NewGameDetector import NewGameDetector
 
 from calibrate import mainLoop as calibrateLoop
@@ -35,6 +36,7 @@ PATTERNS = {
 STATS_METHOD  = config.stats_method #can be TEXT or FIELD.
 CAPTURE_FIELD = config.capture_field
 CAPTURE_PREVIEW = config.capture_preview
+CAPTURE_FLASH = config.flashMethod
 STATS_ENABLE  = config.capture_stats
 USE_STATS_FIELD = (STATS_ENABLE and STATS_METHOD == 'FIELD')
 WINDOW_N_SLICE = config.tasksCaptureMethod == 'WINDOW_N_SLICE'
@@ -67,6 +69,9 @@ def getWindowAreaAndPartialTasks():
 
     if CAPTURE_PREVIEW:
         areas['preview'] = mult_rect(config.CAPTURE_COORDS, config.previewPerc)
+    
+    if CAPTURE_FLASH == 'BACKGROUND':
+        areas['flash'] = mult_rect(config.CAPTURE_COORDS, config.flashPerc)
 
     coords_list = areas.values()
 
@@ -153,6 +158,14 @@ def getWindowAreaAndPartialTasks():
                     processCoordinates(areas['color2']),
                 )
             ))
+        elif key == 'flash':
+            partials.append((
+                eval(methodPrefix + 'AndOCRFlash'),
+                (
+                    processCoordinates(coords),
+                    config.flashLimit
+                )
+            ))
 
     return (minWindowAreaXYWH, partials)
 
@@ -168,11 +181,12 @@ RATE_FIELD = 1.0 / clamp(15,60,config.scanRate)
 
 if USE_STATS_FIELD and MULTI_THREAD == 1:    
     RATE = RATE_FIELDSTATS
-elif CAPTURE_FIELD:
+elif CAPTURE_FIELD or USE_STATS_FIELD or CAPTURE_FLASH == 'BACKGROUND':
     RATE = RATE_FIELD
 else:
     RATE = RATE_TEXTONLY
 
+print('ScanRate:' + str(RATE))
 #how are we calculating timestamp? Time.time, or from the file?
 firstTime = time.time()
 def getRealTimeStamp():
@@ -207,6 +221,11 @@ def captureAndOCRPreview(hwnd, previewCoords):
     result = PreviewOCR.parseImage(img)
     return ('preview', result)
 
+def captureAndOCRFlash(hwnd, flashCoords, limit):
+    img = WindowCapture.ImageCapture(flashCoords, hwnd)
+    result = FlashOCR.parseImage(img, limit)
+    return ('flash', result)
+
 def extractAndOCR(sourceImg, fieldCoords, digitPattern, taskName, red):
     img = sourceImg.crop(fieldCoords)
     return (taskName, scoreImage(img, digitPattern, False, red))
@@ -226,6 +245,10 @@ def extractAndOCRBoard(sourceImg, boardCoords, color1Coords, color2Coords):
 def extractAndOCRPreview(img, previewCoords):
     result = PreviewOCR.parseImage(img.crop(previewCoords))
     return ('preview', result)
+
+def extractAndOCRFlash(img, flashCoords, limit):
+    result = FlashOCR.parseImage(img.crop(flashCoords), limit)
+    return ('flash', result)
 
 #run this as fast as possible    
 def statsFieldMulti(ocr_stats, pool):

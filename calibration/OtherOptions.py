@@ -34,11 +34,17 @@ class OtherOptions(tk.Toplevel):
         #captureStats
         self.statCap = BoolChooser(self,'Capture Piece Stats', config.capture_stats, 
                                    self.changeCaptureStats)
-
+        
+         
         self.statsMethod = OptionChooser(self,'Piece Stats capture method',
                                          ['TEXT','FIELD'],['TEXT','FIELD'],
                                          config.stats_method,self.changeStatsMethod)
         
+        #captureFlash
+        self.flashCap = OptionChooser(self, 'Capture flash method',
+                                      ['BACKGROUND','FIELD','NONE'], ['BACKGROUND','FIELD','NONE'],
+                                      config.flashMethod, self.changeFlashMethod)
+
         self.presets.pack(fill='both')
         self.mt.pack(fill='both')
         self.hex.pack(fill='both')
@@ -47,6 +53,7 @@ class OtherOptions(tk.Toplevel):
         self.statCap.pack(fill='both')
         if config.capture_stats:
             self.statsMethod.pack(fill='both')
+        self.flashCap.pack(fill='both')
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
         self.wm_title("NESTrisOCR Options")
@@ -88,6 +95,9 @@ class OtherOptions(tk.Toplevel):
     
     def changeStatsMethod(self, value):
         self.config.setStatsMethod(value)
+
+    def changeFlashMethod(self, value):
+        self.config.setFlashMethod(value)
 
     def on_exit(self):        
         global INSTANCE
