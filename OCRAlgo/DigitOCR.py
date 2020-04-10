@@ -118,7 +118,11 @@ def scoreImage(img, digitPattern, show=False, red=False):
     img = convertImg(img,count,show)
     label = ""
     for (i, pattern) in enumerate(digitPattern):
-        result = getDigit(img, pattern, i*(BLOCK_SIZE*IMAGE_MULT),0, red)[0]
+        if pattern == 'X':
+            result = 'X'
+        else:
+            result = getDigit(img, pattern, i*(BLOCK_SIZE*IMAGE_MULT),0, red)[0]
+
         if result == 'null':
             return None
         else:
