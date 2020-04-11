@@ -66,7 +66,7 @@ def patternToPiece(r,g,b,o,k):
         
 
 #thread safe OCR status.
-class OCRStatus(object):
+class PieceStatAccumulator(object):
     #min time between two pieces
     #since ARE = 10 frames, we can safely set it to 10 * 1/60
     TIME_EPSILON = 0.160 #min time between two pieces
@@ -114,24 +114,27 @@ class OCRStatus(object):
         elif newPiece == Piece.I:
             self.I += 1
 
+    # returns if a new piece spawned
     def update(self, newPiece, timeStamp):
         if newPiece == Piece.UNKNOWN:
-            return
+            return False
         
         self.lock.acquire()
         if newPiece == self.lastPiece:
             self.lock.release()
-            return
+            return False
              
+        result = False
         if (self.lastPiece == Piece.EMPTY and
                   newPiece != Piece.EMPTY and
                   self.meetsEpsilon(timeStamp)):
                 self.updatePiece(newPiece)
                 self.lastPieceTimeStamp = timeStamp
+                result = True
 
         self.lastPiece = newPiece
         self.lock.release()
-
+        return result
     
     def toDict(self):
         self.lock.acquire()

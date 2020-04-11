@@ -272,7 +272,7 @@ def main(onCap, checkNetworkClose):
         p = None
 
     if USE_STATS_FIELD:
-        accum = PieceStatsBoardOCR.OCRStatus()
+        accum = PieceStatsBoardOCR.PieceStatAccumulator()
         lastLines = None #use to reset accumulator
         if MULTI_THREAD >= 2: #run Field_OCR as fast as possible; unlock from mainthread.
             thread = threading.Thread(target=statsFieldMulti, args=(accum,p))
