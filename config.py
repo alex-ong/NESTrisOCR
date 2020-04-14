@@ -1,3 +1,5 @@
+import argparse
+
 import configparser
 from configupdater import ConfigUpdater
 from ast import literal_eval #safe version of eval
@@ -146,9 +148,16 @@ class Configuration:
     def setNetProtocol(self, val):
         self.setItem('network','protocol', val)
     
-updater = ConfigUpdater()        
-updater.read('config.ini')
 
-config = Configuration('config.ini', updater)
+# Should probably be in main.py and calibrate.py
+# But works fine here to extract just one arg
+parser = argparse.ArgumentParser()
+parser.add_argument('--config', default='config.ini')
+args = parser.parse_args()
+config_filename = args.config
 
 
+updater = ConfigUpdater()
+updater.read(config_filename)
+
+config = Configuration(config_filename, updater)
