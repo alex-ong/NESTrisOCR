@@ -11,7 +11,9 @@ class WindowMgr():
         return True
 
     def getWindows(self):
-        ocv2_device_id = int(config.WINDOW_NAME)
+        # we keep cv2_device_id as string for now, so it is always truthy
+        # If we cast to int now, device id 0 will not be truthy and can't be used
+        ocv2_device_id = config.WINDOW_NAME
 
         return [[ocv2_device_id, config.WINDOW_NAME]]
 
@@ -24,6 +26,15 @@ class OpenCVMgr():
 
     def videoCheck(self, ocv2_device_id):
         if self.inputDevice is None:
+            try:
+                # OpenCV support local device IDs AND stream URLs
+                # Let's do a blind cast attempt to int
+                #  - if it can cast, we get a local device ID
+                #  - if it cannot cast, we assume we have a stream URL and use it as is
+                ocv2_device_id = int(ocv2_device_id)
+            except:
+                pass
+
             self.inputDevice = cv2.VideoCapture(ocv2_device_id)
             time.sleep(1)  # needed for Catalina, otherwise NextFrame would be black
             self.NextFrame()
