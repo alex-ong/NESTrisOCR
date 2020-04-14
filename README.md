@@ -113,10 +113,10 @@ If you are in a menu, it will more likely output
 It will output via TCP to port 3338 by default. This is to connect to other applications that actually use the data.
 
 
-OCR Algorythm
+OCR Algorithm
 ===
 
-The OCR algoryhm is straight forward. A pixel perfect copy of the digits `0123456789`, and hex letters `ABCDEF`, is kept and 2x scaled up (i.e. 14 pixels x 14 pixels) with aliasing.
+The OCR algorithm is straight forward. A pixel perfect copy of the digits `0123456789`, and hex letters `ABCDEF`, is kept and 2x scaled up (i.e. 14 pixels x 14 pixels) with aliasing.
 
 Digits in input frame are extracted and similarly scaled to 14x14, and then individually compared against all the templates. The closest match (least distance) is considered to be the actual digit.
 
@@ -128,4 +128,3 @@ For example:
 * While some players are now playing beyond level 29, it is still the kill screen for most players, and so counting to 29 is sufficient for most (first character can only be `012`)
 
 Based on your skill level, and the game genie code you are using, you may edit the OCR patterns in the file [main.py](main.py). In there, look up the dictionnary `PATTERNS`, and edit it as desired.
-
