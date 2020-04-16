@@ -21,6 +21,10 @@ def parseImageSmart(img, color1, color2, pre_calculated):
         color2 = color2.resize((1,1), PIL.Image.ANTIALIAS)
         color2 = color2.getpixel((0,0))
         color2 = np.array(color2,dtype=np.uint8)
+
+    img = img.resize((10,20),PIL.Image.NEAREST)
+    img = np.array(img,dtype=np.uint8)
+
     result = {}
     result['field'] = parseImage2(img,color1,color2)
     result['color1'] = color1

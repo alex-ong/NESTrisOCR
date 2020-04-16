@@ -35,7 +35,31 @@ class FullStateOCR(object):
         self.piece_stats = PieceStatAccumulator()
         self.gamestate = GameState.MENU
         self.hwnd = hwnd
+    
+    def to_dict_menu(self):
+        result = {}
+        result["lines"] = None
+        result["score"] = None
+        result["level"] = None
+        result["field"] = None
+        result["preview"] = None
+        result["gameid"] = None
+        result.update(self.piece_stats.toDict())
+        return result
 
+    def to_dict(self):
+        if self.gamestate == GameState.MENU:
+            return self.to_dict_menu()
+        result = {}
+        result["lines"] = str(self.lines).zfill(3)
+        result["score"] = str(self.score).zfill(6)
+        result["level"] = str(self.level).zfill(2)
+        result["field"] = None
+        result["preview"] = None
+        result["gameid"] = None
+        result.update(self.piece_stats.toDict())
+        return result
+        
     def update(self):
         if self.gamestate == GameState.MENU:
             self.update_menu()
@@ -52,28 +76,36 @@ class FullStateOCR(object):
         if lines and score and level:
             if lines == '000' and score == '000000':
                 self.level = int(level)
+                self.lines = 0
+                self.score = 0
                 self.start_level = self.level
                 self.gamestate = GameState.IN_GAME
                 self.field = None
                 self.gameid += 1
                 self.piece_stats.reset()
-            elif lines == self.lines:
+                print("moved from menu to game")
+            elif int(lines) == self.lines:
                 self.gamestate = GameState.IN_GAME
                 #requireFullRefresh = True
                 
     
     def update_ingame(self):
         timestamp = time.time()
-        img = scan_full(self, hwnd)
+        img = scan_full(self.hwnd)
         piece_spawned = False
         line_cleared = False
         soft_drop_points = 0
         full_required = False
+        
+        lines_cleared = self.get_lines_cleared(img)
+        
+        if lines_cleared is None: #possibly menu
+            self.gamestate = GameState.MENU
+            return
 
-        lines_cleared = self.get_lines_cleared()
-        if lines_cleared and lines_cleared > 0:
+        if lines_cleared > 0:
             self.lines += lines_cleared
-            new_level = self.get_level(this.lines)
+            new_level = self.get_level(self.lines)
             if self.level != new_level:
                 self.level = new_level
                 self.color1 = None
@@ -105,8 +137,7 @@ class FullStateOCR(object):
         
         if piece_spawned:
             if FS_CONFIG.capture_preview:
-                self.preview = self.get_next_piece()
-            softdrop = self.get_soft_drop(img)
+                self.preview = self.get_next_piece(img)
             success = self.update_softdrop(img)
             if not success:
                 pass
@@ -121,15 +152,16 @@ class FullStateOCR(object):
             self.score += softdrop
         return softdrop
         
-    def get_level(self):
-        low = self.start_level
+    def get_level(self, lines):        
         transition = TRANSITION[self.start_level]
-        lines = max(lines-transition,0)
+        if lines < transition:
+            return self.start_level 
+        
         result = lines // 10 + self.start_level
         return result
 
     def get_score(self, lines_cleared):
-        lookup = [40,100,300,1200]
+        lookup = [0, 40,100,300,1200]
         return (self.level + 1) * lookup[lines_cleared]
     
     def get_soft_drop(self, img):
@@ -146,27 +178,32 @@ class FullStateOCR(object):
 
         digits = int(digits[4:])
         diff = digits - self.score % 100
-        if diff < 100:
+        if diff < 0:
             diff += 100
         return diff
 
-    def get_lines_cleared(self):
+    def get_lines_cleared(self, img):
         line_digits = scan_lines(img, 'XXO')
         if line_digits is None:
             return None
 
-        last_digit = int(line_digit[2])
+        last_digit = int(line_digits[2])
         cleared = last_digit - self.lines % 10
-        
+               
         if cleared < 0:
             cleared += 10
         
         return cleared
 
+    def get_next_piece(self, img):
+        return scan_preview(img)
+
     # a forced refresh.
     def update_ingame_full(self):
         pass
 
+    
+        
 # Todo: numba optimize for numTiles
 # Make sure we account for rotating piece above field, as this reduces
 # Blockcount by 2
@@ -177,3 +214,13 @@ class FieldState(object):
     # returns block count for field below row 18
     def blockCountAdjusted(self):
         return 0
+
+    def __eq__(self, other):        
+        if isinstance(other, self.__class__):
+            return False
+            #return self.__dict__ == other.__dict__
+    def piece_spawned(self, other):
+        return False
+    
+    def line_clear_animation(self, other):
+        return False
