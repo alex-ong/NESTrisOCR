@@ -70,6 +70,16 @@ class FullStateOCR(object):
         soft_drop_points = 0
         full_required = False
 
+        lines_cleared = self.get_lines_cleared()
+        if lines_cleared and lines_cleared > 0:
+            self.lines += lines_cleared
+            new_level = self.get_level(this.lines)
+            if self.level != new_level:
+                self.level = new_level
+                self.color1 = None
+                self.color2 = None            
+            self.score += self.get_score(lines_cleared)
+
         if FS_CONFIG.capture_field:
             field_info = scan_field(img,self.color1,self.color2)
             field = FieldState(field_info['field'])
@@ -87,19 +97,30 @@ class FullStateOCR(object):
             spawned = scan_spawn(img)
             did_spawn = self.piece_stats.update(spawned, timestamp)
             piece_spawned = piece_spawned or did_spawn
+        elif FS_CONFIG.capture_stats and FS_CONFIG.stats_method == 'TEXT':
+            counts = scan_stats_text(img)
+            if sum(counts) > self.piece_stats.piece_count():
+                self.piece_stats.forceUpdate(counts)
+                piece_spawned = True
         
         if piece_spawned:
-            lines_cleared = self.get_lines_cleared()
-            self.preview = self.get_next_piece()
-
-            if lines_cleared and lines_cleared > 0:
-                self.lines += lines_cleared
-                self.level = self.get_level(this.lines)
-                self.score += self.get_score(lines_cleared)
-                
+            if FS_CONFIG.capture_preview:
+                self.preview = self.get_next_piece()
             softdrop = self.get_soft_drop(img)
+            success = self.update_softdrop(img)
+            if not success:
+                pass
+        elif not FS_CONFIG.capture_field and not FS_CONFIG.capture_stats:
+            success = self.update_softdrop(img)
+            if not success:
+                pass
+
+    def update_softdrop(self, img):
+        softdrop = self.get_soft_drop(img)
+        if softdrop:
             self.score += softdrop
-    
+        return softdrop
+        
     def get_level(self):
         low = self.start_level
         transition = TRANSITION[self.start_level]

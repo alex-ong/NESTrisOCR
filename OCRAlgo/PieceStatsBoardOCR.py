@@ -82,7 +82,11 @@ class PieceStatAccumulator(object):
         self.S = 0
         self.L = 0
         self.I = 0
-        
+        self._piece_count = 0
+
+    def piece_count(self):
+        return self._piece_count
+
     def meetsEpsilon(self, timeStamp):
         return timeStamp > self.lastPieceTimeStamp + self.TIME_EPSILON
         
@@ -95,6 +99,7 @@ class PieceStatAccumulator(object):
         self.S = 0
         self.L = 0
         self.I = 0
+        self._piece_count = 0
         self.lastPiece = Piece.EMPTY
         self.lock.release()
     
@@ -113,6 +118,14 @@ class PieceStatAccumulator(object):
             self.L += 1
         elif newPiece == Piece.I:
             self.I += 1
+        self._piece_count += 1
+
+    # can be called by text method.
+    def forceUpdate(self, newPiece, timeStampk):
+        self.lock.acquire()
+        self.updatePiece(newPiece)
+        self.lastPieceTimeStamp = timeStamp
+        self.lock.release()
 
     # returns if a new piece spawned
     def update(self, newPiece, timeStamp):
