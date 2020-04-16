@@ -22,6 +22,7 @@ class OpenCVMgr():
     def __init__(self):
         self.inputDevice = None
         self.imgBuf = None
+        self.lastBuf = 0
         self.frameCount = 0
 
     def videoCheck(self, ocv2_device_id):
@@ -37,10 +38,14 @@ class OpenCVMgr():
 
             self.inputDevice = cv2.VideoCapture(ocv2_device_id)
             time.sleep(1)  # needed for Catalina, otherwise NextFrame would be black
-            self.NextFrame()
 
     def ImageCapture(self, rectangle, ocv2_device_id):
         self.videoCheck(ocv2_device_id)
+
+        # most of the time NextFrame() is manually called from outside, before ImageCapture()
+        # when NextFrame() is not called, we would try to reply with fresh enough image capture
+        if time.time() - self.lastBuf > 1:
+            self.NextFrame()
 
         return self.imgBuf.crop([
             rectangle[0],
@@ -55,6 +60,7 @@ class OpenCVMgr():
             if ret:
                 cv2_im = cv2.cvtColor(cv2_im, cv2.COLOR_BGR2RGB)
                 self.imgBuf = Image.fromarray(cv2_im)
+                self.lastBuf = time.time()
                 self.frameCount += 1
                 if self.frameCount % 1000 == 0:
                     print ('frames', self.frameCount)
