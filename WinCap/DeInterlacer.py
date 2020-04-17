@@ -1,15 +1,20 @@
-﻿from PIL import Image
+﻿from PIL import Image, ImageDraw
 from enum import Enum
 
 class InterlaceMode(Enum):
     NONE = 0
-    DISCARD_ODD = 1
-    DISCARD_EVEN = 2
-    ODD_FIRST = 3
-    EVEN_FIRST = 4
+    DISCARD_TOP = 1
+    DISCARD_BOTTOM = 2
+    TOP_FIRST = 3
+    BOTTOM_FIRST = 4
 
 def deinterlace(img, mode=InterlaceMode.NONE):
     if mode == InterlaceMode.NONE:
+        #first, downscale horizontally.
+        size = list(img.size)
+        size[0] //= 2
+        size[1] //= 2
+        img = img.resize(size, Image.NEAREST)
         return (img, None)
 
     #first, downscale horizontally.
@@ -18,24 +23,28 @@ def deinterlace(img, mode=InterlaceMode.NONE):
     img = img.resize(size, Image.NEAREST)
 
     
-    if mode != InterlaceMode.DISCARD_EVEN:
+    if mode != InterlaceMode.DISCARD_TOP:
         size[1] //= 2
-        even = img.resize(size, Image.NEAREST) # NEAREST drops the lines
+        top = img.resize(size, Image.NEAREST) # NEAREST drops the lines
     else:
-        even = None
+        top = None
 
-    if mode != InterlaceMode.DISCARD_ODD:
-        odd = img.crop([0,1,img.size[0],img.size[1]])
-        img.paste(odd)
-        odd = img.resize(size,Image.NEAREST)
+    if mode != InterlaceMode.DISCARD_BOTTOM:
+        bottom = img.crop([0,1,img.size[0],img.size[1]])
+        img.paste(bottom)
+        bottom = img.resize(size,Image.NEAREST)
+        bottom_shift = bottom.crop([0,0,bottom.size[0],bottom.size[1]-1])
+        bottom.paste(bottom_shift,(0,1))
+        drawer = ImageDraw.Draw(bottom)
+        drawer.rectangle([(0,0),(20,20)], fill= '#FF0000')
     else:
-        odd = None
+        bottom = None
     
-    if mode == InterlaceMode.DISCARD_ODD:
-        return (even, None)
-    elif mode == InterlaceMode.DISCARD_EVEN:
-        return (odd, None)
-    elif mode == InterlaceMode.ODD_FIRST:
-        return (odd, even)
+    if mode == InterlaceMode.DISCARD_TOP:
+        return (bottom, None)
+    elif mode == InterlaceMode.DISCARD_BOTTOM:
+        return (top, None)
+    elif mode == InterlaceMode.TOP_FIRST:
+        return (top, bottom)
     else:
-        return (even, odd)
+        return (bottom, top)
