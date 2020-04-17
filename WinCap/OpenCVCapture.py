@@ -1,6 +1,7 @@
 import cv2
 import os
 from PIL import Image
+from WinCap.DeInterlacer import deinterlace, InterlaceMode
 import time
 
 from config import config
@@ -17,11 +18,13 @@ class WindowMgr():
 
         return [[ocv2_device_id, config.WINDOW_NAME]]
 
+INTERLACE_MODE = InterlaceMode.NONE
 
 class OpenCVMgr():
     def __init__(self):
         self.inputDevice = None
         self.imgBuf = None
+        self.nextImgBuf = None #used for 30i->60p
         self.lastBuf = 0
         self.frameCount = 0
 
@@ -37,14 +40,14 @@ class OpenCVMgr():
                 pass
 
             self.inputDevice = cv2.VideoCapture(ocv2_device_id)
-            time.sleep(1)  # needed for Catalina, otherwise NextFrame would be black
+            time.sleep(1)  # Need to wait a second for the input device to initialize
 
     def ImageCapture(self, rectangle, ocv2_device_id):
         self.videoCheck(ocv2_device_id)
 
         # most of the time NextFrame() is manually called from outside, before ImageCapture()
         # when NextFrame() is not called, we would try to reply with fresh enough image capture
-        if time.time() - self.lastBuf > 1:
+        if time.time() - self.lastBuf > 0.3:
             self.NextFrame()
 
         return self.imgBuf.crop([
@@ -56,16 +59,27 @@ class OpenCVMgr():
 
     def NextFrame(self):
         if self.inputDevice.isOpened():
+            # if we are doubling framecount, access second frame here.
+            if self.nextImgBuf:
+                self.imgBuf = self.nextImgBuf
+                self.nextImgBuf = None
+                self.frameCount += 1
+                return True
+            
+            # do the actual read from the device. Note that this is blocking.
             ret, cv2_im = self.inputDevice.read()
             if ret:
                 cv2_im = cv2.cvtColor(cv2_im, cv2.COLOR_BGR2RGB)
-                self.imgBuf = Image.fromarray(cv2_im)
+                im = Image.fromarray(cv2_im)
+                images = deinterlace(im,INTERLACE_MODE)
+                self.imgBuf = images[0]
+                self.nextImgBuf = images[1]
                 self.lastBuf = time.time()
                 self.frameCount += 1
                 if self.frameCount % 1000 == 0:
                     print ('frames', self.frameCount)
                 return True
-
+            
         return False
 
 

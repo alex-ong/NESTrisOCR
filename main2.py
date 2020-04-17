@@ -66,9 +66,9 @@ def main(onCap, checkNetworkClose):
             while time.time() < frame_end - SLEEP_TIME:
                 time.sleep(SLEEP_TIME)
             
-            #if not WindowCapture.NextFrame(): #finished reading video
-            #    finished = True
-            #    break
+            if not WindowCapture.NextFrame(): #finished reading video
+                finished = True
+                break
 
         print ('cleanexit')
     

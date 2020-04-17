@@ -161,12 +161,14 @@ class FullStateOCR(object):
         return result
 
     def get_score(self, lines_cleared):
-        lookup = [0, 40,100,300,1200]
+        print(lines_cleared)
+        lookup = [0, 40, 100, 300, 1200]
         return (self.level + 1) * lookup[lines_cleared]
     
     def get_soft_drop(self, img):
         # check for score capping.
         if self.score >= 999999:
+            #todo: cache whether cart supports ENEOOGEZ
             digits = scan_score(img, 'OOOOOO')
             if digits and digits == '999999':
                 return 0
@@ -191,6 +193,8 @@ class FullStateOCR(object):
         cleared = last_digit - self.lines % 10
                
         if cleared < 0:
+            print(last_digit, last_digit + 10)
+            img.save('impendingdoom.png')
             cleared += 10
         
         return cleared
