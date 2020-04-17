@@ -2,13 +2,17 @@
 from enum import Enum
 
 class InterlaceMode(Enum):
-    NONE = 0
+    NONE_NO_DOWNSCALE = 0
+    NONE = 1
     DISCARD_TOP = 1
     DISCARD_BOTTOM = 2
     TOP_FIRST = 3
     BOTTOM_FIRST = 4
 
 def deinterlace(img, mode=InterlaceMode.NONE):
+    if mode == InterlaceMode.NONE_NO_DOWNSCALE:
+        return (img, None)
+
     if mode == InterlaceMode.NONE:
         #first, downscale horizontally.
         size = list(img.size)

@@ -18,7 +18,7 @@ class WindowMgr():
 
         return [[ocv2_device_id, config.WINDOW_NAME]]
 
-INTERLACE_MODE = InterlaceMode.NONE
+INTERLACE_MODE = InterlaceMode.NONE_NO_DOWNSCALE
 
 class OpenCVMgr():
     def __init__(self):
