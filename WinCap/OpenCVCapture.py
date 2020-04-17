@@ -1,7 +1,7 @@
 import cv2
 import os
 from PIL import Image
-from WinCap.DeInterlacer import deinterlace, InterlaceMode
+from WinCap.DeInterlacer import deinterlace, InterlaceMode, InterlaceRes
 import time
 
 from config import config
@@ -18,7 +18,8 @@ class WindowMgr():
 
         return [[ocv2_device_id, config.WINDOW_NAME]]
 
-INTERLACE_MODE = InterlaceMode.NONE_NO_DOWNSCALE
+INTERLACE_MODE = InterlaceMode.NONE
+INTERLACE_RES = InterlaceRes.FULL
 
 class OpenCVMgr():
     def __init__(self):
@@ -71,7 +72,7 @@ class OpenCVMgr():
             if ret:
                 cv2_im = cv2.cvtColor(cv2_im, cv2.COLOR_BGR2RGB)
                 im = Image.fromarray(cv2_im)
-                images = deinterlace(im,INTERLACE_MODE)
+                images = deinterlace(im,INTERLACE_MODE, INTERLACE_RES)
                 self.imgBuf = images[0]
                 self.nextImgBuf = images[1]
                 self.lastBuf = time.time()
