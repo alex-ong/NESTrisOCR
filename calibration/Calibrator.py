@@ -313,34 +313,55 @@ def pixelPercRect(dim,rectPerc):
     return (x1,y1,x2,y2)
 
 def autoAdjustRectangle(capture_coords, rect, numDigits):
-    p = multiprocessing.Pool()
+    # we can only run multi-thread on certain frameworks.
+    if config.captureMethod in ['OPENCV', 'FILE']:
+        multi_thread = False
+    else:
+        multi_thread = True
+
+    if multi_thread:
+        p = multiprocessing.Pool()
+    
     lowestScore = None
     lowestOffset = None
     bestRect = None
     pattern = 'D' * numDigits
     left,right = -3, 4
     results = []
+    total = (right-left)**4
+    i = 0
     for x in range(left,right):
         for y in range(left,right):
             for w in range(left,right):
-                for h in range(left,right):                        
+                for h in range(left,right):
                     newRect = (rect[0] + x * 0.001,
                               rect[1] + y * 0.001,
                               rect[2] + w * 0.001,
                               rect[3] + h * 0.001)
                     pixRect = mult_rect(capture_coords,newRect)
-                    results.append(p.apply_async(adjustTask,(pixRect,pattern,newRect)))
+                    if multi_thread:
+                        results.append(p.apply_async(adjustTask,(pixRect,pattern,newRect)))
+                    else: #run directly.
+                        results.append(adjustTask(pixRect,pattern,newRect))
+                        progressBar(i,total)
+                    i += 1 
     
-    for (i, r) in enumerate(results):       
-        result, newRect = r.get()     
-        progressBar(i,len(results))        
-        if result is not None:            
+    for (i, r) in enumerate(results):
+        if multi_thread:
+            result, newRect = r.get()
+        else:            
+            result, newRect = r
+        progressBar(i,total)
+        if result is not None:
             if lowestScore is None or result < lowestScore:
                 bestRect = newRect
                 lowestScore = result
                 lowestOffset = (x,y,w,h)
-    p.close()
-    p.join()
+    
+    if multi_thread:
+        p.close()
+        p.join()
+
     return bestRect
     
 def adjustTask(pixRect, pattern, newRect):
