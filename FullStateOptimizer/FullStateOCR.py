@@ -94,7 +94,7 @@ class FullStateOCR(object):
         img = scan_full(self.hwnd)
         piece_spawned = False
         line_cleared = False
-        soft_drop_points = 0
+        soft_drop_updated = False # check softdrop once per frame.
         full_required = False
         
         lines_cleared = self.get_lines_cleared(img)
@@ -111,6 +111,8 @@ class FullStateOCR(object):
                 self.color1 = None
                 self.color2 = None            
             self.score += self.get_score(lines_cleared)
+            self.update_softdrop(img)
+            soft_drop_updated = True
 
         if FS_CONFIG.capture_field:
             field_info = scan_field(img,self.color1,self.color2)
@@ -135,16 +137,20 @@ class FullStateOCR(object):
                 self.piece_stats.forceUpdate(counts)
                 piece_spawned = True
         
+        # check softdrop only on piece spawn
         if piece_spawned:
             if FS_CONFIG.capture_preview:
                 self.preview = self.get_next_piece(img)
-            success = self.update_softdrop(img)
-            if not success:
-                pass
+            if not soft_drop_updated:
+                success = self.update_softdrop(img)
+                if not success:
+                    pass
+        # check softdrop on every frame, if we're not detecting piece spawns.
         elif not FS_CONFIG.capture_field and not FS_CONFIG.capture_stats:
-            success = self.update_softdrop(img)
-            if not success:
-                pass
+            if not soft_drop_updated:
+                success = self.update_softdrop(img)
+                if not success:
+                    pass
 
     def update_softdrop(self, img):
         softdrop = self.get_soft_drop(img)
@@ -193,10 +199,11 @@ class FullStateOCR(object):
         cleared = last_digit - self.lines % 10
                
         if cleared < 0:
-            print(last_digit, last_digit + 10)
-            img.save('impendingdoom.png')
             cleared += 10
-        
+
+        #if cleared != 0:
+        #    img.save('last-line-clear.png')
+
         return cleared
 
     def get_next_piece(self, img):

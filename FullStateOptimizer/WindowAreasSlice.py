@@ -9,12 +9,21 @@ def getWindowAreas():
     areas['lines'] = mult_rect(config.CAPTURE_COORDS,config.linesPerc)
     areas['level'] = mult_rect(config.CAPTURE_COORDS,config.levelPerc)
     areas['field'] = mult_rect(config.CAPTURE_COORDS, config.fieldPerc)
+    
+    #Todo: config.color_method == DYNAMIC vs LOOKUP
     areas['color1'] = mult_rect(config.CAPTURE_COORDS, config.color1Perc)
-    areas['color2'] = mult_rect(config.CAPTURE_COORDS, config.color2Perc)    
-    areas['stats2'] = mult_rect(config.CAPTURE_COORDS, config.stats2Perc)
-    areas['stats'] = mult_rect(config.CAPTURE_COORDS, config.statsPerc)
-    areas['preview'] = mult_rect(config.CAPTURE_COORDS, config.previewPerc)
-    areas['flash'] = mult_rect(config.CAPTURE_COORDS, config.flashPerc)
+    areas['color2'] = mult_rect(config.CAPTURE_COORDS, config.color2Perc)
+
+    # Don't add all window_areas; only the ones we use.
+    if config.capture_preview:
+        areas['preview'] = mult_rect(config.CAPTURE_COORDS, config.previewPerc)
+    if config.capture_stats:
+        if config.stats_method == 'FIELD':
+            areas['stats2'] = mult_rect(config.CAPTURE_COORDS, config.stats2Perc)
+        if config.stats_method == 'TEXT':
+            areas['stats'] = mult_rect(config.CAPTURE_COORDS, config.statsPerc)
+    if config.flashMethod == 'BACKGROUND':
+        areas['flash'] = mult_rect(config.CAPTURE_COORDS, config.flashPerc)
 
     coords_list = areas.values()
 
