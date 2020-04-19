@@ -1,6 +1,7 @@
 ﻿import FullStateOptimizer.OCRHelpers
 from config import config
 
+
 class FullStateConfiguration(object):
     def __init__(self, config):
         self.config = config
@@ -13,12 +14,13 @@ class FullStateConfiguration(object):
     def determine_capture_field(self, config):
         if config.capture_field:
             return True
-        elif config.flashMethod == 'FIELD':
+        elif config.flashMethod == "FIELD":
             return True
-        elif config.capture_stats and config.stats_method == 'FIELD':
+        elif config.capture_stats and config.stats_method == "FIELD":
             return True
-    
+
     def determine_capture_flash(self, config):
-        return config.flashMethod == 'FIELD' or config.flashMethod == 'BACKGROUND'
+        return config.flashMethod == "FIELD" or config.flashMethod == "BACKGROUND"
+
 
 FS_CONFIG = FullStateConfiguration(config)

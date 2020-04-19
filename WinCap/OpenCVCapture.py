@@ -7,7 +7,7 @@ import time
 from config import config
 
 
-class WindowMgr():
+class WindowMgr:
     def checkWindow(self, ocv2_device_id):
         return True
 
@@ -18,14 +18,16 @@ class WindowMgr():
 
         return [[ocv2_device_id, config.WINDOW_NAME]]
 
-INTERLACE_MODE = InterlaceMode.NONE
-INTERLACE_RES = InterlaceRes.FULL
 
-class OpenCVMgr():
+INTERLACE_MODE = InterlaceMode.BOTTOM_FIRST
+INTERLACE_RES = InterlaceRes.HALF
+
+
+class OpenCVMgr:
     def __init__(self):
         self.inputDevice = None
         self.imgBuf = None
-        self.nextImgBuf = None #used for 30i->60p
+        self.nextImgBuf = None  # used for 30i->60p
         self.lastBuf = 0
         self.frameCount = 0
 
@@ -51,12 +53,14 @@ class OpenCVMgr():
         if time.time() - self.lastBuf > 0.3:
             self.NextFrame()
 
-        return self.imgBuf.crop([
-            rectangle[0],
-            rectangle[1],
-            rectangle[0] + rectangle[2],
-            rectangle[1] + rectangle[3],
-        ])
+        return self.imgBuf.crop(
+            [
+                rectangle[0],
+                rectangle[1],
+                rectangle[0] + rectangle[2],
+                rectangle[1] + rectangle[3],
+            ]
+        )
 
     def NextFrame(self):
         if self.inputDevice.isOpened():
@@ -66,21 +70,21 @@ class OpenCVMgr():
                 self.nextImgBuf = None
                 self.frameCount += 1
                 return True
-            
+
             # do the actual read from the device. Note that this is blocking.
             ret, cv2_im = self.inputDevice.read()
             if ret:
                 cv2_im = cv2.cvtColor(cv2_im, cv2.COLOR_BGR2RGB)
                 im = Image.fromarray(cv2_im)
-                images = deinterlace(im,INTERLACE_MODE, INTERLACE_RES)
+                images = deinterlace(im, INTERLACE_MODE, INTERLACE_RES)
                 self.imgBuf = images[0]
                 self.nextImgBuf = images[1]
                 self.lastBuf = time.time()
                 self.frameCount += 1
                 if self.frameCount % 1000 == 0:
-                    print ('frames', self.frameCount)
+                    print("frames", self.frameCount)
                 return True
-            
+
         return False
 
 

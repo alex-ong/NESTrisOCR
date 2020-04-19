@@ -12,7 +12,7 @@ except ImportError:
 class QuartzCapture(object):
     def __init__(self):
         pass
-    
+
     def ImageCapture(self, rectangle, hwnd):
         x, y, w, h = rectangle
 
@@ -20,20 +20,20 @@ class QuartzCapture(object):
             return None
 
         win = Quartz.CGWindowListCreateDescriptionFromArray([hwnd])[0]
-        coordinates = win.valueForKey_('kCGWindowBounds')
+        coordinates = win.valueForKey_("kCGWindowBounds")
 
-        offsetX = coordinates.valueForKey_('X')
-        offsetY = coordinates.valueForKey_('Y')
+        offsetX = coordinates.valueForKey_("X")
+        offsetY = coordinates.valueForKey_("Y")
 
         # can raise, correct later
         cgimg = Quartz.CGWindowListCreateImage(
             Quartz.CGRect(
-                Quartz.CGPoint(offsetX + x, offsetY + y),
-                Quartz.CGSize(w, h)
+                Quartz.CGPoint(offsetX + x, offsetY + y), Quartz.CGSize(w, h)
             ),
-            Quartz.kCGWindowListOptionIncludingWindow | Quartz.kCGWindowListExcludeDesktopElements,
+            Quartz.kCGWindowListOptionIncludingWindow
+            | Quartz.kCGWindowListExcludeDesktopElements,
             hwnd,
-            Quartz.kCGWindowImageNominalResolution
+            Quartz.kCGWindowImageNominalResolution,
         )
 
         width = Quartz.CGImageGetWidth(cgimg)
@@ -42,10 +42,13 @@ class QuartzCapture(object):
         bpr = Quartz.CGImageGetBytesPerRow(cgimg)
 
         # Convert to PIL Image.  Note: CGImage's pixeldata is BGRA
-        return Image.frombuffer("RGBA", (width, height), pixeldata, "raw", "BGRA", bpr, 1).convert('RGB')
+        return Image.frombuffer(
+            "RGBA", (width, height), pixeldata, "raw", "BGRA", bpr, 1
+        ).convert("RGB")
 
 
 imgCap = QuartzCapture()
+
 
 def ImageCapture(rectangle, window_dict):
     global imgCap

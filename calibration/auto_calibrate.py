@@ -4,34 +4,40 @@ import cv2
 
 from lib import getWindow, WindowCapture
 
+
 def auto_calibrate_raw(config):
 
     hwnd = getWindow()
     if hwnd is None:
-        print("Unable to find window with title:",  config.WINDOW_NAME)
+        print("Unable to find window with title:", config.WINDOW_NAME)
         return None
-    
-    captureAreas = ((0,0,4000,2000), #4k screens fullscreen
-                    (0,0,1500,1500)) #reasonably sized screens
+
+    captureAreas = (
+        (0, 0, 4000, 2000),  # 4k screens fullscreen
+        (0, 0, 1500, 1500),
+    )  # reasonably sized screens
     result = None
-    
-    for captureArea in captureAreas:    
-        img = WindowCapture.ImageCapture(captureArea, hwnd)    
+
+    for captureArea in captureAreas:
+        img = WindowCapture.ImageCapture(captureArea, hwnd)
         result = auto_calibrate(img)
         if result is not None:
             return result
 
     return None
-    
-'''
+
+
+"""
 Given an image, returns an (x,y,w,h) rectangle or None with
 the closest match.
-'''
+"""
+
+
 def auto_calibrate(img):
     if isinstance(img, Image.Image):
-        img = np.array(img.convert('RGB'))
+        img = np.array(img.convert("RGB"))
 
-    query_image = cv2.imread('assets/sprite_templates/sample-gamescreen.png', 0)
+    query_image = cv2.imread("assets/sprite_templates/sample-gamescreen.png", 0)
 
     # Initiate ORB detector
     orb = cv2.ORB_create()
@@ -76,6 +82,11 @@ def pts_to_rect(pts):
 
 
 def is_rect(pts):
-    x_coords = sorted([pts[x][0][0] for x in [0,1,2,3]])
-    y_coords = sorted([pts[x][0][1] for x in [0,1,2,3]])
-    return not (x_coords[1] - x_coords[0] > 5 or x_coords[3] - x_coords[2] > 5 or y_coords[1] - y_coords[0] > 5 or y_coords[3] - y_coords[2] > 5)
+    x_coords = sorted([pts[x][0][0] for x in [0, 1, 2, 3]])
+    y_coords = sorted([pts[x][0][1] for x in [0, 1, 2, 3]])
+    return not (
+        x_coords[1] - x_coords[0] > 5
+        or x_coords[3] - x_coords[2] > 5
+        or y_coords[1] - y_coords[0] > 5
+        or y_coords[3] - y_coords[2] > 5
+    )
