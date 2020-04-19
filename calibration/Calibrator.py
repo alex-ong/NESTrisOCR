@@ -4,9 +4,9 @@ from .Widgets import Button
 import sys
 from PIL import Image, ImageDraw
 from lib import *
-from OCRAlgo.PieceStatsTextOCR import generate_stats
-from OCRAlgo.DigitOCR import finalImageSize, scoreImage0
-from OCRAlgo.PreviewOCR2 import PreviewImageSize
+from ocr_algo.PieceStatsTextOCR import generate_stats
+from ocr_algo.DigitOCR import finalImageSize, scoreImage0
+from ocr_algo.PreviewOCR2 import PreviewImageSize
 from calibration.StringChooser import StringChooser
 from calibration.RectChooser import RectChooser, CompactRectChooser
 from calibration.ImageCanvas import ImageCanvas

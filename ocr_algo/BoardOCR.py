@@ -6,11 +6,11 @@ from config import config
 from Networking.ByteStuffer import prePackField
 
 try:
-    from OCRAlgo.board_ocr import parseImage2  # if it's built
+    from ocr_algo.board_ocr import parseImage2  # if it's built
 
     # print("loading parseImage2 from compiled")
 except:
-    from OCRAlgo.BoardOCR2 import parseImage2
+    from ocr_algo.BoardOCR2 import parseImage2
 
     print(
         "Warning, loaded parseImage2 from llvmlite: please run buildBoardOCR2 to build a compiled version"
@@ -62,7 +62,7 @@ def parseImage(img, color1, color2):
     return result
 
 
-# run as python -m OCRAlgo.BoardOCR
+# run as python -m ocr_algo.BoardOCR
 if __name__ == "__main__":
 
     from PIL import Image

@@ -73,7 +73,7 @@ def whichPiece(o, r, p):
 
 
 if __name__ == "__main__":
-    # run this from parent directory as "python -m OCRAlgo.PreviewOCR2"
+    # run this from parent directory as "python -m ocr_algo.PreviewOCR2"
     img = Image.open("assets/test/s.png")
     import time
 

@@ -1,14 +1,14 @@
 ﻿from config import config
 from lib import WindowCapture
-from OCRAlgo.DigitOCR import scoreImage as processDigits
-from OCRAlgo.BoardOCR import parseImageSmart as processBoard
-from OCRAlgo.PreviewOCR2 import parseImage as processPreview
-from OCRAlgo.PieceStatsBoardOCR import parseImage as processSpawn
+from ocr_algo.DigitOCR import scoreImage as processDigits
+from ocr_algo.BoardOCR import parseImageSmart as processBoard
+from ocr_algo.PreviewOCR2 import parseImage as processPreview
+from ocr_algo.PieceStatsBoardOCR import parseImage as processSpawn
 
 if config.tasksCaptureMethod == "WINDOW_N_SLICE":
-    from FullStateOptimizer.WindowAreasSlice import getWindowAreas
+    from WinCap.WindowAreasSlice import getWindowAreas
 else:
-    from FullStateOptimizer.WindowAreasDirect import getWindowAreas
+    from WinCap.WindowAreasDirect import getWindowAreas
 PATTERNS = {
     "score": "ADDDDD",
     "lines": "DDD",

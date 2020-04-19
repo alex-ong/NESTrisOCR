@@ -3,7 +3,7 @@ NESTrisOCR
 Simple OCR, captures subset of OBS window, then processes relevant numbers.
 Forwards results via TCP.
 
-Look at `OCRAlgo/DigitOCR.py` to see image processing of numbers, and `OCRAlgo/PieceStatsBoardOCR.py` for processing of board to piece.
+Look at `ocr_algo/DigitOCR.py` to see image processing of numbers, and `ocr_algo/PieceStatsBoardOCR.py` for processing of board to piece.
 Algorithm is simple KNearest (compare image to reference images, sum of difference of pixels)
 
 

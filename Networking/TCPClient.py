@@ -13,9 +13,6 @@ except:
 HOST, PORT = "localhost", 9999
 data = " ".join(sys.argv[1:])
 
-START_TOKEN = "\x00"
-END_TOKEN = "\x01"
-
 
 def CreateClient(target, port):
     client = ThreadedClient(target, port)

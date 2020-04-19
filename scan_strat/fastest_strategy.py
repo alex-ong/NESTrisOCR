@@ -1,4 +1,7 @@
 from enum import Enum
+from scan_strat.base_strategy import GameState, BaseStrategy
+from ocr_state.field_state import FieldState
+from ocr_state.piece_stats import PieceStatAccumulator
 from FullStateOptimizer.FullStateConfiguration import FS_CONFIG
 from FullStateOptimizer.OCRHelpers import (
     scan_full,
@@ -10,7 +13,6 @@ from FullStateOptimizer.OCRHelpers import (
     scan_spawn,
 )
 from FullStateOptimizer.Transition import TRANSITION
-from OCRAlgo.PieceStatsBoardOCR import PieceStatAccumulator
 import time
 
 
@@ -18,50 +20,7 @@ def clamp(my_value, min_value, max_value):
     return max(min(my_value, max_value), min_value)
 
 
-class GameState(Enum):
-    MENU = 1
-    IN_GAME = 2
-
-
-class FullStateOCR(object):
-    def __init__(self, hwnd):
-        self.lines = None
-        self.score = None
-        self.level = None
-        self.start_level = None
-        self.field = None
-        self.preview = None
-        self.color1 = None
-        self.color2 = None
-        self.gameid = 0
-        self.piece_stats = PieceStatAccumulator()
-        self.gamestate = GameState.MENU
-        self.hwnd = hwnd
-
-    def to_dict_menu(self):
-        result = {}
-        result["lines"] = None
-        result["score"] = None
-        result["level"] = None
-        result["field"] = None
-        result["preview"] = None
-        result["gameid"] = None
-        result.update(self.piece_stats.toDict())
-        return result
-
-    def to_dict(self):
-        if self.gamestate == GameState.MENU:
-            return self.to_dict_menu()
-        result = {}
-        result["lines"] = str(self.lines).zfill(3)
-        result["score"] = str(self.score).zfill(6)
-        result["level"] = str(self.level).zfill(2)
-        result["field"] = None
-        result["preview"] = None
-        result["gameid"] = None
-        result.update(self.piece_stats.toDict())
-        return result
-
+class FastestStrategy(BaseStrategy):
     def update(self):
         if self.gamestate == GameState.MENU:
             self.update_menu()
@@ -213,26 +172,3 @@ class FullStateOCR(object):
     # a forced refresh.
     def update_ingame_full(self):
         pass
-
-
-# Todo: numba optimize for numTiles
-# Make sure we account for rotating piece above field, as this reduces
-# Blockcount by 2
-class FieldState(object):
-    def __init__(self, data):
-        self.data = data
-
-    # returns block count for field below row 18
-    def blockCountAdjusted(self):
-        return 0
-
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return False
-            # return self.__dict__ == other.__dict__
-
-    def piece_spawned(self, other):
-        return False
-
-    def line_clear_animation(self, other):
-        return False

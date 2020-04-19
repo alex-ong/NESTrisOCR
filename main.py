@@ -1,12 +1,13 @@
 from PIL import Image, ImageDraw
-from OCRAlgo.DigitOCR import scoreImage
-from OCRAlgo.ScoreFixer import ScoreFixer
-from OCRAlgo.PieceStatsTextOCR import generate_stats
-import OCRAlgo.PieceStatsBoardOCR as PieceStatsBoardOCR
-import OCRAlgo.BoardOCR as BoardOCR
-import OCRAlgo.PreviewOCR2 as PreviewOCR
-import OCRAlgo.FlashOCR as FlashOCR
-from OCRAlgo.NewGameDetector import NewGameDetector
+from ocr_algo.DigitOCR import scoreImage
+from ocr_algo.ScoreFixer import ScoreFixer
+from ocr_algo.PieceStatsTextOCR import generate_stats
+import ocr_algo.PieceStatsBoardOCR as PieceStatsBoardOCR
+from ocr_state.piece_stats import PieceStatAccumulator
+import ocr_algo.BoardOCR as BoardOCR
+import ocr_algo.PreviewOCR2 as PreviewOCR
+import ocr_algo.FlashOCR as FlashOCR
+from ocr_algo.NewGameDetector import NewGameDetector
 
 from calibrate import mainLoop as calibrateLoop
 from config import config
@@ -292,7 +293,7 @@ def main(onCap, checkNetworkClose):
         p = None
 
     if USE_STATS_FIELD:
-        accum = PieceStatsBoardOCR.PieceStatAccumulator()
+        accum = PieceStatAccumulator()
         lastLines = None  # use to reset accumulator
         if (
             MULTI_THREAD >= 2

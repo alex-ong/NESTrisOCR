@@ -1,4 +1,4 @@
-from FullStateOptimizer.FullStateOCR import FullStateOCR
+from scan_strat.fastest_strategy import FastestStrategy
 from Networking.NetworkClient import NetClient
 from calibrate import mainLoop as calibrateLoop
 from CachedSender import CachedSender
@@ -46,13 +46,13 @@ def main(onCap, checkNetworkClose):
                 time.sleep(SLEEP_TIME)
             continue
 
-        fs_ocr = FullStateOCR(hwnd)
+        strat = FastestStrategy(hwnd)
         while checkWindow(hwnd):
             # inner loop gets fresh data for just the desired window
             frame_start = time.time()
             frame_end = frame_start + RATE
-            fs_ocr.update()
-            result = fs_ocr.to_dict()
+            strat.update()
+            result = strat.to_dict()
             processing_time = time.time() - frame_start
             # if processing_time > BIG_BOI:
             print(processing_time)

@@ -1,7 +1,7 @@
 ﻿from lib import getWindow, WindowCapture, screenPercToPixels, lerp, mult_rect
-from OCRAlgo.DigitOCR import finalImageSize
-from OCRAlgo.PieceStatsTextOCR import generate_stats
-from OCRAlgo.PreviewOCR import calculateOffsets, PreviewImageSize
+from ocr_algo.DigitOCR import finalImageSize
+from ocr_algo.PieceStatsTextOCR import generate_stats
+from ocr_algo.PreviewOCR import calculateOffsets, PreviewImageSize
 from PIL import Image, ImageDraw
 
 # splits rectangle by digits.

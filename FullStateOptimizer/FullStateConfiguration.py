@@ -2,6 +2,13 @@
 from config import config
 
 
+"""
+Addition to configuration, with a few simple checks.
+E.g. scan_field might be false, but if we are detecting flash via field,
+we still need to scan it
+"""
+
+
 class FullStateConfiguration(object):
     def __init__(self, config):
         self.config = config
