@@ -5,17 +5,17 @@ import platform
 
 # decide which file capture method we are using.
 if config.captureMethod == "OPENCV":
-    import WinCap.OpenCVCapture as WindowCapture
-    from WinCap.OpenCVCapture import WindowMgr
+    import gamecap.opencv as WindowCapture
+    from gamecap.opencv import WindowMgr
 elif config.captureMethod == "FILE":
-    import WinCap.FileCapture as WindowCapture
-    from WinCap.FileCapture import WindowMgr
+    import gamecap.FileCapture as WindowCapture
+    from gamecap.FileCapture import WindowMgr
 elif platform.system() == "Darwin":
-    import WinCap.QuartzCapture as WindowCapture
-    from WinCap.QuartzWindowMgr import WindowMgr
+    import gamecap.quartz as WindowCapture
+    from gamecap.quartz_mgr import WindowMgr
 else:
-    import WinCap.Win32UICapture as WindowCapture
-    from WinCap.Win32WindowMgr import WindowMgr
+    import gamecap.win32 as WindowCapture
+    from gamecap.win32_mgr import WindowMgr
 
 
 def checkWindow(hwnd):

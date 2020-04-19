@@ -6,9 +6,9 @@ from ocr_algo.PreviewOCR2 import parseImage as processPreview
 from ocr_algo.PieceStatsBoardOCR import parseImage as processSpawn
 
 if config.tasksCaptureMethod == "WINDOW_N_SLICE":
-    from WinCap.WindowAreasSlice import getWindowAreas
+    from gamecap.WindowAreasSlice import getWindowAreas
 else:
-    from WinCap.WindowAreasDirect import getWindowAreas
+    from gamecap.WindowAreasDirect import getWindowAreas
 PATTERNS = {
     "score": "ADDDDD",
     "lines": "DDD",

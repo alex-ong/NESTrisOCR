@@ -1,7 +1,7 @@
 import cv2
 import os
 from PIL import Image
-from WinCap.DeInterlacer import deinterlace, InterlaceMode, InterlaceRes
+from gamecap.deinterlacer import deinterlace, InterlaceMode, InterlaceRes
 import time
 
 from config import config
