@@ -3,7 +3,8 @@ from scan_strat.base_strategy import GameState, BaseStrategy
 from ocr_state.field_state import FieldState
 from ocr_state.piece_stats import PieceStatAccumulator
 from FullStateOptimizer.FullStateConfiguration import FS_CONFIG
-from FullStateOptimizer.OCRHelpers import (
+from ocr_state.level_transition import get_level
+from scan_strat.scan_helpers import (
     scan_full,
     scan_level,
     scan_score,
@@ -12,7 +13,7 @@ from FullStateOptimizer.OCRHelpers import (
     scan_preview,
     scan_spawn,
 )
-from FullStateOptimizer.Transition import TRANSITION
+
 import time
 
 
@@ -65,7 +66,7 @@ class FastestStrategy(BaseStrategy):
 
         if lines_cleared > 0:
             self.lines += lines_cleared
-            new_level = self.get_level(self.lines)
+            new_level = get_level(self.lines, self.start_level)
             if self.level != new_level:
                 self.level = new_level
                 self.color1 = None
@@ -117,14 +118,6 @@ class FastestStrategy(BaseStrategy):
         if softdrop:
             self.score += softdrop
         return softdrop
-
-    def get_level(self, lines):
-        transition = TRANSITION[self.start_level]
-        if lines < transition:
-            return self.start_level
-
-        result = lines // 10 + self.start_level
-        return result
 
     def get_score(self, lines_cleared):
         print(lines_cleared)

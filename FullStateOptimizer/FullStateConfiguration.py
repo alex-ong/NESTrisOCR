@@ -1,5 +1,4 @@
-﻿import FullStateOptimizer.OCRHelpers
-from config import config
+﻿from config import config
 
 
 """
@@ -7,6 +6,8 @@ Addition to configuration, with a few simple checks.
 E.g. scan_field might be false, but if we are detecting flash via field,
 we still need to scan it
 """
+
+# Todo: define dependencies somewhere, and enforce in calibrate.py
 
 
 class FullStateConfiguration(object):

@@ -30,3 +30,12 @@
     28: 190,
     29: 190,
 }
+
+
+def get_level(lines, start_level):
+    transition = TRANSITION[start_level]
+    if lines < transition:
+        return start_level
+
+    result = lines // 10 + start_level
+    return result

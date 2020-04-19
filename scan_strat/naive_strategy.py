@@ -3,7 +3,7 @@ from scan_strat.base_strategy import BaseStrategy
 from ocr_state.field_state import FieldState
 from ocr_state.piece_stats import PieceStatAccumulator
 from FullStateOptimizer.FullStateConfiguration import FS_CONFIG
-from FullStateOptimizer.OCRHelpers import (
+from scan_strat.scan_helpers import (
     scan_full,
     scan_level,
     scan_score,
