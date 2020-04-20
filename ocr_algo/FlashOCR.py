@@ -1,5 +1,6 @@
 ﻿from PIL import Image
 
+
 # if we have board method we can analyse that
 def parseBoard(board):
     return False

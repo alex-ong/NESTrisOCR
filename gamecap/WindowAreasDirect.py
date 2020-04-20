@@ -1,5 +1,5 @@
 from config import config
-from lib import mult_rect, screenPercToPixels, XYWHOffsetAndConvertToLTBR
+from lib import mult_rect
 
 
 def getWindowAreas():
@@ -17,6 +17,4 @@ def getWindowAreas():
     areas["preview"] = mult_rect(config.CAPTURE_COORDS, config.previewPerc)
     areas["flash"] = mult_rect(config.CAPTURE_COORDS, config.flashPerc)
 
-    coords_list = areas.values()
-
-    return (areas, None)
+    return areas, None

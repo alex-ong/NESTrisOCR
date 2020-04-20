@@ -1,5 +1,5 @@
 ﻿from config import config
-from lib import mult_rect, screenPercToPixels, XYWHOffsetAndConvertToLTBR
+from lib import mult_rect, XYWHOffsetAndConvertToLTBR
 
 
 def getWindowAreas():
@@ -49,4 +49,4 @@ def getWindowAreas():
     for key in areas:
         areas[key] = XYWHOffsetAndConvertToLTBR(offset, areas[key])
 
-    return (areas, minWindowAreaXYWH)
+    return areas, minWindowAreaXYWH

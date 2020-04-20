@@ -1,8 +1,8 @@
 from numba.pycc import CC
+import numpy as np
 
 cc = CC("board_ocr")
 cc.verbose = True
-import numpy as np
 
 
 @cc.export("parseImage2", "uint8[:,:](uint8[:,:,:],uint8[:],uint8[:])")

@@ -1,6 +1,7 @@
 from threading import Lock
 from .piece_enum import Piece
 
+
 # thread safe OCR status.
 class PieceStatAccumulator(object):
     # min time between two pieces
@@ -14,10 +15,10 @@ class PieceStatAccumulator(object):
         self.T = 0
         self.J = 0
         self.Z = 0
-        self.O = 0
+        self.O = 0  # noqa: E741
         self.S = 0
         self.L = 0
-        self.I = 0
+        self.I = 0  # noqa: E741
         self._piece_count = 0
 
     def piece_count(self):
@@ -31,10 +32,10 @@ class PieceStatAccumulator(object):
         self.T = 0
         self.J = 0
         self.Z = 0
-        self.O = 0
+        self.O = 0  # noqa: E741
         self.S = 0
         self.L = 0
-        self.I = 0
+        self.I = 0  # noqa: E741
         self._piece_count = 0
         self.lastPiece = Piece.EMPTY
         self.lock.release()
@@ -47,17 +48,17 @@ class PieceStatAccumulator(object):
         elif newPiece == Piece.Z:
             self.Z += 1
         elif newPiece == Piece.O:
-            self.O += 1
+            self.O += 1  # noqa: E741
         elif newPiece == Piece.S:
             self.S += 1
         elif newPiece == Piece.L:
             self.L += 1
         elif newPiece == Piece.I:
-            self.I += 1
+            self.I += 1  # noqa: E741
         self._piece_count += 1
 
     # can be called by text method.
-    def forceUpdate(self, newPiece, timeStampk):
+    def forceUpdate(self, newPiece, timeStamp):
         self.lock.acquire()
         self.updatePiece(newPiece)
         self.lastPieceTimeStamp = timeStamp

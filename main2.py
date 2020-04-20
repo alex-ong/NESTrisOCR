@@ -3,11 +3,15 @@ from Networking.NetworkClient import NetClient
 from calibrate import mainLoop as calibrateLoop
 from CachedSender import CachedSender
 from config import config
-from lib import *  # bad!
+from lib import (
+    checkWindow,
+    getWindow,
+    WindowCapture,
+)
 
 
 import multiprocessing
-from tkinter import messagebox, Tk
+from tkinter import messagebox
 import time
 import sys
 
@@ -33,7 +37,6 @@ SLEEP_TIME = 0.001
 
 
 def main(onCap, checkNetworkClose):
-    BIG_BOI = 0.0
     finished = False
     while not finished:
         # outer loop waits for the window to exists
@@ -76,7 +79,6 @@ def main(onCap, checkNetworkClose):
 
 if __name__ == "__main__":
     multiprocessing.freeze_support()
-    import sys
 
     if len(sys.argv) >= 2 and sys.argv[1] == "--calibrate":
         calibrateLoop()

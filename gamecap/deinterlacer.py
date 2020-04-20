@@ -1,5 +1,6 @@
-﻿from PIL import Image, ImageDraw
+﻿from PIL import Image
 from enum import Enum
+
 
 # fastest 60p is HALF+TOP_FIRST or BOTTOM_FIRST.
 # Note that if you de-interlace, Full will be Halfheight, full width.
@@ -27,10 +28,10 @@ def deinterlace(img, mode=InterlaceMode.NONE, res=InterlaceRes.FULL):
 
     if mode == InterlaceMode.NONE:
         if res == InterlaceRes.FULL:
-            return (img, None)
+            return img, None
         elif res == InterlaceRes.HALF:
             img = img.resize(half_size, Image.NEAREST)
-            return (img, None)
+            return img, None
 
     # speedhack for non-full: we can remove horizontal resolution first.
     if res != InterlaceRes.FULL:
@@ -56,10 +57,10 @@ def deinterlace(img, mode=InterlaceMode.NONE, res=InterlaceRes.FULL):
         bottom = None
 
     if mode == InterlaceMode.DISCARD_TOP:
-        return (bottom, None)
+        return bottom, None
     elif mode == InterlaceMode.DISCARD_BOTTOM:
-        return (top, None)
+        return top, None
     elif mode == InterlaceMode.TOP_FIRST:
-        return (top, bottom)
+        return top, bottom
     else:
-        return (bottom, top)
+        return bottom, top

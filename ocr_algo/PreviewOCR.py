@@ -9,6 +9,8 @@ PreviewImageSize = (31, 15)
 
 # assuming that we have a 31 NES pixel by 15 NES Pixel capture area:
 pixOffsets = ((10, 12), (17, 12), (21, 12))
+
+
 # only used by calibrator
 def calculateOffsets():
     baseRect = config.previewPerc

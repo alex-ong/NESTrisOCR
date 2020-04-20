@@ -1,4 +1,3 @@
-from PIL import Image, ImageDraw
 from ocr_algo.DigitOCR import scoreImage
 from ocr_algo.ScoreFixer import ScoreFixer
 from ocr_algo.PieceStatsTextOCR import generate_stats
@@ -11,13 +10,21 @@ from ocr_algo.NewGameDetector import NewGameDetector
 
 from calibrate import mainLoop as calibrateLoop
 from config import config
-from lib import *  # bad!
+from lib import (
+    checkWindow,
+    clamp,
+    getWindow,
+    mult_rect,
+    runTasks,
+    XYWHOffsetAndConvertToLTBR,
+    WindowCapture,
+)
 from CachedSender import CachedSender
 from multiprocessing import Pool
 import multiprocessing
 import threading
 from Networking.NetworkClient import NetClient
-from tkinter import messagebox, Tk
+from tkinter import messagebox
 import time
 import sys
 
@@ -49,6 +56,7 @@ if WINDOW_N_SLICE and config.threads != 1:
         "WINDOW_N_SLICE only supports one thread. Please change number of threads to 1",
     )
     sys.exit()
+
 
 # The list of tasks to execute can be computed at bootstrap time
 # to remove all conditional processing from the main running loop
@@ -170,7 +178,7 @@ def getWindowAreaAndPartialTasks():
                 )
             )
 
-    return (minWindowAreaXYWH, partials)
+    return minWindowAreaXYWH, partials
 
 
 # piece stats and method. Recommend using FIELD
@@ -213,13 +221,13 @@ SLEEP_TIME = 0.001
 
 def captureAndOCR(hwnd, coords, digitPattern, taskName, red):
     img = WindowCapture.ImageCapture(coords, hwnd)
-    return (taskName, scoreImage(img, digitPattern, False, red))
+    return taskName, scoreImage(img, digitPattern, False, red)
 
 
 def captureAndOCRBoardPiece(hwnd, coords):
     img = WindowCapture.ImageCapture(coords, hwnd)
     rgbo = PieceStatsBoardOCR.parseImage(img)
-    return ("piece_stats_board", rgbo)
+    return "piece_stats_board", rgbo
 
 
 def captureAndOCRBoard(hwnd, boardCoords, color1Coords, color2Coords):
@@ -227,30 +235,30 @@ def captureAndOCRBoard(hwnd, boardCoords, color1Coords, color2Coords):
     col1 = WindowCapture.ImageCapture(color1Coords, hwnd)
     col2 = WindowCapture.ImageCapture(color2Coords, hwnd)
     field = BoardOCR.parseImage(img, col1, col2)
-    return ("field", field)
+    return "field", field
 
 
 def captureAndOCRPreview(hwnd, previewCoords):
     img = WindowCapture.ImageCapture(previewCoords, hwnd)
     result = PreviewOCR.parseImage(img)
-    return ("preview", result)
+    return "preview", result
 
 
 def captureAndOCRFlash(hwnd, flashCoords, limit):
     img = WindowCapture.ImageCapture(flashCoords, hwnd)
     result = FlashOCR.parseImage(img, limit)
-    return ("flash", result)
+    return "flash", result
 
 
 def extractAndOCR(sourceImg, fieldCoords, digitPattern, taskName, red):
     img = sourceImg.crop(fieldCoords)
-    return (taskName, scoreImage(img, digitPattern, False, red))
+    return taskName, scoreImage(img, digitPattern, False, red)
 
 
 def extractAndOCRBoardPiece(sourceImg, boardPieceCoords):
     img = sourceImg.crop(boardPieceCoords)
     rgbo = PieceStatsBoardOCR.parseImage(img)
-    return ("piece_stats_board", rgbo)
+    return "piece_stats_board", rgbo
 
 
 def extractAndOCRBoard(sourceImg, boardCoords, color1Coords, color2Coords):
@@ -258,17 +266,17 @@ def extractAndOCRBoard(sourceImg, boardCoords, color1Coords, color2Coords):
     col1 = sourceImg.crop(color1Coords)
     col2 = sourceImg.crop(color2Coords)
     field = BoardOCR.parseImage(img, col1, col2)
-    return ("field", field)
+    return "field", field
 
 
 def extractAndOCRPreview(img, previewCoords):
     result = PreviewOCR.parseImage(img.crop(previewCoords))
-    return ("preview", result)
+    return "preview", result
 
 
 def extractAndOCRFlash(img, flashCoords, limit):
     result = FlashOCR.parseImage(img.crop(flashCoords), limit)
-    return ("flash", result)
+    return "flash", result
 
 
 # run this as fast as possible
@@ -286,7 +294,7 @@ def statsFieldMulti(ocr_stats, pool):
             time.sleep(SLEEP_TIME)
 
 
-def main(onCap, checkNetworkClose):
+def main(onCap, checkNetworkClose):  # noqa: C901
     if MULTI_THREAD >= 2:
         p = Pool(MULTI_THREAD)
     else:

@@ -19,6 +19,7 @@ def isNotBlack(pixel):
 
 isNotBlackVectorized = np.vectorize(isNotBlack)
 
+
 # look at assets/doc for description
 def parseImage(img):
     img = img.resize((31, 15), Image.BOX)

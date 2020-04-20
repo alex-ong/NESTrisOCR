@@ -1,10 +1,7 @@
 import PIL
-from PIL import Image, ImageEnhance, ImageFilter
-import time
+from PIL import Image
 import numpy as np
 
-
-import sys
 
 data = {}
 redData = {}
@@ -26,7 +23,7 @@ SCALED_IMAGE_SIZE = IMAGE_SIZE * IMAGE_MULT
 
 
 def finalImageSize(numDigits):
-    return (((BLOCK_SIZE) * numDigits - 1) * IMAGE_MULT, SCALED_IMAGE_SIZE)
+    return ((BLOCK_SIZE) * numDigits - 1) * IMAGE_MULT, SCALED_IMAGE_SIZE
 
 
 def setupColour(prefix, outputDict, digitList):
@@ -76,7 +73,7 @@ def getDigit(img, pattern, startX, startY, red):
             lowest_score = score
             lowest_digit = digit
 
-    return (lowest_digit, lowest_score)
+    return lowest_digit, lowest_score
 
 
 # convert to black/white, with custom threshold
@@ -90,7 +87,6 @@ def contrastImg(img):
 
 
 def convertImg(img, count, show):
-    t = time.time()
     img = contrastImg(img)
     img = img.resize(finalImageSize(count), PIL.Image.ANTIALIAS)
 
