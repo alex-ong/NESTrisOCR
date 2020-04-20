@@ -28,11 +28,6 @@ from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.internet import reactor
 from autobahn.twisted.websocket import WebSocketClientProtocol, WebSocketClientFactory
 
-try:
-    from Networking import StoppableThread
-except ModuleNotFoundError:
-    import StoppableThread
-
 import threading
 import time
 import json
@@ -167,8 +162,6 @@ class Connection(threading.Thread):
 
 
 if __name__ == "__main__":
-    import time
-
     url = "127.0.0.1"
     # url = "ec2-13-237-232-112.ap-southeast-2.compute.amazonaws.com"
     connection = CreateClient(url, 3338)

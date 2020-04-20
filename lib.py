@@ -1,5 +1,3 @@
-import time
-import json
 from config import config
 import platform
 
@@ -8,13 +6,13 @@ if config.captureMethod == "OPENCV":
     import gamecap.opencv as WindowCapture
     from gamecap.opencv import WindowMgr
 elif config.captureMethod == "FILE":
-    import gamecap.FileCapture as WindowCapture
-    from gamecap.FileCapture import WindowMgr
+    import gamecap.file as WindowCapture
+    from gamecap.file import WindowMgr
 elif platform.system() == "Darwin":
     import gamecap.quartz as WindowCapture
     from gamecap.quartz_mgr import WindowMgr
 else:
-    import gamecap.win32 as WindowCapture
+    import gamecap.win32 as WindowCapture  # noqa: F401
     from gamecap.win32_mgr import WindowMgr
 
 
@@ -52,7 +50,7 @@ def screenPercToPixels(w, h, rect_xywh):
     top = rect_xywh[1] * h
     right = left + rect_xywh[2] * w
     bot = top + rect_xywh[3] * h
-    return (left, top, right, bot)
+    return left, top, right, bot
 
 
 def runFunc(func, args):
@@ -60,6 +58,8 @@ def runFunc(func, args):
 
 
 FIRST = True
+
+
 # runs a bunch of tasks given a pool. Supports singleThread.
 def runTasks(pool, rawTasks):
     global FIRST
@@ -85,16 +85,16 @@ def runTasks(pool, rawTasks):
 
 def tryGetInt(x):
     try:
-        return (True, round(float(x)))
-    except:
-        return (False, 0)
+        return True, round(float(x))
+    except Exception:
+        return False, 0
 
 
 def tryGetFloat(x):
     try:
-        return (True, float(x))
-    except:
-        return (False, 0)
+        return True, float(x)
+    except Exception:
+        return False, 0
 
 
 def clamp(smol, big, value):

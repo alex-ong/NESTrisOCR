@@ -2,9 +2,8 @@
 import tkinter.ttk as ttk
 from .Widgets import Button
 import sys
-from PIL import Image, ImageDraw
-from lib import *
-from ocr_algo.PieceStatsTextOCR import generate_stats
+from PIL import Image
+from lib import config, mult_rect
 from ocr_algo.DigitOCR import finalImageSize, scoreImage0
 from ocr_algo.PreviewOCR2 import PreviewImageSize
 from calibration.StringChooser import StringChooser
@@ -277,9 +276,6 @@ class Calibrator(tk.Frame):
     def updateLevelPerc(self, result):
         self.updateRedraw(self.config.setLevelPerc, result)
 
-    def updateLevelPerc(self, result):
-        self.updateRedraw(self.config.setLevelPerc, result)
-
     def updateWindowCoords(self, result):
         self.updateRedraw(self.config.setGameCoords, result)
 
@@ -309,8 +305,6 @@ class Calibrator(tk.Frame):
             return
         else:
             self.noBoard = False
-
-        dim = board.width, board.height
 
         self.boardImage.updateImage(board)
 
@@ -392,7 +386,7 @@ def pixelPercRect(dim, rectPerc):
     y1 = round(dim[1] * rectPerc[1])
     x2 = round(x1 + dim[0] * rectPerc[2])
     y2 = round(y1 + dim[1] * rectPerc[3])
-    return (x1, y1, x2, y2)
+    return x1, y1, x2, y2
 
 
 def autoAdjustRectangle(capture_coords, rect, numDigits):
@@ -406,7 +400,7 @@ def autoAdjustRectangle(capture_coords, rect, numDigits):
         p = multiprocessing.Pool()
 
     lowestScore = None
-    lowestOffset = None
+    # lowestOffset = None
     bestRect = None
     pattern = "D" * numDigits
     left, right = -3, 4
@@ -443,7 +437,6 @@ def autoAdjustRectangle(capture_coords, rect, numDigits):
             if lowestScore is None or result < lowestScore:
                 bestRect = newRect
                 lowestScore = result
-                lowestOffset = (x, y, w, h)
 
     if multi_thread:
         p.close()
@@ -461,7 +454,7 @@ def adjustTask(pixRect, pattern, newRect):
             result += result2
         else:
             result = None
-    return (result, newRect)
+    return result, newRect
 
 
 def progressBar(value, endvalue, bar_length=20):

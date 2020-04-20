@@ -1,6 +1,4 @@
 import PIL
-from enum import Enum
-from threading import Lock
 from ocr_state.piece_enum import Piece
 
 

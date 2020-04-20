@@ -4,6 +4,7 @@ from ocr_algo.PieceStatsTextOCR import generate_stats
 from ocr_algo.PreviewOCR import calculateOffsets, PreviewImageSize
 from PIL import Image, ImageDraw
 
+
 # splits rectangle by digits.
 # assumes 7 pixels with 1 pixel gaps.
 def splitRect(perc, count):
@@ -39,7 +40,7 @@ def highlight_split_digits(c):
     linesImg = linesImg.resize(finalImageSize(3))
     levelImg = levelImg.resize(finalImageSize(2))
 
-    return (scoreImg, linesImg, levelImg)
+    return scoreImg, linesImg, levelImg
 
 
 def highlight_preview(c):

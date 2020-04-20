@@ -1,4 +1,5 @@
 ﻿import tkinter as tk
+from lib import tryGetFloat
 
 
 class StringChooser(tk.Frame):

@@ -1,13 +1,12 @@
 import socket
 import struct
-import threading
 import time
 import sys
 import queue  # threadsafe
 
 try:
     import Networking.StoppableThread as StoppableThread
-except:
+except ImportError:
     import StoppableThread as StoppableThread
 
 HOST, PORT = "localhost", 9999

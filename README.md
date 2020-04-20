@@ -31,7 +31,7 @@ At the command line, run:
 
 `brew install python3 libtiff libjpeg webp little-cms2 opencv@2`
 
-`pip3 install -r requirements-osx.txt`
+`pip3 install -r requirements/osx.txt`
 
 You can verify the installation is correct by checking this:
 
@@ -111,6 +111,15 @@ If you are in a menu, it will more likely output
 `{'lines': None, 'score', None, 'level', None}`
 
 It will output via TCP to port 3338 by default. This is to connect to other applications that actually use the data.
+
+
+Development
+===
+
+Make sure you have pre-commit hooks setup. After `pip install` for your operating system, run:
+```
+pre-commit install
+```
 
 
 OCR Algorithm

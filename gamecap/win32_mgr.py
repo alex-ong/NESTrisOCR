@@ -4,7 +4,6 @@ copied from http://nullege.com/codes/show/src@w@a@wallmanager-HEAD@mtmenu@window
 import win32gui
 import win32process
 import win32con
-import re
 
 
 class WindowMgr:

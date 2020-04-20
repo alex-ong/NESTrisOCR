@@ -2,7 +2,7 @@ try:
     from Networking.byte_stuffer2 import prePackField
 
     # print ("loaded compiled prePackField")
-except:
+except ImportError:
     from Networking.ByteStuffer2 import prePackField
 
     print(
@@ -38,6 +38,7 @@ TIME_OFFSET = 4
 GAMEID_OFFSET = 1
 
 stats_order = "TJZOSLI"
+
 
 # for use with AutoBahn server to detect player name.
 def getPlayerOffset(byte_header):
@@ -143,7 +144,7 @@ def packLines(linesString):
         try:
             result = int(linesString)
             result = result.to_bytes(2, "big", signed=False)
-        except:
+        except Exception:
             result = (1000).to_bytes(2, "big", signed=False)
     return result
 
@@ -228,7 +229,7 @@ def packPlayer(player):
     if PLAYER_NAME is None:
         try:
             playerEncoded = player.encode("ascii")
-        except:
+        except Exception:
             playerEncoded = ("sore_loser_" + str(random.randint(100, 10000))).encode(
                 "ascii"
             )

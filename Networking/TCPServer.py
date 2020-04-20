@@ -1,11 +1,10 @@
 import socketserver
-import threading
 import socket
 import struct
 
 try:
     from Networking.StoppableThread import StoppableThread
-except:
+except ImportError:
     from StoppableThread import StoppableThread
 
 INT_SIZE = 4

@@ -1,6 +1,5 @@
 import json
 import time
-import sys
 from Networking.ByteStuffer import stuffDictionary
 
 # sends json messages across network
@@ -38,9 +37,9 @@ class CachedSender(object):
 
 def packMessage(dictionary, protocol):
     if protocol == "LEGACY" or protocol == "AUTOBAHN" or protocol == "FILE":
-        return (json.dumps(dictionary), False)
+        return json.dumps(dictionary), False
     elif protocol == "AUTOBAHN_V2":
-        return (bytes(stuffDictionary(dictionary)), True)
+        return bytes(stuffDictionary(dictionary)), True
 
 
 def sameMessage(dict1, dict2):

@@ -1,7 +1,5 @@
-from enum import Enum
 from scan_strat.base_strategy import GameState, BaseStrategy
 from ocr_state.field_state import FieldState
-from ocr_state.piece_stats import PieceStatAccumulator
 from FullStateOptimizer.FullStateConfiguration import FS_CONFIG
 from ocr_state.level_transition import get_level
 from scan_strat.scan_helpers import (
@@ -12,6 +10,7 @@ from scan_strat.scan_helpers import (
     scan_field,
     scan_preview,
     scan_spawn,
+    scan_stats_text,
 )
 
 import time
@@ -54,9 +53,7 @@ class FastestStrategy(BaseStrategy):
         timestamp = time.time()
         img = scan_full(self.hwnd)
         piece_spawned = False
-        line_cleared = False
         soft_drop_updated = False  # check softdrop once per frame.
-        full_required = False
 
         lines_cleared = self.get_lines_cleared(img)
 
@@ -78,8 +75,6 @@ class FastestStrategy(BaseStrategy):
         if FS_CONFIG.capture_field:
             field_info = scan_field(img, self.color1, self.color2)
             field = FieldState(field_info["field"])
-            c1 = field_info["color1"]
-            c2 = field_info["color2"]
             if field == self.field:
                 return
             if field.piece_spawned(self.field):

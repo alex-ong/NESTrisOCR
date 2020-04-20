@@ -1,5 +1,4 @@
 import cv2
-import os
 from PIL import Image
 from gamecap.deinterlacer import deinterlace, InterlaceMode, InterlaceRes
 import time
@@ -39,7 +38,7 @@ class OpenCVMgr:
                 #  - if it can cast, we get a local device ID
                 #  - if it cannot cast, we assume we have a stream URL and use it as is
                 ocv2_device_id = int(ocv2_device_id)
-            except:
+            except Exception:
                 pass
 
             self.inputDevice = cv2.VideoCapture(ocv2_device_id)

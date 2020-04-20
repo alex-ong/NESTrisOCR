@@ -9,7 +9,7 @@ try:
     from ocr_algo.board_ocr import parseImage2  # if it's built
 
     # print("loading parseImage2 from compiled")
-except:
+except ImportError:
     from ocr_algo.BoardOCR2 import parseImage2
 
     print(
