@@ -4,4 +4,5 @@ numba
 numpy
 opencv-python
 pillow
+pre-commit
 simpleaudio

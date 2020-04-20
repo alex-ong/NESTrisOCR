@@ -113,6 +113,15 @@ If you are in a menu, it will more likely output
 It will output via TCP to port 3338 by default. This is to connect to other applications that actually use the data.
 
 
+Development
+===
+
+Make sure you have pre-commit hooks setup. After `pip install` for your operating system, run:
+```
+pre-commit install
+```
+
+
 OCR Algorithm
 ===
 
