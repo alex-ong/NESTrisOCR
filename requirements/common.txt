@@ -1,5 +1,4 @@
 autobahn[twisted]
-ConfigUpdater
 numba
 numpy
 opencv-python
