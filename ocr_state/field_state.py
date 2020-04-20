@@ -1,7 +1,7 @@
 ﻿# Todo: numba optimize for numTiles
 # Make sure we account for rotating piece above field, as this reduces
 # Blockcount by 2
-class FieldState(object):
+class FieldState(object):  # noqa: E302
     def __init__(self, data):
         self.data = data
 
