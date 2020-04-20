@@ -76,7 +76,7 @@ def getWindow():
 
     windows = wm.getWindows()
     for window in windows:
-        if window[1].startswith(config.WINDOW_NAME):
+        if window[1].startswith(config.get("calibration.source_id")):
             return window[0]
     return None
 

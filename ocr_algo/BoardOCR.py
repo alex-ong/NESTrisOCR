@@ -49,7 +49,7 @@ def parseImage(img, color1, color2):
 
     result = parseImage2(img, color1, color2)
 
-    if config.netProtocol == "AUTOBAHN_V2":
+    if config.get("network.protocol") == "AUTOBAHN_V2":
         result = prePackField(result)
         result = result.tobytes()
     else:

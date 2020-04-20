@@ -26,32 +26,38 @@ class OtherOptions(tk.Toplevel):
             "Use multi_thread",
             items,
             itemsStr,
-            config.threads,
+            config.get("performance.num_threads"),
             self.changeMultiThread,
         )
         # hexSupport
         self.hex = BoolChooser(
             self,
             "Support hex scores (scores past 999999 as A00000 to F99999)",
-            config.hexSupport,
+            config.get("performance.support_hex_score"),
             self.changeHexSupport,
         )
         # captureField
         self.fieldCap = BoolChooser(
-            self, "Capture game field", config.capture_field, self.changeCaptureField
+            self,
+            "Capture game field",
+            config.get("calibration.capture_field"),
+            self.changeCaptureField,
         )
 
         # capturePreview
         self.prevCap = BoolChooser(
             self,
             "Capture next piece",
-            config.capture_preview,
+            config.get("calibration.capture_preview"),
             self.changeCapturePreview,
         )
 
         # captureStats
         self.statCap = BoolChooser(
-            self, "Capture Piece Stats", config.capture_stats, self.changeCaptureStats
+            self,
+            "Capture Piece Stats",
+            config.get("stats.enabled"),
+            self.changeCaptureStats,
         )
 
         self.statsMethod = OptionChooser(
@@ -59,7 +65,7 @@ class OtherOptions(tk.Toplevel):
             "Piece Stats capture method",
             ["TEXT", "FIELD"],
             ["TEXT", "FIELD"],
-            config.stats_method,
+            config.get("stats.capture_method"),
             self.changeStatsMethod,
         )
 
@@ -69,7 +75,7 @@ class OtherOptions(tk.Toplevel):
             "Capture flash method",
             ["BACKGROUND", "FIELD", "NONE"],
             ["BACKGROUND", "FIELD", "NONE"],
-            config.flashMethod,
+            config.get("calibration.flash_method"),
             self.changeFlashMethod,
         )
 
@@ -79,7 +85,7 @@ class OtherOptions(tk.Toplevel):
         self.fieldCap.pack(fill="both")
         self.prevCap.pack(fill="both")
         self.statCap.pack(fill="both")
-        if config.capture_stats:
+        if config.get("stats.enabled"):
             self.statsMethod.pack(fill="both")
         self.flashCap.pack(fill="both")
 
@@ -92,41 +98,41 @@ class OtherOptions(tk.Toplevel):
         self.refreshValues()
 
     def refreshValues(self):
-        self.mt.refresh(self.config.threads)
-        self.hex.refresh(self.config.hexSupport)
-        self.fieldCap.refresh(self.config.capture_field)
-        self.prevCap.refresh(self.config.capture_preview)
-        self.statCap.refresh(self.config.capture_stats)
-        self.statsMethod.refresh(self.config.stats_method)
+        self.mt.refresh(self.config.get("performance.num_threads"))
+        self.hex.refresh(self.config.get("performance.support_hex_score"))
+        self.fieldCap.refresh(self.config.get("calibration.capture_field"))
+        self.prevCap.refresh(self.config.get("calibration.capture_preview"))
+        self.statCap.refresh(self.config.get("stats.enabled"))
+        self.statsMethod.refresh(self.config.get("stats.capture_method"))
         self.showHideStatsMethod()
 
     def changeMultiThread(self, value):
-        self.config.setThreads(value)
+        self.config.set("performance.num_threads", value)
 
     def changeHexSupport(self, value):
-        self.config.setHexSupport(value)
+        self.config.set("stats.enabled", value)
 
     def changeCaptureField(self, value):
-        self.config.setCaptureField(value)
+        self.config.set("calibration.capture_field", value)
 
     def changeCapturePreview(self, value):
-        self.config.setCapturePreview(value)
+        self.config.set("calibration.capture_preview", value)
 
     def showHideStatsMethod(self):
-        if self.config.capture_stats:
+        if self.config.get("stats.enabled"):
             self.statsMethod.pack(fill="both")
         else:
             self.statsMethod.pack_forget()
 
     def changeCaptureStats(self, value):
-        self.config.setCaptureStats(value)
+        self.config.config.set("stats.enabled", value)
         self.showHideStatsMethod()
 
     def changeStatsMethod(self, value):
-        self.config.setStatsMethod(value)
+        self.config.set("stats.capture_method", value)
 
     def changeFlashMethod(self, value):
-        self.config.setFlashMethod(value)
+        self.config.set("calibration.flash_method", value)
 
     def on_exit(self):
         global INSTANCE
