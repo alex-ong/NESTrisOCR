@@ -1,9 +1,0 @@
-autobahn[twisted]
-ConfigUpdater
-numba
-numpy
-opencv-python
-pillow
-pyobjc
-tkmacosx
-simpleaudio

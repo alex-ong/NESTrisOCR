@@ -4,5 +4,4 @@ numba
 numpy
 opencv-python
 pillow
-pypiwin32
 simpleaudio

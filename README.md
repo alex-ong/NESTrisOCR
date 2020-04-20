@@ -31,7 +31,7 @@ At the command line, run:
 
 `brew install python3 libtiff libjpeg webp little-cms2 opencv@2`
 
-`pip3 install -r requirements-osx.txt`
+`pip3 install -r requirements/osx.txt`
 
 You can verify the installation is correct by checking this:
 
