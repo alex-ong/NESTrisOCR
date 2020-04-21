@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import json
 
+from nestris_ocr.utils.sub_image import spawn_subimage
 
 # fmt: off
 CONFIG_DEFAULTS = {
@@ -68,7 +69,7 @@ class Config:
             self.data = OrderedDict(CONFIG_DEFAULTS)
 
         # TODO: temp code
-        self.stats2Perc = self.subImage(self.data["calibration.pct.field"])
+        self.stats2Perc = spawn_subimage(self.data["calibration.pct.field"])
 
     def get(self, key):
         if key not in CONFIG_DEFAULTS:
@@ -90,7 +91,7 @@ class Config:
 
         # TODO: temp code
         if key == "calibration.pct.field":
-            self.stats2Perc = self.subImage(value)
+            self.stats2Perc = spawn_subimage(value)
 
         if self.auto_save:
             self.save()
@@ -98,13 +99,6 @@ class Config:
     def save(self):
         with open(self.path, "w") as file:
             json.dump(self.data, file, indent=2)
-
-    # gets the 2x4 region out of the fieldPerc
-    def subImage(self, rect):
-        # return middle 4 / 10 x values and 2 / 20 y values
-        tileX = rect[2] / 10.0
-        tileY = rect[3] / 20.0
-        return [rect[0] + tileX * 3, rect[1], tileX * 4, tileY * 2]
 
 
 config = Config("config.json")
