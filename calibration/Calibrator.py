@@ -42,7 +42,7 @@ class Calibrator(tk.Frame):
             self,
             "capture window starts with:",
             config["calibration.source_id"],
-            self.updateWindowName,
+            self.gen_set_config_and_redraw("calibration.source_id"),
             20,
         ).grid(row=0, sticky="nsew")
         StringChooser(
@@ -68,7 +68,7 @@ class Calibrator(tk.Frame):
             "capture window coords (pixels)",
             config["calibration.game_coords"],
             False,
-            self.updateWindowCoords,
+            self.gen_set_config_and_redraw("calibration.game_coords"),
         )
         r.config(relief=tk.FLAT, bd=5, background="orange")
         r.pack(side=tk.LEFT)
@@ -121,7 +121,7 @@ class Calibrator(tk.Frame):
             "lines (imagePerc)",
             config["calibration.pct.lines"],
             True,
-            self.updateLinesPerc,
+            self.gen_set_config_and_redraw("calibration.pct.lines"),
         )
         self.linesPerc.grid(row=0, column=1)
         self.linesImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
@@ -139,7 +139,7 @@ class Calibrator(tk.Frame):
             "score (imagePerc)",
             config["calibration.pct.score"],
             True,
-            self.updateScorePerc,
+            self.gen_set_config_and_redraw("calibration.pct.score"),
         )
         self.scorePerc.grid(row=2, column=1)
         self.scoreImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
@@ -157,7 +157,7 @@ class Calibrator(tk.Frame):
             "level (imagePerc)",
             config["calibration.pct.level"],
             True,
-            self.updateLevelPerc,
+            self.gen_set_config_and_redraw("calibration.pct.level"),
         )
         self.levelPerc.grid(row=4, column=1)
         self.levelImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
@@ -171,28 +171,28 @@ class Calibrator(tk.Frame):
             "field (imagePerc)",
             config["calibration.pct.field"],
             True,
-            self.updateFieldPerc,
+            self.gen_set_config_and_redraw("calibration.pct.field"),
         )
         b = CompactRectChooser(
             f,
             "Color1 (imagePerc)",
             config["calibration.pct.color1"],
             True,
-            self.updateColor1Perc,
+            self.gen_set_config_and_redraw("calibration.pct.color1"),
         )
         c = CompactRectChooser(
             f,
             "Color2 (imagePerc)",
             config["calibration.pct.color2"],
             True,
-            self.updateColor2Perc,
+            self.gen_set_config_and_redraw("calibration.pct.color2"),
         )
         d = CompactRectChooser(
             f,
             "Flash (imagePerc)",
             config["calibration.pct.flash"],
             True,
-            self.updateFlashPerc,
+            self.gen_set_config_and_redraw("calibration.pct.flash"),
         )
 
         self.flashPosition = d
@@ -202,7 +202,7 @@ class Calibrator(tk.Frame):
             "pieceStats (imagePerc)",
             config["calibration.pct.stats"],
             True,
-            self.updateStatsPerc,
+            self.gen_set_config_and_redraw("calibration.pct.stats"),
         )
         a.grid()
         b.grid()
@@ -221,7 +221,7 @@ class Calibrator(tk.Frame):
             "Next Piece (imagePerc)",
             config["calibration.pct.preview"],
             True,
-            self.updatePreviewPerc,
+            self.gen_set_config_and_redraw("calibration.pct.preview"),
         )
         self.previewPiece.grid()
 
@@ -305,60 +305,12 @@ class Calibrator(tk.Frame):
         func(result)
         self.redrawImages()
 
-    def updateWindowName(self, result):
-        self.updateRedraw(
-            partial(self.config.__setitem__, "calibration.source_id"), result
-        )
+    def gen_set_config_and_redraw(self, key):
+        def set_config_and_redraw(result):
+            config[key] = result
+            self.redrawImages()
 
-    def updateLinesPerc(self, result):
-        self.updateRedraw(
-            partial(self.config.__setitem__, "calibration.pct.lines"), result
-        )
-
-    def updateScorePerc(self, result):
-        self.updateRedraw(
-            partial(self.config.__setitem__, "calibration.pct.score"), result
-        )
-
-    def updateLevelPerc(self, result):
-        self.updateRedraw(
-            partial(self.config.__setitem__, "calibration.pct.level"), result
-        )
-
-    def updateWindowCoords(self, result):
-        self.updateRedraw(
-            partial(self.config.__setitem__, "calibration.game_coords"), result
-        )
-
-    def updateFieldPerc(self, result):
-        self.updateRedraw(
-            partial(self.config.__setitem__, "calibration.pct.field"), result
-        )
-
-    def updateFlashPerc(self, result):
-        self.updateRedraw(
-            partial(self.config.__setitem__, "calibration.pct.flash"), result
-        )
-
-    def updateColor1Perc(self, result):
-        self.updateRedraw(
-            partial(self.config.__setitem__, "calibration.pct.color1"), result
-        )
-
-    def updateColor2Perc(self, result):
-        self.updateRedraw(
-            partial(self.config.__setitem__, "calibration.pct.color2"), result
-        )
-
-    def updateStatsPerc(self, result):
-        self.updateRedraw(
-            partial(self.config.__setitem__, "calibration.pct.stats"), result
-        )
-
-    def updatePreviewPerc(self, result):
-        self.updateRedraw(
-            partial(self.config.__setitem__, "calibration.pct.preview"), result
-        )
+        return set_config_and_redraw
 
     def redrawImages(self):
         self.lastUpdate = time.time()
