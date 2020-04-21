@@ -13,7 +13,7 @@ pixOffsets = ((10, 12), (17, 12), (21, 12))
 
 # only used by calibrator
 def calculateOffsets():
-    baseRect = config.get("calibration.pct.preview")
+    baseRect = config["calibration.pct.preview"]
     global cachedPPP
     global cachedOffsets
     if baseRect != cachedPPP:

@@ -41,15 +41,15 @@ class Calibrator(tk.Frame):
         StringChooser(
             self,
             "capture window starts with:",
-            config.get("calibration.source_id"),
+            config["calibration.source_id"],
             self.updateWindowName,
             20,
         ).grid(row=0, sticky="nsew")
         StringChooser(
             self,
             "player name",
-            config.get("player.name"),
-            partial(config.set, "player.name"),
+            config["player.name"],
+            partial(config.__setitem__, "player.name"),
             20,
         ).grid(row=1, sticky="nsew")
         if ENABLE_OTHER_OPTIONS:
@@ -66,7 +66,7 @@ class Calibrator(tk.Frame):
         r = RectChooser(
             f,
             "capture window coords (pixels)",
-            config.get("calibration.game_coords"),
+            config["calibration.game_coords"],
             False,
             self.updateWindowCoords,
         )
@@ -119,7 +119,7 @@ class Calibrator(tk.Frame):
         self.linesPerc = CompactRectChooser(
             f,
             "lines (imagePerc)",
-            config.get("calibration.pct.lines"),
+            config["calibration.pct.lines"],
             True,
             self.updateLinesPerc,
         )
@@ -137,7 +137,7 @@ class Calibrator(tk.Frame):
         self.scorePerc = CompactRectChooser(
             f,
             "score (imagePerc)",
-            config.get("calibration.pct.score"),
+            config["calibration.pct.score"],
             True,
             self.updateScorePerc,
         )
@@ -155,7 +155,7 @@ class Calibrator(tk.Frame):
         self.levelPerc = CompactRectChooser(
             f,
             "level (imagePerc)",
-            config.get("calibration.pct.level"),
+            config["calibration.pct.level"],
             True,
             self.updateLevelPerc,
         )
@@ -169,28 +169,28 @@ class Calibrator(tk.Frame):
         a = CompactRectChooser(
             f,
             "field (imagePerc)",
-            config.get("calibration.pct.field"),
+            config["calibration.pct.field"],
             True,
             self.updateFieldPerc,
         )
         b = CompactRectChooser(
             f,
             "Color1 (imagePerc)",
-            config.get("calibration.pct.color1"),
+            config["calibration.pct.color1"],
             True,
             self.updateColor1Perc,
         )
         c = CompactRectChooser(
             f,
             "Color2 (imagePerc)",
-            config.get("calibration.pct.color2"),
+            config["calibration.pct.color2"],
             True,
             self.updateColor2Perc,
         )
         d = CompactRectChooser(
             f,
             "Flash (imagePerc)",
-            config.get("calibration.pct.flash"),
+            config["calibration.pct.flash"],
             True,
             self.updateFlashPerc,
         )
@@ -200,7 +200,7 @@ class Calibrator(tk.Frame):
         self.pieceStats = CompactRectChooser(
             f,
             "pieceStats (imagePerc)",
-            config.get("calibration.pct.stats"),
+            config["calibration.pct.stats"],
             True,
             self.updateStatsPerc,
         )
@@ -219,7 +219,7 @@ class Calibrator(tk.Frame):
         self.previewPiece = CompactRectChooser(
             f,
             "Next Piece (imagePerc)",
-            config.get("calibration.pct.preview"),
+            config["calibration.pct.preview"],
             True,
             self.updatePreviewPerc,
         )
@@ -254,7 +254,7 @@ class Calibrator(tk.Frame):
 
     def setFlashVisible(self):
         show = False
-        if self.config.get("calibration.flash_method") == "BACKGROUND":
+        if self.config["calibration.flash_method"] == "BACKGROUND":
             show = True
 
         if show:
@@ -264,9 +264,9 @@ class Calibrator(tk.Frame):
 
     def setFieldTextVisible(self):
         show = False
-        if self.config.get("calibration.capture_field") or (
-            self.config.get("stats.enabled")
-            and self.config.get("stats.capture_method") == "FIELD"
+        if self.config["calibration.capture_field"] or (
+            self.config["stats.enabled"]
+            and self.config["stats.capture_method"] == "FIELD"
         ):
             show = True
 
@@ -278,15 +278,15 @@ class Calibrator(tk.Frame):
 
     def setStatsTextVisible(self):
         if (
-            self.config.get("stats.enabled")
-            and self.config.get("stats.capture_method") == "TEXT"
+            self.config["stats.enabled"]
+            and self.config["stats.capture_method"] == "TEXT"
         ):
             self.pieceStats.grid()
         else:
             self.pieceStats.grid_forget()
 
     def setPreviewTextVisible(self):
-        show = self.config.get("calibration.capture_preview")
+        show = self.config["calibration.capture_preview"]
         if show:
             self.previewPiece.grid()
             self.previewImage.grid()
@@ -306,37 +306,59 @@ class Calibrator(tk.Frame):
         self.redrawImages()
 
     def updateWindowName(self, result):
-        self.updateRedraw(partial(self.config.set, "calibration.source_id"), result)
+        self.updateRedraw(
+            partial(self.config.__setitem__, "calibration.source_id"), result
+        )
 
     def updateLinesPerc(self, result):
-        self.updateRedraw(partial(self.config.set, "calibration.pct.lines"), result)
+        self.updateRedraw(
+            partial(self.config.__setitem__, "calibration.pct.lines"), result
+        )
 
     def updateScorePerc(self, result):
-        self.updateRedraw(partial(self.config.set, "calibration.pct.score"), result)
+        self.updateRedraw(
+            partial(self.config.__setitem__, "calibration.pct.score"), result
+        )
 
     def updateLevelPerc(self, result):
-        self.updateRedraw(partial(self.config.set, "calibration.pct.level"), result)
+        self.updateRedraw(
+            partial(self.config.__setitem__, "calibration.pct.level"), result
+        )
 
     def updateWindowCoords(self, result):
-        self.updateRedraw(partial(self.config.set, "calibration.game_coords"), result)
+        self.updateRedraw(
+            partial(self.config.__setitem__, "calibration.game_coords"), result
+        )
 
     def updateFieldPerc(self, result):
-        self.updateRedraw(partial(self.config.set, "calibration.pct.field"), result)
+        self.updateRedraw(
+            partial(self.config.__setitem__, "calibration.pct.field"), result
+        )
 
     def updateFlashPerc(self, result):
-        self.updateRedraw(partial(self.config.set, "calibration.pct.flash"), result)
+        self.updateRedraw(
+            partial(self.config.__setitem__, "calibration.pct.flash"), result
+        )
 
     def updateColor1Perc(self, result):
-        self.updateRedraw(partial(self.config.set, "calibration.pct.color1"), result)
+        self.updateRedraw(
+            partial(self.config.__setitem__, "calibration.pct.color1"), result
+        )
 
     def updateColor2Perc(self, result):
-        self.updateRedraw(partial(self.config.set, "calibration.pct.color2"), result)
+        self.updateRedraw(
+            partial(self.config.__setitem__, "calibration.pct.color2"), result
+        )
 
     def updateStatsPerc(self, result):
-        self.updateRedraw(partial(self.config.set, "calibration.pct.stats"), result)
+        self.updateRedraw(
+            partial(self.config.__setitem__, "calibration.pct.stats"), result
+        )
 
     def updatePreviewPerc(self, result):
-        self.updateRedraw(partial(self.config.set, "calibration.pct.preview"), result)
+        self.updateRedraw(
+            partial(self.config.__setitem__, "calibration.pct.preview"), result
+        )
 
     def redrawImages(self):
         self.lastUpdate = time.time()
@@ -366,37 +388,37 @@ class Calibrator(tk.Frame):
 
     def autoLines(self):
         bestRect = autoAdjustRectangle(
-            self.config.get("calibration.game_coords"),
-            self.config.get("calibration.pct.lines"),
+            self.config["calibration.game_coords"],
+            self.config["calibration.pct.lines"],
             3,
         )
         if bestRect is not None:
             self.linesPerc.show(str(item) for item in bestRect)
-            self.config.set("calibration.pct.lines", bestRect)
+            self.config["calibration.pct.lines"] = bestRect
         else:
             print("Please have score on screen as 000")
 
     def autoScore(self):
         bestRect = autoAdjustRectangle(
-            self.config.get("calibration.game_coords"),
-            self.config.get("calibration.pct.score"),
+            self.config["calibration.game_coords"],
+            self.config["calibration.pct.score"],
             6,
         )
         if bestRect is not None:
             self.scorePerc.show(str(item) for item in bestRect)
-            self.config.set("calibration.pct.score", bestRect)
+            self.config["calibration.pct.score"] = bestRect
         else:
             print("Please have score on screen as 000000")
 
     def autoLevel(self):
         bestRect = autoAdjustRectangle(
-            self.config.get("calibration.game_coords"),
-            self.config.get("calibration.pct.level"),
+            self.config["calibration.game_coords"],
+            self.config["calibration.pct.level"],
             2,
         )
         if bestRect is not None:
             self.levelPerc.show(str(item) for item in bestRect)
-            self.config.set("calibration.pct.level", bestRect)
+            self.config["calibration.pct.level"] = bestRect
         else:
             print("Please have score on screen as 00")
 
@@ -438,7 +460,7 @@ def pixelPercRect(dim, rectPerc):
 
 def autoAdjustRectangle(capture_coords, rect, numDigits):
     # we can only run multi-thread on certain frameworks.
-    if config.get("calibration.capture_method") in ["OPENCV", "FILE"]:
+    if config["calibration.capture_method"] in ["OPENCV", "FILE"]:
         multi_thread = False
     else:
         multi_thread = True

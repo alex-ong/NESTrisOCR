@@ -34,23 +34,23 @@ import sys
 # B = 0->1 (das value only 00 to 16, so first digit can check 0 or 1 only) (B for Binary)
 # T = 0->2 (majority of humans play up to level 29, so first digit of level could be 0-2 only) (T for Triplet)
 PATTERNS = {
-    "score": "ADDDDD" if config.get("performance.support_hex_score") else "DDDDDD",
+    "score": "ADDDDD" if config["performance.support_hex_score"] else "DDDDDD",
     "lines": "DDD",
-    "level": "AA" if config.get("performance.support_hex_level") else "TD",
+    "level": "AA" if config["performance.support_hex_level"] else "TD",
     "stats": "DDD",
     "das": "BD",
 }
 
-STATS_METHOD = config.get("stats.capture_method")  # can be TEXT or FIELD.
-CAPTURE_FIELD = config.get("calibration.capture_field")
-CAPTURE_PREVIEW = config.get("calibration.capture_preview")
-CAPTURE_FLASH = config.get("calibration.flash_method")
-STATS_ENABLE = config.get("stats.enabled")
+STATS_METHOD = config["stats.capture_method"]  # can be TEXT or FIELD.
+CAPTURE_FIELD = config["calibration.capture_field"]
+CAPTURE_PREVIEW = config["calibration.capture_preview"]
+CAPTURE_FLASH = config["calibration.flash_method"]
+STATS_ENABLE = config["stats.enabled"]
 USE_STATS_FIELD = STATS_ENABLE and STATS_METHOD == "FIELD"
-WINDOW_N_SLICE = config.get("performance.capture_method") == "WINDOW_N_SLICE"
+WINDOW_N_SLICE = config["performance.capture_method"] == "WINDOW_N_SLICE"
 
 # quick check for num_threads:
-if WINDOW_N_SLICE and config.get("performance.num_threads") != 1:
+if WINDOW_N_SLICE and config["performance.num_threads"] != 1:
     messagebox.showerror(
         "NESTrisOCR",
         "WINDOW_N_SLICE only supports one thread. Please change number of threads to 1",
@@ -65,44 +65,44 @@ def getWindowAreaAndPartialTasks():
     # that will be used to determine the minimum window area to capture
     areas = {
         "score": mult_rect(
-            config.get("calibration.game_coords"), config.get("calibration.pct.score")
+            config["calibration.game_coords"], config["calibration.pct.score"]
         ),
         "lines": mult_rect(
-            config.get("calibration.game_coords"), config.get("calibration.pct.lines")
+            config["calibration.game_coords"], config["calibration.pct.lines"]
         ),
         "level": mult_rect(
-            config.get("calibration.game_coords"), config.get("calibration.pct.level")
+            config["calibration.game_coords"], config["calibration.pct.level"]
         ),
     }
 
     if CAPTURE_FIELD:
         areas["field"] = mult_rect(
-            config.get("calibration.game_coords"), config.get("calibration.pct.field")
+            config["calibration.game_coords"], config["calibration.pct.field"]
         )
         areas["color1"] = mult_rect(
-            config.get("calibration.game_coords"), config.get("calibration.pct.color1")
+            config["calibration.game_coords"], config["calibration.pct.color1"]
         )
         areas["color2"] = mult_rect(
-            config.get("calibration.game_coords"), config.get("calibration.pct.color2")
+            config["calibration.game_coords"], config["calibration.pct.color2"]
         )
 
     if USE_STATS_FIELD:
         areas["stats2"] = mult_rect(
-            config.get("calibration.game_coords"), config.stats2_percentages
+            config["calibration.game_coords"], config.stats2_percentages
         )
     elif STATS_ENABLE:
         areas["stats"] = mult_rect(
-            config.get("calibration.game_coords"), config.get("calibration.pct.stats")
+            config["calibration.game_coords"], config["calibration.pct.stats"]
         )
 
     if CAPTURE_PREVIEW:
         areas["preview"] = mult_rect(
-            config.get("calibration.game_coords"), config.get("calibration.pct.preview")
+            config["calibration.game_coords"], config["calibration.pct.preview"]
         )
 
     if CAPTURE_FLASH == "BACKGROUND":
         areas["flash"] = mult_rect(
-            config.get("calibration.game_coords"), config.get("calibration.pct.flash")
+            config["calibration.game_coords"], config["calibration.pct.flash"]
         )
 
     coords_list = areas.values()
@@ -153,9 +153,9 @@ def getWindowAreaAndPartialTasks():
 
         elif key == "stats":
             stats_coords = generate_stats(
-                config.get("calibration.game_coords"),
-                config.get("calibration.pct.stats"),
-                config.get("calibration.pct.score")[3],
+                config["calibration.game_coords"],
+                config["calibration.pct.stats"],
+                config["calibration.pct.score"][3],
             )
 
             for pieceKey, pieceCoords in stats_coords.items():
@@ -198,7 +198,7 @@ def getWindowAreaAndPartialTasks():
                     eval(methodPrefix + "AndOCRFlash"),
                     (
                         processCoordinates(coords),
-                        config.get("calibration.flash_threshold"),
+                        config["calibration.flash_threshold"],
                     ),
                 )
             )
@@ -207,18 +207,15 @@ def getWindowAreaAndPartialTasks():
 
 
 # piece stats and method. Recommend using FIELD
-STATS2_COORDS = mult_rect(
-    config.get("calibration.game_coords"), config.stats2_percentages
-)
+STATS2_COORDS = mult_rect(config["calibration.game_coords"], config.stats2_percentages)
 
-MULTI_THREAD = config.get(
-    "performance.num_threads"
-)  # shouldn't need more than four if using FieldStats + score/lines/level
+# shouldn't need more than four if using FieldStats + score/lines/level
+MULTI_THREAD = config["performance.num_threads"]
 
 # limit how fast we scan.
 RATE_FIELDSTATS = 1 / 60.0 if WINDOW_N_SLICE else 1 / 120.0
 RATE_TEXTONLY = 0.064
-RATE_FIELD = 1.0 / clamp(15, 60, config.get("performance.scan_rate"))
+RATE_FIELD = 1.0 / clamp(15, 60, config["performance.scan_rate"])
 
 if USE_STATS_FIELD and MULTI_THREAD == 1:
     RATE = RATE_FIELDSTATS
@@ -237,9 +234,9 @@ def getRealTimeStamp():
 
 
 getTimeStamp = getRealTimeStamp
-if config.get("calibration.capture_method") == "FILE":
+if config["calibration.capture_method"] == "FILE":
     MULTI_THREAD = 1
-    if config.get("network.protocol") == "FILE":
+    if config["network.protocol"] == "FILE":
         RATE = 0.000
         getTimeStamp = WindowCapture.TimeStamp
 
@@ -388,17 +385,17 @@ def main(onCap, checkNetworkClose):  # noqa: C901
                     print("Warning, dropped frame scanning preview in field")
 
             if (
-                config.get("calibration.capture_field")
+                config["calibration.capture_field"]
                 and time.time() > frame_start + RATE_FIELD
             ):
                 print("Warning, dropped frame when capturing field")
 
-            result["playername"] = config.get("player.name")
+            result["playername"] = config["player.name"]
             result["gameid"], wasNewGameID = gameIDParser.getGameID(
                 result["score"], result["lines"], result["level"]
             )
 
-            if config.get("performance.support_hex_score"):
+            if config["performance.support_hex_score"]:
                 if wasNewGameID:
                     scoreFixer.reset()
                 # fix score's first digit. 8 to B and B to 8 depending on last state.
@@ -425,12 +422,10 @@ if __name__ == "__main__":
         sys.exit()
 
     print("Creating net client...")
-    client = NetClient.CreateClient(
-        config.get("network.host"), int(config.get("network.port"))
-    )
+    client = NetClient.CreateClient(config["network.host"], int(config["network.port"]))
     print("Net client created.")
     cachedSender = CachedSender(
-        client, config.get("debug.print_packet"), config.get("network.protocol")
+        client, config["debug.print_packet"], config["network.protocol"]
     )
 
     result = None

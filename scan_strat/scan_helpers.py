@@ -5,7 +5,7 @@ from ocr_algo.BoardOCR import parseImageSmart as processBoard
 from ocr_algo.PreviewOCR2 import parseImage as processPreview
 from ocr_algo.PieceStatsBoardOCR import parseImage as processSpawn
 
-if config.get("performance.capture_method") == "WINDOW_N_SLICE":
+if config["performance.capture_method"] == "WINDOW_N_SLICE":
     from gamecap.WindowAreasSlice import getWindowAreas
 else:
     from gamecap.WindowAreasDirect import getWindowAreas

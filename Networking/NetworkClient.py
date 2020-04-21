@@ -5,9 +5,9 @@ import Networking.FileClient as FileClient
 
 NetClient = TCPClient
 if (
-    config.get("network.protocol") == "AUTOBAHN"
-    or config.get("network.protocol") == "AUTOBAHN_V2"
+    config["network.protocol"] == "AUTOBAHN"
+    or config["network.protocol"] == "AUTOBAHN_V2"
 ):
     NetClient = AutoBahnClient
-elif config.get("network.protocol") == "FILE":
+elif config["network.protocol"] == "FILE":
     NetClient = FileClient

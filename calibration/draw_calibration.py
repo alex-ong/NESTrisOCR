@@ -28,15 +28,9 @@ def captureArea(coords):
 
 
 def highlight_split_digits(c):
-    scorePix = mult_rect(
-        c.get("calibration.game_coords"), c.get("calibration.pct.score")
-    )
-    linesPix = mult_rect(
-        c.get("calibration.game_coords"), c.get("calibration.pct.lines")
-    )
-    levelPix = mult_rect(
-        c.get("calibration.game_coords"), c.get("calibration.pct.level")
-    )
+    scorePix = mult_rect(c["calibration.game_coords"], c["calibration.pct.score"])
+    linesPix = mult_rect(c["calibration.game_coords"], c["calibration.pct.lines"])
+    levelPix = mult_rect(c["calibration.game_coords"], c["calibration.pct.level"])
 
     scoreImg = captureArea(scorePix)
     linesImg = captureArea(linesPix)
@@ -50,9 +44,7 @@ def highlight_split_digits(c):
 
 
 def highlight_preview(c):
-    previewPix = mult_rect(
-        c.get("calibration.game_coords"), c.get("calibration.pct.preview")
-    )
+    previewPix = mult_rect(c["calibration.game_coords"], c["calibration.pct.preview"])
     previewImg = captureArea(previewPix)
     previewImg = previewImg.resize(PreviewImageSize, Image.BOX)
     return previewImg
@@ -69,9 +61,9 @@ def highlight_calibration(img, c):
     yellow = (255, 255, 0, 128)
 
     scorePerc, linesPerc, levelPerc = (
-        c.get("calibration.pct.score"),
-        c.get("calibration.pct.lines"),
-        c.get("calibration.pct.level"),
+        c["calibration.pct.score"],
+        c["calibration.pct.lines"],
+        c["calibration.pct.level"],
     )
 
     for rect in splitRect(linesPerc, 3):  # lines
@@ -85,8 +77,8 @@ def highlight_calibration(img, c):
             screenPercToPixels(img.width, img.height, rect), fill=blue
         )  # level
 
-    if c.get("calibration.capture_field"):
-        fieldPerc = c.get("calibration.pct.field")
+    if c["calibration.capture_field"]:
+        fieldPerc = c["calibration.pct.field"]
         for x in range(10):
             for y in range(20):
                 blockPercX = lerp(
@@ -100,27 +92,27 @@ def highlight_calibration(img, c):
                     screenPercToPixels(img.width, img.height, rect), fill=red
                 )
         draw.rectangle(
-            screenPercToPixels(img.width, img.height, c.get("calibration.pct.color1")),
+            screenPercToPixels(img.width, img.height, c["calibration.pct.color1"]),
             fill=orange,
         )
         draw.rectangle(
-            screenPercToPixels(img.width, img.height, c.get("calibration.pct.color2")),
+            screenPercToPixels(img.width, img.height, c["calibration.pct.color2"]),
             fill=orange,
         )
 
-    if c.get("stats.enabled"):
-        if c.get("stats.capture_method") == "TEXT":
+    if c["stats.enabled"]:
+        if c["stats.capture_method"] == "TEXT":
             # pieces
             for value in generate_stats(
-                c.get("calibration.game_coords"),
-                c.get("calibration.pct.stats"),
-                c.get("calibration.pct.score")[3],
+                c["calibration.game_coords"],
+                c["calibration.pct.stats"],
+                c["calibration.pct.score"][3],
                 False,
             ).values():
                 draw.rectangle(
                     screenPercToPixels(img.width, img.height, value), fill=orange
                 )
-        else:  # c.get('stats.capture_method') == 'FIELD':
+        else:  # c['stats.capture_method'] == 'FIELD':
             stats2_percentages = c.stats2_percentages
             for x in range(4):
                 for y in range(2):
@@ -139,38 +131,38 @@ def highlight_calibration(img, c):
                         screenPercToPixels(img.width, img.height, rect), fill=blue
                     )
 
-    if c.get("calibration.capture_preview"):
+    if c["calibration.capture_preview"]:
         draw.rectangle(
-            screenPercToPixels(img.width, img.height, c.get("calibration.pct.preview")),
+            screenPercToPixels(img.width, img.height, c["calibration.pct.preview"]),
             fill=blue,
         )
-        pixelWidth = c.get("calibration.pct.preview")[2] / 31.0
-        pixelHeight = c.get("calibration.pct.preview")[3] / 15.0
+        pixelWidth = c["calibration.pct.preview"][2] / 31.0
+        pixelHeight = c["calibration.pct.preview"][3] / 15.0
 
         blockWidth = pixelWidth * 7
         blockHeight = pixelHeight * 7
 
         t1 = (
-            c.get("calibration.pct.preview")[0] + 4 * pixelWidth,
-            c.get("calibration.pct.preview")[1],
+            c["calibration.pct.preview"][0] + 4 * pixelWidth,
+            c["calibration.pct.preview"][1],
             blockWidth,
             blockHeight,
         )
         t2 = (
-            c.get("calibration.pct.preview")[0] + 12 * pixelWidth,
-            c.get("calibration.pct.preview")[1],
+            c["calibration.pct.preview"][0] + 12 * pixelWidth,
+            c["calibration.pct.preview"][1],
             blockWidth,
             blockHeight,
         )
         t3 = (
-            c.get("calibration.pct.preview")[0] + 20 * pixelWidth,
-            c.get("calibration.pct.preview")[1],
+            c["calibration.pct.preview"][0] + 20 * pixelWidth,
+            c["calibration.pct.preview"][1],
             blockWidth,
             blockHeight,
         )
         t4 = (
-            c.get("calibration.pct.preview")[0] + 12 * pixelWidth,
-            c.get("calibration.pct.preview")[1] + pixelHeight * 8,
+            c["calibration.pct.preview"][0] + 12 * pixelWidth,
+            c["calibration.pct.preview"][1] + pixelHeight * 8,
             blockWidth,
             blockHeight,
         )
@@ -180,9 +172,9 @@ def highlight_calibration(img, c):
             rect = (o[0], o[1], pixelWidth, pixelHeight)
             draw.rectangle(screenPercToPixels(img.width, img.height, rect), fill="red")
 
-    if c.get("calibration.flash_method") == "BACKGROUND":
+    if c["calibration.flash_method"] == "BACKGROUND":
         draw.rectangle(
-            screenPercToPixels(img.width, img.height, c.get("calibration.pct.flash")),
+            screenPercToPixels(img.width, img.height, c["calibration.pct.flash"]),
             fill=yellow,
         )
 
@@ -194,11 +186,11 @@ def highlight_calibration(img, c):
 def draw_calibration(config):
     hwnd = getWindow()
     if hwnd is None:
-        print("Unable to find window with title:", config.get("calibration.source_id"))
+        print("Unable to find window with title:", config["calibration.source_id"])
         return None
 
-    img = WindowCapture.ImageCapture(config.get("calibration.game_coords"), hwnd)
-    if config.get("calibration.capture_method") == "FILE":
+    img = WindowCapture.ImageCapture(config["calibration.game_coords"], hwnd)
+    if config["calibration.capture_method"] == "FILE":
         for i in range(10):
             WindowCapture.NextFrame()
     highlight_calibration(img, config)

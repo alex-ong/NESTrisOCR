@@ -14,26 +14,23 @@ class FullStateConfiguration(object):
     def __init__(self, config):
         self.config = config
         self.capture_field = self.determine_capture_field(config)
-        self.capture_stats = config.get("stats.enabled")
-        self.stats_method = config.get("stats.capture_method")
-        self.capture_preview = config.get("calibration.capture_preview")
+        self.capture_stats = config["stats.enabled"]
+        self.stats_method = config["stats.capture_method"]
+        self.capture_preview = config["calibration.capture_preview"]
         self.capture_flash = self.determine_capture_flash(config)
 
     def determine_capture_field(self, config):
-        if config.get("calibration.capture_field"):
+        if config["calibration.capture_field"]:
             return True
-        elif config.get("calibration.flash_method") == "FIELD":
+        elif config["calibration.flash_method"] == "FIELD":
             return True
-        elif (
-            config.get("stats.enabled")
-            and config.get("stats.capture_method") == "FIELD"
-        ):
+        elif config["stats.enabled"] and config["stats.capture_method"] == "FIELD":
             return True
 
     def determine_capture_flash(self, config):
         return (
-            config.get("calibration.flash_method") == "FIELD"
-            or config.get("calibration.flash_method") == "BACKGROUND"
+            config["calibration.flash_method"] == "FIELD"
+            or config["calibration.flash_method"] == "BACKGROUND"
         )
 
 

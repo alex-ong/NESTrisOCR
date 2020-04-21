@@ -7,7 +7,7 @@ class FileClient:
 
     def sendMessage(self, message, isBinary):
         if self.fileHandle is None:
-            self.fileHandle = open(config.get("player.name") + ".txt", "w")
+            self.fileHandle = open(config["player.name"] + ".txt", "w")
         self.fileHandle.write(message + "\n")
 
     def checkNetworkClose(self):
