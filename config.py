@@ -6,46 +6,46 @@ from nestris_ocr.utils.sub_image import spawn_subimage
 
 # fmt: off
 CONFIG_DEFAULTS = {
-    'player.name': '',
-    'player.twitch_url': '',
+    "player.name": "",
+    "player.twitch_url": "",
 
-    'performance.num_threads': 2,
-    'performance.support_hex_score': True,
-    'performance.support_hex_level': True,
-    'performance.scan_rate': 30,
-    'performance.capture_method': 'DIRECT_CAPTURE',
+    "performance.num_threads": 2,
+    "performance.support_hex_score": True,
+    "performance.support_hex_level": True,
+    "performance.scan_rate": 30,
+    "performance.capture_method": "DIRECT_CAPTURE",
 
-    'stats.enabled': False,
-    'stats.capture_method': 'FIELD',
+    "stats.enabled": False,
+    "stats.capture_method": "FIELD",
 
-    'calibration.capture_method': 'WINDOW',
-    'calibration.source_id': 'OBS',
+    "calibration.capture_method": "WINDOW",
+    "calibration.source_id": "OBS",
 
-    'calibration.flash_method': 'BACKGROUND',
+    "calibration.flash_method": "BACKGROUND",
     # rgb limit of flash. Value above threshold is considered flash. Only used in BACKGROUND method
-    'calibration.flash_threshold': 150,
+    "calibration.flash_threshold": 150,
 
-    'calibration.game_coords': [0, 0, 1500, 1500],
-    'calibration.pct.score': [0.75, 0.247, 0.184, 0.034],
-    'calibration.pct.lines': [0.594, 0.069, 0.092, 0.035],
-    'calibration.pct.level': [0.813, 0.713, 0.062, 0.035],
-    'calibration.pct.stats': [0.187, 0.392, 0.091, 0.459],
-    'calibration.pct.flash': [0.13, 0.111, 0.065, 0.004],
+    "calibration.game_coords": [0, 0, 1500, 1500],
+    "calibration.pct.score": [0.75, 0.247, 0.184, 0.034],
+    "calibration.pct.lines": [0.594, 0.069, 0.092, 0.035],
+    "calibration.pct.level": [0.813, 0.713, 0.062, 0.035],
+    "calibration.pct.stats": [0.187, 0.392, 0.091, 0.459],
+    "calibration.pct.flash": [0.13, 0.111, 0.065, 0.004],
 
     # if capture_field, 2 primary colors will be needed
-    'calibration.capture_field': False,
-    'calibration.pct.field': [0.373, 0.175, 0.311, 0.713],
-    'calibration.pct.color1': [0.101, 0.45, 0.018, 0.018],
-    'calibration.pct.color2': [0.101, 0.524, 0.018, 0.019],
+    "calibration.capture_field": False,
+    "calibration.pct.field": [0.373, 0.175, 0.311, 0.713],
+    "calibration.pct.color1": [0.101, 0.45, 0.018, 0.018],
+    "calibration.pct.color2": [0.101, 0.524, 0.018, 0.019],
 
-    'calibration.capture_preview': True,
-    'calibration.pct.preview': [0.753, 0.5, 0.12, 0.064],
+    "calibration.capture_preview": True,
+    "calibration.pct.preview": [0.753, 0.5, 0.12, 0.064],
 
-    'network.host': '127.0.0.1',
-    'network.port': 3338,
-    'network.protocol': 'LEGACY',
+    "network.host": "127.0.0.1",
+    "network.port": 3338,
+    "network.protocol": "LEGACY",
 
-    'debug.print_packet': True
+    "debug.print_packet": True
 }
 # fmt: on
 CONFIG_CHOICES = {

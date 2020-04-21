@@ -13,7 +13,7 @@ class CachedSender(object):
         self.client = client
         self.lastMessage = None
         self.lastSend = time.time()
-        # self.replayfile = open('replay.txt','a')
+        # self.replayfile = open("replay.txt","a")
         self.startTime = time.time()
         self.printPacket = pp
         self.protocol = protocol
@@ -23,7 +23,7 @@ class CachedSender(object):
         isSame = sameMessage(self.lastMessage, message)
         t = time.time()
         if t - self.lastSend > self.RATE or (not isSame):
-            # print(self.lastMessage,'\n',message)
+            # print(self.lastMessage,"\n",message)
             self.lastMessage = message.copy()
             message["time"] = timeStamp
             if self.printPacket:

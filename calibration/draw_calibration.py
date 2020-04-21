@@ -112,7 +112,7 @@ def highlight_calibration(img, c):
                 draw.rectangle(
                     screenPercToPixels(img.width, img.height, value), fill=orange
                 )
-        else:  # c['stats.capture_method'] == 'FIELD':
+        else:  # c["stats.capture_method"] == "FIELD":
             stats2_percentages = c.stats2_percentages
             for x in range(4):
                 for y in range(2):
