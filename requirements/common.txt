@@ -1,4 +1,5 @@
 autobahn[twisted]
+cached-property
 numba
 numpy
 opencv-python

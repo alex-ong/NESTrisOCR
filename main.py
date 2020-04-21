@@ -88,7 +88,7 @@ def getWindowAreaAndPartialTasks():
 
     if USE_STATS_FIELD:
         areas["stats2"] = mult_rect(
-            config.get("calibration.game_coords"), config.stats2Perc
+            config.get("calibration.game_coords"), config.stats2_percentages
         )
     elif STATS_ENABLE:
         areas["stats"] = mult_rect(
@@ -207,7 +207,9 @@ def getWindowAreaAndPartialTasks():
 
 
 # piece stats and method. Recommend using FIELD
-STATS2_COORDS = mult_rect(config.get("calibration.game_coords"), config.stats2Perc)
+STATS2_COORDS = mult_rect(
+    config.get("calibration.game_coords"), config.stats2_percentages
+)
 
 MULTI_THREAD = config.get(
     "performance.num_threads"

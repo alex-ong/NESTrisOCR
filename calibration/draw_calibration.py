@@ -121,14 +121,18 @@ def highlight_calibration(img, c):
                     screenPercToPixels(img.width, img.height, value), fill=orange
                 )
         else:  # c.get('stats.capture_method') == 'FIELD':
-            stats2Perc = c.stats2Perc
+            stats2_percentages = c.stats2_percentages
             for x in range(4):
                 for y in range(2):
                     blockPercX = lerp(
-                        stats2Perc[0], stats2Perc[0] + stats2Perc[2], x / 4.0 + 1 / 8.0
+                        stats2_percentages[0],
+                        stats2_percentages[0] + stats2_percentages[2],
+                        x / 4.0 + 1 / 8.0,
                     )
                     blockPercY = lerp(
-                        stats2Perc[1], stats2Perc[1] + stats2Perc[3], y / 2.0 + 1 / 4.0
+                        stats2_percentages[1],
+                        stats2_percentages[1] + stats2_percentages[3],
+                        y / 2.0 + 1 / 4.0,
                     )
                     rect = (blockPercX - 0.01, blockPercY - 0.01, 0.02, 0.02)
                     draw.rectangle(

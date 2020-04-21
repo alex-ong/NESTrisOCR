@@ -25,7 +25,7 @@ def getWindowAreas():
         config.get("calibration.game_coords"), config.get("calibration.pct.color2")
     )
     areas["stats2"] = mult_rect(
-        config.get("calibration.game_coords"), config.stats2Perc
+        config.get("calibration.game_coords"), config.stats2_percentages
     )
     areas["stats"] = mult_rect(
         config.get("calibration.game_coords"), config.get("calibration.pct.stats")

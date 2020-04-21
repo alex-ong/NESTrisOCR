@@ -1,3 +1,4 @@
+from cached_property import threaded_cached_property
 from collections import OrderedDict
 import json
 
@@ -68,9 +69,6 @@ class Config:
             # reset to default on parsing error
             self.data = OrderedDict(CONFIG_DEFAULTS)
 
-        # TODO: temp code
-        self.stats2Perc = spawn_subimage(self.data["calibration.pct.field"])
-
     def get(self, key):
         if key not in CONFIG_DEFAULTS:
             raise KeyError("Invalid key")
@@ -89,9 +87,8 @@ class Config:
 
         self.data[key] = value
 
-        # TODO: temp code
         if key == "calibration.pct.field":
-            self.stats2Perc = spawn_subimage(value)
+            del self.stats2_percentages
 
         if self.auto_save:
             self.save()
@@ -99,6 +96,10 @@ class Config:
     def save(self):
         with open(self.path, "w") as file:
             json.dump(self.data, file, indent=2)
+
+    @threaded_cached_property
+    def stats2_percentages(self):
+        return spawn_subimage(self.get("calibration.pct.field"))
 
 
 config = Config("config.json")

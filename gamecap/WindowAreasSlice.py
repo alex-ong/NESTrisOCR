@@ -35,7 +35,7 @@ def getWindowAreas():
     if config.get("stats.enabled"):
         if config.get("stats.capture_method") == "FIELD":
             areas["stats2"] = mult_rect(
-                config.get("calibration.game_coords"), config.stats2Perc
+                config.get("calibration.game_coords"), config.stats2_percentages
             )
         if config.get("stats.capture_method") == "TEXT":
             areas["stats"] = mult_rect(
