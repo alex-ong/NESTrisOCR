@@ -150,7 +150,7 @@ class FastestStrategy(BaseStrategy):
             cleared += 10
 
         # if cleared != 0:
-        #    img.save('last-line-clear.png')
+        #    img.save("last-line-clear.png")
 
         return cleared
 

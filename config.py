@@ -1,164 +1,114 @@
-import argparse
+from cached_property import threaded_cached_property
+from collections import OrderedDict
+import json
 
-import configparser
-from configupdater import ConfigUpdater
-from ast import literal_eval  # safe version of eval
+from nestris_ocr.utils.sub_image import spawn_subimage
 
+# fmt: off
+CONFIG_DEFAULTS = {
+    "player.name": "",
+    "player.twitch_url": "",
 
-class Configuration:
-    def __init__(self, filename, updater):
-        self._filename = filename
-        self._updater = updater
-        self.initFromParser()
+    "performance.num_threads": 2,
+    "performance.support_hex_score": True,
+    "performance.support_hex_level": True,
+    "performance.scan_rate": 30,
+    "performance.capture_method": "DIRECT_CAPTURE",
 
-    def initFromParser(self):
-        parser = configparser.ConfigParser()
-        parser.read(self._filename)
-        # player
-        self.player_name = parser["player"]["name"]
-        self.twitch_url = parser["player"]["twitch"]
-        # performance
-        self.threads = literal_eval(parser["performance"]["multi_thread"])
-        self.hexSupport = parser["performance"].getboolean("support_hex_score")
-        self.beyondLevel29Support = parser["performance"].getboolean(
-            "support_beyond_level_29"
-        )
-        self.scanRate = literal_eval(parser["performance"]["scan_rate"])
-        self.tasksCaptureMethod = parser["performance"]["tasks_capture_method"]
+    "stats.enabled": False,
+    "stats.capture_method": "FIELD",
 
-        # stats
-        self.capture_stats = parser["stats"].getboolean("read_stats")
-        self.stats_method = parser["stats"]["stats_method"].upper()
+    "calibration.capture_method": "WINDOW",
+    "calibration.source_id": "OBS",
 
-        # calibration
-        self.captureMethod = parser["calibration"]["capture_method"]
-        self.flashMethod = parser["calibration"]["flash_method"]
-        self.WINDOW_NAME = parser["calibration"]["window_name"]
-        self.CAPTURE_COORDS = literal_eval(parser["calibration"]["game_coords"])
-        self.scorePerc = literal_eval(parser["calibration"]["scoreperc"])
-        self.linesPerc = literal_eval(parser["calibration"]["linesperc"])
-        self.levelPerc = literal_eval(parser["calibration"]["levelperc"])
-        self.statsPerc = literal_eval(parser["calibration"]["statsperc"])
-        self.flashPerc = literal_eval(parser["calibration"]["flashperc"])
-        self.flashLimit = literal_eval(parser["calibration"]["flashlimit"])
-        # field
-        self.capture_field = parser["calibration"].getboolean("read_field")
-        self.fieldPerc = literal_eval(parser["calibration"]["fieldperc"])
-        self.color1Perc = literal_eval(parser["calibration"]["color1perc"])
-        self.color2Perc = literal_eval(parser["calibration"]["color2perc"])
+    "calibration.flash_method": "BACKGROUND",
+    # rgb limit of flash. Value above threshold is considered flash. Only used in BACKGROUND method
+    "calibration.flash_threshold": 150,
 
-        # preview
-        self.capture_preview = parser["calibration"].getboolean("read_preview")
-        self.previewPerc = literal_eval(parser["calibration"]["previewperc"])
+    "calibration.game_coords": [0, 0, 1500, 1500],
+    "calibration.pct.score": [0.75, 0.247, 0.184, 0.034],
+    "calibration.pct.lines": [0.594, 0.069, 0.092, 0.035],
+    "calibration.pct.level": [0.813, 0.713, 0.062, 0.035],
+    "calibration.pct.stats": [0.187, 0.392, 0.091, 0.459],
+    "calibration.pct.flash": [0.13, 0.111, 0.065, 0.004],
 
-        # calculate stats2Perc from field
-        self.stats2Perc = self.subImage(self.fieldPerc)
+    # if capture_field, 2 primary colors will be needed
+    "calibration.capture_field": False,
+    "calibration.pct.field": [0.373, 0.175, 0.311, 0.713],
+    "calibration.pct.color1": [0.101, 0.45, 0.018, 0.018],
+    "calibration.pct.color2": [0.101, 0.524, 0.018, 0.019],
 
-        # network
-        self.host = parser["network"]["host"]
-        self.port = literal_eval(parser["network"]["port"])
-        self.netProtocol = parser["network"]["protocol"]
+    "calibration.capture_preview": True,
+    "calibration.pct.preview": [0.753, 0.5, 0.12, 0.064],
 
-        # debug
-        self.printPacket = literal_eval(parser["debug"]["print_packet"])
+    "network.host": "127.0.0.1",
+    "network.port": 3338,
+    "network.protocol": "LEGACY",
 
-    # gets the 2x4 region out of the fieldPerc
-    def subImage(self, rect):
-        # return middle 4 / 10 x values and 2 / 20 y values
-        tileX = rect[2] / 10.0
-        tileY = rect[3] / 20.0
-        return [rect[0] + tileX * 3, rect[1], tileX * 4, tileY * 2]
-
-    def refresh(self):
-        self._updater.update_file()
-        self.initFromParser()
-
-    def setItem(self, section, var, value):
-        self._updater[section][var] = value
-        self.refresh()
-
-    def setPlayerName(self, name):
-        self.setItem("player", "name", name)
-
-    def setTwitchURL(self, url):
-        self.setItem("player", "twitch", url)
-
-    def setThreads(self, threads):
-        self.setItem("performance", "multi_thread", threads)
-
-    def setHexSupport(self, support):
-        self.setItem("performance", "support_hex_score", support)
-
-    def setBeyondLevel29Support(self, support):
-        self.setItem("performance", "support_beyond_level_29", support)
-
-    def setCaptureStats(self, toCapture):
-        self.setItem("stats", "read_stats", toCapture)
-
-    def setStatsMethod(self, val):
-        self.setItem("stats", "stats_method", val)
-
-    def setWindowName(self, val):
-        self.setItem("calibration", "window_name", val)
-
-    def setGameCoords(self, val):
-        self.setItem("calibration", "game_coords", val)
-
-    def setScorePerc(self, val):
-        self.setItem("calibration", "scoreperc", val)
-
-    def setLinesPerc(self, val):
-        self.setItem("calibration", "linesperc", val)
-
-    def setLevelPerc(self, val):
-        self.setItem("calibration", "levelperc", val)
-
-    def setStatsPerc(self, val):
-        self.setItem("calibration", "statsperc", val)
-
-    def setFlashPerc(self, val):
-        self.setItem("calibration", "flashperc", val)
-
-    def setFlashMethod(self, val):
-        self.setItem("calibration", "flash_method", val)
-
-    def setCaptureField(self, val):
-        self.setItem("calibration", "read_field", val)
-
-    def setCapturePreview(self, val):
-        self.setItem("calibration", "read_preview", val)
-
-    def setFieldPerc(self, val):
-        self.setItem("calibration", "fieldperc", val)
-
-    def setColor1Perc(self, val):
-        self.setItem("calibration", "color1perc", val)
-
-    def setColor2Perc(self, val):
-        self.setItem("calibration", "color2perc", val)
-
-    def setPreviewPerc(self, val):
-        self.setItem("calibration", "previewperc", val)
-
-    def setHost(self, val):
-        self.setItem("network", "host", val)
-
-    def setPort(self, val):
-        self.setItem("network", "port", val)
-
-    def setNetProtocol(self, val):
-        self.setItem("network", "protocol", val)
+    "debug.print_packet": True
+}
+# fmt: on
+CONFIG_CHOICES = {
+    "performance.num_threads": {1, 2, 3, 4, 5, 6, 7, 8},
+    "performance.capture_method": {"DIRECT_CAPTURE", "WINDOW_N_SLICE"},
+    "stats.capture_method": {"FIELD", "TEXT"},
+    "calibration.capture_method": {"WINDOW", "OPENCV", "FILE"},
+    "calibration.flash_method": {"FIELD", "BACKGROUND", "NONE"},
+    "network.protocol": {"LEGACY", "FILE", "AUTOBAHN", "AUTOBAHN_V2"},
+}
 
 
-# Should probably be in main.py and calibrate.py
-# But works fine here to extract just one arg
-parser = argparse.ArgumentParser()
-parser.add_argument("--config", default="config.ini")
-args = parser.parse_args()
-config_filename = args.config
+class Config:
+    def __init__(self, path, auto_save=True):
+        self.path = path
+        self.auto_save = auto_save
+        try:
+            with open(path, "r") as file:
+                self.data = json.load(file, object_pairs_hook=OrderedDict)
+        except Exception:
+            # reset to default on parsing error
+            self.data = OrderedDict(CONFIG_DEFAULTS)
+
+    def __getitem__(self, key):
+        if key not in CONFIG_DEFAULTS:
+            raise KeyError("Invalid key")
+
+        return self.data.get(key, CONFIG_DEFAULTS[key])
+
+    def __setitem__(self, key, value):
+        if key not in CONFIG_DEFAULTS:
+            raise KeyError("Invalid key")
+
+        if key in CONFIG_CHOICES:
+            if value not in CONFIG_CHOICES[key]:
+                raise ValueError("Invalid value. Not allowed by CONFIG_CHOICES")
+
+        # fmt: off
+        default = CONFIG_DEFAULTS[key]
+        if (
+            isinstance(default, int) and not isinstance(value, int)
+            or isinstance(default, float) and not isinstance(value, float)
+            or isinstance(default, str) and not isinstance(value, str)
+            or isinstance(default, list) and not (isinstance(value, list) or isinstance(value, tuple))
+        ):
+            raise TypeError("Invalid type. Check CONFIG_DEFAULTS for the type to use")
+        # fmt: on
+
+        self.data[key] = value
+
+        if key == "calibration.pct.field":
+            del self.stats2_percentages
+
+        if self.auto_save:
+            self.save()
+
+    def save(self):
+        with open(self.path, "w") as file:
+            json.dump(self.data, file, indent=2)
+
+    @threaded_cached_property
+    def stats2_percentages(self):
+        return spawn_subimage(self["calibration.pct.field"])
 
 
-updater = ConfigUpdater()
-updater.read(config_filename)
-
-config = Configuration(config_filename, updater)
+config = Config("config.json")

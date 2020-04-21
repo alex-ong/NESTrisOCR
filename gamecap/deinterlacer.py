@@ -52,7 +52,7 @@ def deinterlace(img, mode=InterlaceMode.NONE, res=InterlaceRes.FULL):
         bottom.paste(bottom_shift, (0, 1))
         # use this code to identify bottom field.
         # drawer = ImageDraw.Draw(bottom)
-        # drawer.rectangle([(0,0),(20,20)], fill= '#FF0000')
+        # drawer.rectangle([(0,0),(20,20)], fill= "#FF0000")
     else:
         bottom = None
 

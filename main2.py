@@ -27,9 +27,9 @@ def getRealTimeStamp():
 
 
 getTimeStamp = getRealTimeStamp
-if config.captureMethod == "FILE":
+if config["calibration.capture_method"] == "FILE":
     MULTI_THREAD = 1
-    if config.netProtocol == "FILE":
+    if config["network.protocol"] == "FILE":
         RATE = 0.000
         getTimeStamp = WindowCapture.TimeStamp
 
@@ -85,9 +85,11 @@ if __name__ == "__main__":
         sys.exit()
 
     print("Creating net client...")
-    client = NetClient.CreateClient(config.host, int(config.port))
+    client = NetClient.CreateClient(config["network.host"], int(config["network.port"]))
     print("Net client created.")
-    cachedSender = CachedSender(client, config.printPacket, config.netProtocol)
+    cachedSender = CachedSender(
+        client, config["debug.print_packet"], config["network.protocol"]
+    )
 
     result = None
     # try:

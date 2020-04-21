@@ -6,25 +6,45 @@ def getWindowAreas():
     # gather list of all areas that need capturing
     # that will be used to determine the minimum window area to capture
     areas = {}
-    areas["score"] = mult_rect(config.CAPTURE_COORDS, config.scorePerc)
-    areas["lines"] = mult_rect(config.CAPTURE_COORDS, config.linesPerc)
-    areas["level"] = mult_rect(config.CAPTURE_COORDS, config.levelPerc)
-    areas["field"] = mult_rect(config.CAPTURE_COORDS, config.fieldPerc)
+    areas["score"] = mult_rect(
+        config["calibration.game_coords"], config["calibration.pct.score"]
+    )
+    areas["lines"] = mult_rect(
+        config["calibration.game_coords"], config["calibration.pct.lines"]
+    )
+    areas["level"] = mult_rect(
+        config["calibration.game_coords"], config["calibration.pct.level"]
+    )
+    areas["field"] = mult_rect(
+        config["calibration.game_coords"], config["calibration.pct.field"]
+    )
 
     # Todo: config.color_method == DYNAMIC vs LOOKUP
-    areas["color1"] = mult_rect(config.CAPTURE_COORDS, config.color1Perc)
-    areas["color2"] = mult_rect(config.CAPTURE_COORDS, config.color2Perc)
+    areas["color1"] = mult_rect(
+        config["calibration.game_coords"], config["calibration.pct.color1"]
+    )
+    areas["color2"] = mult_rect(
+        config["calibration.game_coords"], config["calibration.pct.color2"]
+    )
 
     # Don't add all window_areas; only the ones we use.
-    if config.capture_preview:
-        areas["preview"] = mult_rect(config.CAPTURE_COORDS, config.previewPerc)
-    if config.capture_stats:
-        if config.stats_method == "FIELD":
-            areas["stats2"] = mult_rect(config.CAPTURE_COORDS, config.stats2Perc)
-        if config.stats_method == "TEXT":
-            areas["stats"] = mult_rect(config.CAPTURE_COORDS, config.statsPerc)
-    if config.flashMethod == "BACKGROUND":
-        areas["flash"] = mult_rect(config.CAPTURE_COORDS, config.flashPerc)
+    if config["calibration.capture_preview"]:
+        areas["preview"] = mult_rect(
+            config["calibration.game_coords"], config["calibration.pct.preview"]
+        )
+    if config["stats.enabled"]:
+        if config["stats.capture_method"] == "FIELD":
+            areas["stats2"] = mult_rect(
+                config["calibration.game_coords"], config.stats2_percentages
+            )
+        if config["stats.capture_method"] == "TEXT":
+            areas["stats"] = mult_rect(
+                config["calibration.game_coords"], config["calibration.pct.stats"],
+            )
+    if config["calibration.flash_method"] == "BACKGROUND":
+        areas["flash"] = mult_rect(
+            config["calibration.game_coords"], config["calibration.pct.flash"]
+        )
 
     coords_list = areas.values()
 

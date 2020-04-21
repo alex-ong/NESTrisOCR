@@ -13,9 +13,9 @@ class WindowMgr:
     def getWindows(self):
         # we keep cv2_device_id as string for now, so it is always truthy
         # If we cast to int now, device id 0 will not be truthy and can't be used
-        ocv2_device_id = config.WINDOW_NAME
+        ocv2_device_id = config["calibration.source_id"]
 
-        return [[ocv2_device_id, config.WINDOW_NAME]]
+        return [[ocv2_device_id, config["calibration.source_id"]]]
 
 
 INTERLACE_MODE = InterlaceMode.BOTTOM_FIRST

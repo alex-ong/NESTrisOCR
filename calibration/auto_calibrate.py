@@ -9,7 +9,7 @@ def auto_calibrate_raw(config):
 
     hwnd = getWindow()
     if hwnd is None:
-        print("Unable to find window with title:", config.WINDOW_NAME)
+        print("Unable to find window with title:", config["calibration.source_id"])
         return None
 
     captureAreas = (

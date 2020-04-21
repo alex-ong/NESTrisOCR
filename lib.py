@@ -2,10 +2,10 @@ from config import config
 import platform
 
 # decide which file capture method we are using.
-if config.captureMethod == "OPENCV":
+if config["calibration.capture_method"] == "OPENCV":
     import gamecap.opencv as WindowCapture
     from gamecap.opencv import WindowMgr
-elif config.captureMethod == "FILE":
+elif config["calibration.capture_method"] == "FILE":
     import gamecap.file as WindowCapture
     from gamecap.file import WindowMgr
 elif platform.system() == "Darwin":
@@ -27,7 +27,7 @@ def getWindow():
 
     windows = wm.getWindows()
     for window in windows:
-        if window[1].startswith(config.WINDOW_NAME):
+        if window[1].startswith(config["calibration.source_id"]):
             return window[0]
     return None
 
