@@ -1,4 +1,7 @@
-﻿# Todo: numba optimize for numTiles
+﻿from config import config
+from Networking.ByteStuffer import prePackField
+
+# Todo: numba optimize for numTiles
 # Make sure we account for rotating piece above field, as this reduces
 # Blockcount by 2
 class FieldState(object):  # noqa: E302
@@ -19,3 +22,18 @@ class FieldState(object):  # noqa: E302
 
     def line_clear_animation(self, other):
         return False
+
+    # todo: where does this belong?
+    # in the net code?
+    def serialize(self):
+        result = self.data
+        if config["network.protocol"] == "AUTOBAHN_V2":
+            result = prePackField(result)
+            result = result.tobytes()
+        else:
+            result2 = []
+            for y in range(20):
+                temp = "".join(str(result[y, x]) for x in range(10))
+                result2.append(temp)
+            result = "".join(str(r) for r in result2)
+        return result

@@ -13,19 +13,12 @@ from scan_strat.scan_helpers import (
     scan_stats_text,
 )
 
-import time
-
 
 def clamp(my_value, min_value, max_value):
     return max(min(my_value, max_value), min_value)
 
 
 class FastestStrategy(BaseStrategy):
-    def update(self):
-        if self.gamestate == GameState.MENU:
-            self.update_menu()
-        else:
-            self.update_ingame()
 
     # simply tries to get into game
     def update_menu(self):
@@ -50,7 +43,6 @@ class FastestStrategy(BaseStrategy):
                 # requireFullRefresh = True
 
     def update_ingame(self):
-        timestamp = time.time()
         img = scan_full(self.hwnd)
         piece_spawned = False
         soft_drop_updated = False  # check softdrop once per frame.
@@ -85,7 +77,7 @@ class FastestStrategy(BaseStrategy):
 
         if FS_CONFIG.capture_stats and FS_CONFIG.stats_method == "FIELD":
             spawned = scan_spawn(img)
-            did_spawn = self.piece_stats.update(spawned, timestamp)
+            did_spawn = self.piece_stats.update(spawned, self.current_time)
             piece_spawned = piece_spawned or did_spawn
         elif FS_CONFIG.capture_stats and FS_CONFIG.stats_method == "TEXT":
             counts = scan_stats_text(img)

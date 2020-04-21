@@ -1,4 +1,5 @@
 from scan_strat.base_strategy import BaseStrategy, GameState
+from ocr_state.field_state import FieldState
 from config import config
 
 from scan_strat.scan_helpers import (
@@ -62,7 +63,10 @@ class NaiveStrategy(BaseStrategy):
         self.level = scan_level(img)
 
     def scan_field_dynamic(self, img):
-        self.field, self.color1, self.color2 = scan_field(img)
+        field_result = scan_field(img)
+        self.field = FieldState(field_result["field"])
+        self.color1 = field_result["color1"]
+        self.color2 = field_result["color2"]
 
     def scan_field_lookup(self, img):
         pass

@@ -1,5 +1,6 @@
-# from scan_strat.fastest_strategy import FastestStrategy
-from scan_strat.naive_strategy import NaiveStrategy
+from scan_strat.fastest_strategy import FastestStrategy as Strategy
+
+# from scan_strat.naive_strategy import NaiveStrategy as Strategy
 from Networking.NetworkClient import NetClient
 from calibrate import mainLoop as calibrateLoop
 from CachedSender import CachedSender
@@ -50,7 +51,7 @@ def main(onCap, checkNetworkClose):
                 time.sleep(SLEEP_TIME)
             continue
 
-        strat = NaiveStrategy(hwnd)
+        strat = Strategy(hwnd)
         while checkWindow(hwnd):
             # inner loop gets fresh data for just the desired window
             frame_start = time.time()
