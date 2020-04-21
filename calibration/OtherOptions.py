@@ -125,7 +125,7 @@ class OtherOptions(tk.Toplevel):
             self.statsMethod.pack_forget()
 
     def changeCaptureStats(self, value):
-        self.config.config["stats.enabled"] = value
+        self.config["stats.enabled"] = value
         self.showHideStatsMethod()
 
     def changeStatsMethod(self, value):

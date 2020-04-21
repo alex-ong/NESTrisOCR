@@ -68,11 +68,11 @@ def scan_level(full_image):
 
 # scans the level image and returns a string. You can skip digits by inputting 'X' in the mask.
 # "OOOXXX" means read first 3 digits
-def scan_score(full_image, digit_mask):
+def scan_score(full_image, digit_mask="OOOOOO"):
     return scan_text(full_image, PATTERNS["score"], digit_mask, WINDOW_AREAS["score"])
 
 
-def scan_lines(full_image, digit_mask):
+def scan_lines(full_image, digit_mask="OOO"):
     return scan_text(full_image, PATTERNS["lines"], digit_mask, WINDOW_AREAS["lines"])
 
 

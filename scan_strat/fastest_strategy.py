@@ -90,7 +90,7 @@ class FastestStrategy(BaseStrategy):
         elif FS_CONFIG.capture_stats and FS_CONFIG.stats_method == "TEXT":
             counts = scan_stats_text(img)
             if sum(counts) > self.piece_stats.piece_count():
-                self.piece_stats.forceUpdate(counts)
+                self.piece_stats.rewrite(counts)
                 piece_spawned = True
 
         # check softdrop only on piece spawn

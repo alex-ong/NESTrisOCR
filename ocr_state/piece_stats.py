@@ -57,11 +57,10 @@ class PieceStatAccumulator(object):
             self.I += 1  # noqa: E741
         self._piece_count += 1
 
-    # can be called by text method.
-    def forceUpdate(self, newPiece, timeStamp):
+    # used for naive implementation
+    def rewrite(self, pieces):
         self.lock.acquire()
-        self.updatePiece(newPiece)
-        self.lastPieceTimeStamp = timeStamp
+        self.T, self.J, self.Z, self.O, self.S, self.L, self.I = pieces  # noqa: E741
         self.lock.release()
 
     # returns if a new piece spawned

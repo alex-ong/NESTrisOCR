@@ -35,8 +35,8 @@ CONFIG_DEFAULTS = {
     # if capture_field, 2 primary colors will be needed
     "calibration.capture_field": False,
     "calibration.pct.field": [0.373, 0.175, 0.311, 0.713],
-    "calibration.pct.color1": [0.101, 0.45, 0.018, 0.018],
-    "calibration.pct.color2": [0.101, 0.524, 0.018, 0.019],
+    "calibration.pct.color1": [0.151, 0.48, 0.018, 0.018],
+    "calibration.pct.color2": [0.151, 0.554, 0.018, 0.018],
 
     "calibration.capture_preview": True,
     "calibration.pct.preview": [0.753, 0.5, 0.12, 0.064],
