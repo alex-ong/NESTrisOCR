@@ -70,13 +70,13 @@ class Config:
             self.data = copy.copy(CONFIG_DEFAULTS)
 
         # TODO: temp code
-        self.stats2Perc = self.data["calibration.pct.field"]
+        self.stats2Perc = self.subImage(self.data["calibration.pct.field"])
 
     def get(self, key):
         if key not in CONFIG_DEFAULTS:
             raise KeyError("Invalid key")
 
-        return self.data[key]
+        return self.data.get(key, CONFIG_DEFAULTS[key])
 
     def set(self, key, value):
         if key not in CONFIG_DEFAULTS:
