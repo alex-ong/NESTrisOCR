@@ -69,13 +69,13 @@ class Config:
             # reset to default on parsing error
             self.data = OrderedDict(CONFIG_DEFAULTS)
 
-    def get(self, key):
+    def __getitem__(self, key):
         if key not in CONFIG_DEFAULTS:
             raise KeyError("Invalid key")
 
         return self.data.get(key, CONFIG_DEFAULTS[key])
 
-    def set(self, key, value):
+    def __setitem__(self, key, value):
         if key not in CONFIG_DEFAULTS:
             raise KeyError("Invalid key")
 
@@ -99,7 +99,7 @@ class Config:
 
     @threaded_cached_property
     def stats2_percentages(self):
-        return spawn_subimage(self.get("calibration.pct.field"))
+        return spawn_subimage(self["calibration.pct.field"])
 
 
 config = Config("config.json")
