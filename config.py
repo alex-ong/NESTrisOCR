@@ -1,7 +1,5 @@
-import copy
+from collections import OrderedDict
 import json
-
-from nestris_ocr.utils import flatten, unflatten
 
 
 # fmt: off
@@ -64,10 +62,10 @@ class Config:
         self.auto_save = auto_save
         try:
             with open(path, "r") as file:
-                self.data = flatten(json.load(file))
+                self.data = json.load(file, object_pairs_hook=OrderedDict)
         except Exception:
             # reset to default on parsing error
-            self.data = copy.copy(CONFIG_DEFAULTS)
+            self.data = OrderedDict(CONFIG_DEFAULTS)
 
         # TODO: temp code
         self.stats2Perc = self.subImage(self.data["calibration.pct.field"])
@@ -99,7 +97,7 @@ class Config:
 
     def save(self):
         with open(self.path, "w") as file:
-            json.dump(unflatten(self.data), file, indent=2)
+            json.dump(self.data, file, indent=2)
 
     # gets the 2x4 region out of the fieldPerc
     def subImage(self, rect):
