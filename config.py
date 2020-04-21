@@ -82,8 +82,17 @@ class Config:
         if key in CONFIG_CHOICES:
             if value not in CONFIG_CHOICES[key]:
                 raise ValueError("Invalid value. Not allowed by CONFIG_CHOICES")
-        # elif type(value) != type(CONFIG_DEFAULTS[key]):  # noqa E721
-        #     raise TypeError('Invalid value, type must be {}'.format(type(CONFIG_DEFAULTS[key])))
+
+        # fmt: off
+        default = CONFIG_DEFAULTS[key]
+        if (
+            isinstance(default, int) and not isinstance(value, int)
+            or isinstance(default, float) and not isinstance(value, float)
+            or isinstance(default, str) and not isinstance(value, str)
+            or isinstance(default, list) and not (isinstance(value, list) or isinstance(value, tuple))
+        ):
+            raise TypeError("Invalid type. Check CONFIG_DEFAULTS for the type to use")
+        # fmt: on
 
         self.data[key] = value
 
