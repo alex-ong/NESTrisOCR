@@ -9,6 +9,7 @@ Algorithm is simple KNearest (compare image to reference images, sum of differen
 
 Requirements
 ===
+Please also read [CONTRIBUTING.md](https://github.com/alex-ong/NESTrisOCR/blob/master/CONTRIBUTING.md) if you are going to be actively commiting in this repository.
 
 Windows
 =====
