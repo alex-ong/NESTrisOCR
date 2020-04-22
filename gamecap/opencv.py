@@ -2,6 +2,7 @@ import cv2
 from PIL import Image
 from gamecap.deinterlacer import deinterlace, InterlaceMode, InterlaceRes
 import time
+import threading
 
 from config import config
 
@@ -22,16 +23,59 @@ INTERLACE_MODE = InterlaceMode.BOTTOM_FIRST
 INTERLACE_RES = InterlaceRes.HALF
 
 
+class VideoCaptureThreading:
+    def __init__(self, src=0, width=640, height=480):
+        self.src = src
+        self.cap = cv2.VideoCapture(self.src)
+        # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        # self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+        self.grabbed, self.frame = self.cap.read()
+        self.started = False
+        self.read_lock = threading.Lock()
+
+    def set(self, var1, var2):
+        self.cap.set(var1, var2)
+
+    def start(self):
+        if self.started:
+            print("[!] Threaded video capturing has already been started.")
+            return None
+        self.started = True
+        self.thread = threading.Thread(target=self.update, args=())
+        self.thread.start()
+        return self
+
+    def update(self):
+        while self.started:
+            grabbed, frame = self.cap.read()
+            with self.read_lock:
+                self.grabbed = grabbed
+                self.frame = frame
+
+    def read(self):
+        with self.read_lock:
+            frame = self.frame.copy()
+            grabbed = self.grabbed
+        return grabbed, frame
+
+    def stop(self):
+        self.started = False
+        self.thread.join()
+
+    def __exit__(self, exec_type, exc_value, traceback):
+        self.cap.release()
+
+
 class OpenCVMgr:
     def __init__(self):
-        self.inputDevice = None
+        self.cap = None
         self.imgBuf = None
         self.nextImgBuf = None  # used for 30i->60p
         self.lastBuf = 0
         self.frameCount = 0
 
     def videoCheck(self, ocv2_device_id):
-        if self.inputDevice is None:
+        if not self.cap:
             try:
                 # OpenCV support local device IDs AND stream URLs
                 # Let's do a blind cast attempt to int
@@ -41,7 +85,9 @@ class OpenCVMgr:
             except Exception:
                 pass
 
-            self.inputDevice = cv2.VideoCapture(ocv2_device_id)
+            self.cap = VideoCaptureThreading(ocv2_device_id)
+            self.cap.start()
+
             time.sleep(1)  # Need to wait a second for the input device to initialize
 
     def ImageCapture(self, rectangle, ocv2_device_id):
@@ -62,7 +108,7 @@ class OpenCVMgr:
         )
 
     def NextFrame(self):
-        if self.inputDevice.isOpened():
+        if self.cap.started:
             # if we are doubling framecount, access second frame here.
             if self.nextImgBuf:
                 self.imgBuf = self.nextImgBuf
@@ -70,8 +116,8 @@ class OpenCVMgr:
                 self.frameCount += 1
                 return True
 
-            # do the actual read from the device. Note that this is blocking.
-            ret, cv2_im = self.inputDevice.read()
+            # non-blockingly getting the latest cached read from the device
+            ret, cv2_im = self.cap.read()
             if ret:
                 cv2_im = cv2.cvtColor(cv2_im, cv2.COLOR_BGR2RGB)
                 im = Image.fromarray(cv2_im)
