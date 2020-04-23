@@ -5,7 +5,7 @@ import sys
 import queue  # threadsafe
 
 
-import nestris_ocr.network.stoppablethread as StoppableThread
+import nestris_ocr.network.stoppable_thread as StoppableThread
 
 
 HOST, PORT = "localhost", 9999

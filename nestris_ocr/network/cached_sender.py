@@ -1,6 +1,6 @@
 import json
 import time
-from nestris_ocr.network.bytestuffer import stuffDictionary
+from nestris_ocr.network.byte_stuffer import stuffDictionary
 
 # sends json messages across network
 # sends only when there is change or more than a time period has elapsed

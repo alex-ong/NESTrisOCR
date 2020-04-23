@@ -7,9 +7,9 @@ from calibrate import mainLoop as calibrateLoop
 from nestris_ocr.scan_strat.fastest_strategy import FastestStrategy as Strategy
 
 # from scan_strat.naive_strategy import NaiveStrategy as Strategy
-from nestris_ocr.network.networkclient import NetClient
+from nestris_ocr.network.network_client import NetClient
 
-from nestris_ocr.network.cachedsender import CachedSender
+from nestris_ocr.network.cached_sender import CachedSender
 from nestris_ocr.config import config
 from nestris_ocr.utils.lib import (
     checkWindow,

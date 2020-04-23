@@ -1,6 +1,6 @@
 from nestris_ocr.scan_strat.base_strategy import GameState, BaseStrategy
 from nestris_ocr.ocr_state.field_state import FieldState
-from nestris_ocr.fullstateoptimizer.fullstateconfig import FS_CONFIG
+from nestris_ocr.full_state_optimizer.full_state_config import FS_CONFIG
 from nestris_ocr.ocr_state.level_transition import get_level
 from nestris_ocr.scan_strat.scan_helpers import (
     scan_full,

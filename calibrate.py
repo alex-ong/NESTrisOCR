@@ -1,9 +1,9 @@
-import nestris_ocr.calibration.calibrator as Calibrator
+from nestris_ocr.calibration.calibrator import Calibrator
 from nestris_ocr.config import config
 
 
 def mainLoop():
-    c = Calibrator.Calibrator(config)
+    c = Calibrator(config)
     while not c.destroying:
         c.update()
 

@@ -6,16 +6,16 @@ import time
 import sys
 
 from PIL import Image
-from nestris_ocr.calibration.stringchooser import StringChooser
-from nestris_ocr.calibration.rectchooser import RectChooser, CompactRectChooser
-from nestris_ocr.calibration.imagecanvas import ImageCanvas
+from nestris_ocr.calibration.string_chooser import StringChooser
+from nestris_ocr.calibration.rect_chooser import RectChooser, CompactRectChooser
+from nestris_ocr.calibration.image_canvas import ImageCanvas
 from nestris_ocr.calibration.draw_calibration import (
     draw_calibration,
     highlight_split_digits,
     highlight_preview,
     captureArea,
 )
-from nestris_ocr.calibration.otheroptions import create_window
+from nestris_ocr.calibration.other_options import create_window
 from nestris_ocr.calibration.widgets import Button
 from nestris_ocr.calibration.auto_calibrate import auto_calibrate_raw
 from nestris_ocr.ocr_algo.digit import finalImageSize, scoreImage0

@@ -1,7 +1,7 @@
 ﻿import tkinter as tk
 import multiprocessing
-from nestris_ocr.calibration.optionchooser import OptionChooser
-from nestris_ocr.calibration.boolchooser import BoolChooser
+from nestris_ocr.calibration.option_chooser import OptionChooser
+from nestris_ocr.calibration.bool_chooser import BoolChooser
 from nestris_ocr.calibration.presets import presets
 
 INSTANCE = None
