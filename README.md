@@ -68,7 +68,7 @@ Setup the target window:
 
 Double-click on `calibrate.py`.
 
-![calibration](https://github.com/alex-ong/NESTrisOCR/blob/master/assets/doc/example-calibration.png)
+![calibration](https://github.com/alex-ong/NESTrisOCR/blob/master/doc/example-calibration.png)
 
 Follow the steps in the picture:
 
