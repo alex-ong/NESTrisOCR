@@ -1,7 +1,7 @@
 from nestris_ocr.config import config
-import nestris_ocr.network.tcpclient as TCPClient
-import nestris_ocr.network.autobahnclient as AutoBahnClient
-import nestris_ocr.network.fileclient as FileClient
+import nestris_ocr.network.tcp_client as TCPClient
+import nestris_ocr.network.autobahn_client as AutoBahnClient
+import nestris_ocr.network.file_client as FileClient
 
 NetClient = TCPClient
 if (

@@ -3,7 +3,7 @@ import numpy as np
 import time
 
 from nestris_ocr.config import config
-from nestris_ocr.network.bytestuffer import prePackField
+from nestris_ocr.network.byte_stuffer import prePackField
 
 try:
     from nestris_ocr.ocr_algo.board_ocr import parseImage2  # if it's built

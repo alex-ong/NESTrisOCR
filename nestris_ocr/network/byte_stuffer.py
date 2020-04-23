@@ -8,7 +8,7 @@ try:
 
     # print ("loaded compiled prePackField")
 except ImportError:
-    from nestris_ocr.network.fieldpacker import prePackField
+    from nestris_ocr.network.field_packer import prePackField
 
     print(
         "Warning: loaded non-compiled prePackField, please run buildByteStuffer2.py to make a compiled version"

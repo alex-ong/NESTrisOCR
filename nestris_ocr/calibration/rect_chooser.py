@@ -1,5 +1,5 @@
 import tkinter as tk
-from nestris_ocr.calibration.numberchooser import NumberChooser, CompactNumberChooser
+from nestris_ocr.calibration.number_chooser import NumberChooser, CompactNumberChooser
 from nestris_ocr.utils.lib import tryGetInt, tryGetFloat
 
 

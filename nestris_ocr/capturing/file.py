@@ -1,4 +1,4 @@
-from config import config
+from nestris_ocr.config import config
 import os
 import cv2
 from PIL import Image

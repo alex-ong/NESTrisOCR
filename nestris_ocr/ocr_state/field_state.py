@@ -1,5 +1,5 @@
 ﻿from nestris_ocr.config import config  # TODO: remove this dependency.
-from nestris_ocr.network.bytestuffer import prePackField
+from nestris_ocr.network.byte_stuffer import prePackField
 
 # Todo: numba optimize for numTiles
 # Make sure we account for rotating piece above field, as this reduces

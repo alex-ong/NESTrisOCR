@@ -3,7 +3,7 @@ import socket
 import struct
 
 
-from nestris_ocr.network.stoppablethread import StoppableThread
+from nestris_ocr.network.stoppable_thread import StoppableThread
 
 INT_SIZE = 4
 
