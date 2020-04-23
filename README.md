@@ -19,7 +19,7 @@ You need a working python installation to get everything running.
 
 When installing, make sure you `add to path` - this lets you run python from command prompt from any folder.
 
-Open a command prompt in the projects base folder and run `requirements/install-requirements-win`. This will install all the other libraries required.
+Open a command prompt in the projects base folder and run `scripts/install-requirements`. This will install all the other libraries required.
 
 Carefully read the output from `install-requirements.bat` to see if everything installed correctly.
 
@@ -32,7 +32,7 @@ At the command line, run:
 
 `brew install python3 libtiff libjpeg webp little-cms2 opencv@2`
 
-`pip3 install -r requirements/osx.txt`
+`pip3 install -r requirements.txt`
 
 You can verify the installation is correct by checking this:
 
