@@ -1,5 +1,5 @@
-import calibration.Calibrator as Calibrator
-from config import config
+import nestris_ocr.calibration.calibrator as Calibrator
+from nestris_ocr.config import config
 
 
 def mainLoop():

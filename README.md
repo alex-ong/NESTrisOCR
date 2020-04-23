@@ -3,7 +3,7 @@ NESTrisOCR
 Simple OCR, captures subset of OBS window, then processes relevant numbers.
 Forwards results via TCP.
 
-Look at `ocr_algo/DigitOCR.py` to see image processing of numbers, and `ocr_algo/PieceStatsBoardOCR.py` for processing of board to piece.
+Look at `ocr_algo/digit.py` to see image processing of numbers, and `ocr_algo/piece_stats_spawn.py` for processing of board to piece.
 Algorithm is simple KNearest (compare image to reference images, sum of difference of pixels)
 
 
@@ -19,7 +19,7 @@ You need a working python installation to get everything running.
 
 When installing, make sure you `add to path` - this lets you run python from command prompt from any folder.
 
-Open a command prompt in the projects base folder and run `install-requirements.bat`. This will install all the other libraries required.
+Open a command prompt in the projects base folder and run `requirements/install-requirements-win`. This will install all the other libraries required.
 
 Carefully read the output from `install-requirements.bat` to see if everything installed correctly.
 
