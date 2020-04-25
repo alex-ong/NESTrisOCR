@@ -27,8 +27,14 @@ def parseImageSmart(img, color1, color2, pre_calculated):
     img = img.resize((10, 20), PIL.Image.NEAREST)
     img = np.array(img, dtype=np.uint8)
 
+    black = (10, 10, 10)
+    white = (240, 240, 240)
+
+    black = np.array(black, dtype=np.uint8)
+    white = np.array(white, dtype=np.uint8)
+
     result = {}
-    result["field"] = parseImage2(img, color1, color2)
+    result["field"] = parseImage2(img, black, white, color1, color2)
     result["color1"] = color1
     result["color2"] = color2
     return result
@@ -45,7 +51,13 @@ def parseImage(img, color1, color2):
     img = img.resize((10, 20), PIL.Image.NEAREST)
     img = np.array(img, dtype=np.uint8)
 
-    result = parseImage2(img, color1, color2)
+    black = (10, 10, 10)
+    white = (240, 240, 240)
+
+    black = np.array(black, dtype=np.uint8)
+    white = np.array(white, dtype=np.uint8)
+
+    result = parseImage2(img, black, white, color1, color2)
 
     if config["network.protocol"] == "AUTOBAHN_V2":
         result = prePackField(result)

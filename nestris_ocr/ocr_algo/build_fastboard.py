@@ -5,11 +5,8 @@ cc = CC("board_ocr")
 cc.verbose = True
 
 
-@cc.export("parseImage2", "uint8[:,:](uint8[:,:,:],uint8[:],uint8[:])")
-def parseImage2(img, color1, color2):
-
-    black = np.array((10, 10, 10), dtype=np.uint8)
-    white = np.array((240, 240, 240), dtype=np.uint8)
+@cc.export("parseImage2", "uint8[:,:](uint8[:,:,:],uint8[:],uint8[:]],uint8[:],uint8[:])")
+def parseImage2(img, black, white, color1, color2):
 
     colors = [black, white, color1, color2]
 

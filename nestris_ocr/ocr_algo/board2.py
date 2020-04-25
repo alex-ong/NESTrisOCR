@@ -4,12 +4,8 @@ from numba import njit
 # atm this takes 12 millseconds to complete, with jit it takes <1ms.
 # we want to eventually compile this numba AOT, so we don't need numba.
 
-
-@njit("uint8[:,:](uint8[:,:,:],uint8[:],uint8[:])")
-def parseImage2(img, color1, color2):
-
-    black = np.array((0, 0, 0), dtype=np.uint8)
-    white = np.array((240, 240, 240), dtype=np.uint8)
+@njit('uint8[:,:](uint8[:,:,:],uint8[:],uint8[:],uint8[:],uint8[:])')
+def parseImage2(img, black, white, color1, color2):
 
     colors = [black, white, color1, color2]
 
