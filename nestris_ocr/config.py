@@ -97,7 +97,7 @@ class Config:
         self.data[key] = value
 
         if key == "calibration.pct.field":
-            del self.stats2_percentages
+            self.__dict__.pop("stats2_percentages", None)
 
         if self.auto_save:
             self.save()
