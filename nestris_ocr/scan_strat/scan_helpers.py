@@ -1,5 +1,5 @@
 from nestris_ocr.config import config
-from nestris_ocr.utils.lib import WindowCapture
+from nestris_ocr.utils import xywh_to_ltrb
 from nestris_ocr.ocr_algo.digit import scoreImage as processDigits
 from nestris_ocr.ocr_algo.board import parseImageSmart as processBoard
 from nestris_ocr.ocr_algo.preview2 import parseImage as processPreview
@@ -38,19 +38,17 @@ def mask_pattern(source, mask):
 last_hwnd = None
 
 
-def scan_full(hwnd):
-    global last_hwnd
-    if FULL_RECT is None:
-        last_hwnd = hwnd
-        return None
-    return WindowCapture.ImageCapture(FULL_RECT, hwnd)
+def scan_full(full_image):
+    if FULL_RECT:
+        x, y, w, h = FULL_RECT
+        return full_image.crop((x, y, x + w, y + h))
+
+    return full_image
 
 
 def get_sub_image(full_image, area):
-    if full_image is not None:
-        return full_image.crop(area)
-    else:
-        return WindowCapture.ImageCapture(area, last_hwnd)
+    # conversion is needed: Image.crop expects ltrb, while WINDOW_AREAS has data in xywh
+    return full_image.crop(xywh_to_ltrb(area))
 
 
 def scan_text(full_image, pattern, digit_mask, window_area):

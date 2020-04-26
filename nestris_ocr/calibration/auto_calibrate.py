@@ -2,29 +2,24 @@ from PIL import Image
 import numpy as np
 import cv2
 
-from nestris_ocr.utils.lib import getWindow, WindowCapture
+from nestris_ocr.capturing import capture
+from nestris_ocr.utils import xywh_to_ltrb
 
 
 def auto_calibrate_raw(config):
-
-    hwnd = getWindow()
-    if hwnd is None:
-        print("Unable to find window with title:", config["calibration.source_id"])
-        return None
-
     captureAreas = (
         (0, 0, 4000, 2000),  # 4k screens fullscreen
         (0, 0, 1500, 1500),
     )  # reasonably sized screens
-    result = None
 
     for captureArea in captureAreas:
-        img = WindowCapture.ImageCapture(captureArea, hwnd)
-        result = auto_calibrate(img)
-        if result is not None:
-            return result
+        _, img = capture.get_image()
 
-    return None
+        img = img.crop(xywh_to_ltrb(captureArea))
+
+        result = auto_calibrate(img)
+        if result:
+            return result
 
 
 """

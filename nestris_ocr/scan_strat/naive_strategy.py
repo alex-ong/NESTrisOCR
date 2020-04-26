@@ -49,7 +49,7 @@ class NaiveStrategy(BaseStrategy):
         self.gamestate = GameState.IN_GAME
 
     def update_ingame(self):
-        img = scan_full(self.hwnd)
+        img = scan_full(self.current_frame)
         for task in self.tasks:
             task(img)
 

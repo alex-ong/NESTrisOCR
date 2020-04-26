@@ -1,8 +1,8 @@
 ﻿from PIL import Image, ImageDraw
 
+from nestris_ocr.capturing import capture
+from nestris_ocr.utils import xywh_to_ltrb
 from nestris_ocr.utils.lib import (
-    getWindow,
-    WindowCapture,
     screenPercToPixels,
     lerp,
     mult_rect,
@@ -28,10 +28,9 @@ def splitRect(perc, count):
 
 
 def captureArea(coords):
-    hwnd = getWindow()
-    if hwnd is None:
-        return None
-    return WindowCapture.ImageCapture(coords, hwnd)
+    _, image = capture.get_image()
+
+    return image.crop(xywh_to_ltrb(coords))
 
 
 def highlight_split_digits(c):
@@ -221,15 +220,10 @@ def highlight_calibration(img, c):
 
 # todo, return image or array of images with cropped out sections.
 def draw_calibration(config):
-    hwnd = getWindow()
-    if hwnd is None:
-        print("Unable to find window with title:", config["calibration.source_id"])
-        return None
-
-    img = WindowCapture.ImageCapture(config["calibration.game_coords"], hwnd)
+    img = captureArea(config["calibration.game_coords"])
     if config["calibration.capture_method"] == "FILE":
         for i in range(10):
-            WindowCapture.NextFrame()
+            capture.get_image()
     highlight_calibration(img, config)
     img = img.resize((512, 448), Image.ANTIALIAS)
     return img

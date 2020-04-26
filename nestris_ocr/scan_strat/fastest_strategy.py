@@ -22,7 +22,7 @@ class FastestStrategy(BaseStrategy):
 
     # simply tries to get into game
     def update_menu(self):
-        img = scan_full(self.hwnd)
+        img = scan_full(self.current_frame)
         lines = scan_lines(img, "OOO")
         score = scan_score(img, "OOOOOO")
         level = scan_level(img)
@@ -43,7 +43,7 @@ class FastestStrategy(BaseStrategy):
                 # requireFullRefresh = True
 
     def update_ingame(self):
-        img = scan_full(self.hwnd)
+        img = scan_full(self.current_frame)
         piece_spawned = False
         soft_drop_updated = False  # check softdrop once per frame.
 
