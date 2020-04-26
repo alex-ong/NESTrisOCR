@@ -1,4 +1,4 @@
-﻿from nestris_ocr.config import config
+from nestris_ocr.config import config
 from nestris_ocr.utils.lib import WindowCapture
 from nestris_ocr.ocr_algo.digit import scoreImage as processDigits
 from nestris_ocr.ocr_algo.board import parseImageSmart as processBoard
@@ -62,7 +62,7 @@ def scan_text(full_image, pattern, digit_mask, window_area):
 # scans the level image and returns a string
 def scan_level(full_image):
     return scan_text(
-        full_image, PATTERNS["level"], PATTERNS["lines"], WINDOW_AREAS["level"]
+        full_image, PATTERNS["level"], PATTERNS["level"], WINDOW_AREAS["level"]
     )
 
 
