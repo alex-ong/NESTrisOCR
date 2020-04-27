@@ -41,6 +41,10 @@ CONFIG_DEFAULTS = {
     "calibration.capture_preview": True,
     "calibration.pct.preview": [0.753, 0.5, 0.12, 0.064],
 
+    "calibration.capture_das": True,
+    "calibration.pct.das_current_piece": [0.0620, 0.199, 0.09, 0.052],
+    "calibration.pct.das_current_piece_das": [0.22, 0.216, 0.058, 0.03],
+
     "network.host": "127.0.0.1",
     "network.port": 3338,
     "network.protocol": "LEGACY",
@@ -66,8 +70,9 @@ class Config:
             with open(path, "r") as file:
                 self.data = json.load(file, object_pairs_hook=OrderedDict)
         except Exception:
-            # reset to default on parsing error
+            # override with default on non-existent file or parsing error
             self.data = OrderedDict(CONFIG_DEFAULTS)
+            self.save()
 
     def __getitem__(self, key):
         if key not in CONFIG_DEFAULTS:
@@ -97,7 +102,7 @@ class Config:
         self.data[key] = value
 
         if key == "calibration.pct.field":
-            del self.stats2_percentages
+            self.__dict__.pop("stats2_percentages", None)
 
         if self.auto_save:
             self.save()
