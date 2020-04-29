@@ -30,27 +30,11 @@ You need to have python3 and the pyobjc binding to access the Quartz APIs
 
 At the command line, run:
 
-`brew install python3 libtiff libjpeg webp little-cms2 opencv@2`
+`brew install libtiff libjpeg webp little-cms2 opencv@2`
+
+`brew install python3 --with-tcl-tk`
 
 `pip3 install -r requirements.txt`
-
-You can verify the installation is correct by checking this:
-
-`import PIL`
-
-`import Quartz`
-
-`import numpy`
-
-`import numba`
-
-`import ConfigUpdater`
-
-`import cv2`
-
-
-You shouldnt get any errors. Then, exit python
-`exit()`
 
 
 Calibration
@@ -117,7 +101,7 @@ It will output via TCP to port 3338 by default. This is to connect to other appl
 Development
 ===
 
-Make sure you have pre-commit hooks setup. After `pip install` for your operating system, run:
+Make sure you have pre-commit hooks setup. After `pip install -r requirements.txt` for your operating system, run:
 ```
 pre-commit install
 ```

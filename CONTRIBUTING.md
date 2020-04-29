@@ -1,6 +1,7 @@
 #TODO This file needs to be fleshed out.
 
 After pulling the code and setting it up, please run
+`pip install pre-commit`
 
 `pre-commit install`
 `pip install flake8`
