@@ -34,7 +34,7 @@ At the command line, run:
 
 `brew install python3 --with-tcl-tk`
 
-`pip3 install -r requirements.txt`
+`pip install -r requirements.txt`
 
 
 Calibration
