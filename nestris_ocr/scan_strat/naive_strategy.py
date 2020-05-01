@@ -3,7 +3,6 @@ from nestris_ocr.ocr_state.field_state import FieldState
 from nestris_ocr.config import config
 
 from nestris_ocr.scan_strat.scan_helpers import (
-    scan_full,
     scan_level,
     scan_score,
     scan_lines,
@@ -49,9 +48,8 @@ class NaiveStrategy(BaseStrategy):
         self.gamestate = GameState.IN_GAME
 
     def update_ingame(self):
-        img = scan_full(self.current_frame)
         for task in self.tasks:
-            task(img)
+            task(self.current_frame)
 
     def scan_score(self, img):
         self.score = scan_score(img, "OOOOOO")

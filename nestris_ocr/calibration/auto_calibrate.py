@@ -1,9 +1,9 @@
-from PIL import Image
-import numpy as np
 import cv2
+import numpy as np
+from PIL import Image
+import time
 
 from nestris_ocr.capturing import capture
-from nestris_ocr.utils import xywh_to_ltrb
 
 
 def auto_calibrate_raw(config):
@@ -13,13 +13,20 @@ def auto_calibrate_raw(config):
     )  # reasonably sized screens
 
     for captureArea in captureAreas:
-        _, img = capture.get_image()
+        original_xywh_box = capture.xywh_box
+        capture.xywh_box = captureArea
 
-        img = img.crop(xywh_to_ltrb(captureArea))
+        # hack, wait for threaded capturing method to populate next frame
+        time.sleep(0.5)
+
+        _, img = capture.get_image(rgb=True)
 
         result = auto_calibrate(img)
         if result:
-            return result
+            break
+
+    capture.xywh_box = original_xywh_box
+    return result
 
 
 """

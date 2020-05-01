@@ -27,8 +27,11 @@ def splitRect(perc, count):
     return result
 
 
-def captureArea(coords):
-    _, image = capture.get_image()
+def captureArea(coords=None):
+    _, image = capture.get_image(rgb=True)
+
+    if not coords:
+        return image
 
     return image.crop(xywh_to_ltrb(coords))
 
@@ -220,10 +223,10 @@ def highlight_calibration(img, c):
 
 # todo, return image or array of images with cropped out sections.
 def draw_calibration(config):
-    img = captureArea(config["calibration.game_coords"])
+    img = captureArea()
     if config["calibration.capture_method"] == "FILE":
         for i in range(10):
-            capture.get_image()
+            capture.get_image(rga=True)
     highlight_calibration(img, config)
     img = img.resize((512, 448), Image.ANTIALIAS)
     return img

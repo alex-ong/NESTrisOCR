@@ -11,12 +11,12 @@ else:
 capture = None
 
 
-def init_capture(source_id):
+def init_capture(source_id, xywh_box):
     global capture
 
-    capture = Capture(source_id)
+    capture = Capture(source_id, xywh_box)
 
-    for i in range(10):
+    for i in range(5):
         try:
             _, image = capture.get_image()
 
@@ -31,4 +31,4 @@ def init_capture(source_id):
         print('Capture device cannot be found with "{}"'.format(source_id))
 
 
-init_capture(config["calibration.source_id"])
+init_capture(config["calibration.source_id"], config["calibration.game_coords"])

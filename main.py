@@ -41,7 +41,7 @@ def main(on_cap, check_network_close):
     # capturing device is having trouble
     while True:
         try:
-            ts, image = capture.get_image()
+            ts, image = capture.get_image(rgb=True)
 
             if not ts and not image:
                 if config["debug.print_packet"]:

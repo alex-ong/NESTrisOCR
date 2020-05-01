@@ -20,6 +20,7 @@ from nestris_ocr.calibration.draw_calibration import (
 from nestris_ocr.calibration.other_options import create_window
 from nestris_ocr.calibration.widgets import Button
 from nestris_ocr.calibration.auto_calibrate import auto_calibrate_raw
+from nestris_ocr.capturing import capture
 from nestris_ocr.ocr_algo.digit import finalImageSize, scoreImage0
 from nestris_ocr.ocr_algo.preview2 import PreviewImageSize
 from nestris_ocr.utils.lib import config, mult_rect
@@ -70,7 +71,7 @@ class Calibrator(tk.Frame):
             "capture window coords (pixels)",
             config["calibration.game_coords"],
             False,
-            self.gen_set_config_and_redraw("calibration.game_coords"),
+            self.update_game_coords,
         )
         r.config(relief=tk.FLAT, bd=5, background="orange")
         r.pack(side=tk.LEFT)
@@ -362,6 +363,11 @@ class Calibrator(tk.Frame):
             self.redrawImages()
 
         return set_config_and_redraw
+
+    def update_game_coords(self, result):
+        config["calibration.game_coords"] = result
+        capture.xywh_box = result
+        self.redrawImages()
 
     def redrawImages(self):
         self.lastUpdate = time.time()

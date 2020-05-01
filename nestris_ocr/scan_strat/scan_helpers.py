@@ -38,14 +38,6 @@ def mask_pattern(source, mask):
 last_hwnd = None
 
 
-def scan_full(full_image):
-    if FULL_RECT:
-        x, y, w, h = FULL_RECT
-        return full_image.crop((x, y, x + w, y + h))
-
-    return full_image
-
-
 def get_sub_image(full_image, area):
     # conversion is needed: Image.crop expects ltrb, while WINDOW_AREAS has data in xywh
     return full_image.crop(xywh_to_ltrb(area))
