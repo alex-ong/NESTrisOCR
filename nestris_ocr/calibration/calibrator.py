@@ -21,9 +21,10 @@ from nestris_ocr.calibration.other_options import create_window
 from nestris_ocr.calibration.widgets import Button
 from nestris_ocr.calibration.auto_calibrate import auto_calibrate_raw
 from nestris_ocr.capturing import capture
+from nestris_ocr.config import config
 from nestris_ocr.ocr_algo.digit import finalImageSize, scoreImage0
 from nestris_ocr.ocr_algo.preview2 import PreviewImageSize
-from nestris_ocr.utils.lib import config, mult_rect
+from nestris_ocr.utils.lib import mult_rect
 
 UPSCALE = 2
 ENABLE_OTHER_OPTIONS = True

@@ -226,7 +226,7 @@ def draw_calibration(config):
     img = captureArea()
     if config["calibration.capture_method"] == "FILE":
         for i in range(10):
-            capture.get_image(rga=True)
+            capture.get_image(rgb=True)
     highlight_calibration(img, config)
     img = img.resize((512, 448), Image.ANTIALIAS)
     return img

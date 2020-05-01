@@ -8,36 +8,19 @@ from calibrate import mainLoop as calibrateLoop
 from nestris_ocr.capturing import capture
 from nestris_ocr.scan_strat.fastest_strategy import FastestStrategy as Strategy
 
-# from scan_strat.naive_strategy import NaiveStrategy as Strategy
+# from nestris_ocr.scan_strat.naive_strategy import NaiveStrategy as Strategy
 from nestris_ocr.network.network_client import NetClient
 
 from nestris_ocr.network.cached_sender import CachedSender
 from nestris_ocr.config import config
-from nestris_ocr.utils.lib import WindowCapture
 
 RATE = 1.0 / config["performance.scan_rate"]
-
-# how are we calculating timestamp? Time.time, or from the file?
-firstTime = time.time()
-
-
-def getRealTimeStamp():
-    return time.time() - firstTime
-
-
-getTimeStamp = getRealTimeStamp
-if config["calibration.capture_method"] == "FILE":
-    if config["network.protocol"] == "FILE":
-        RATE = 0.000
-        getTimeStamp = WindowCapture.TimeStamp
-
-SLEEP_TIME = 0.001
 
 
 def main(on_cap, check_network_close):
     strategy = Strategy()
 
-    # The outer loop makes sure that the program retries constantly even when
+    # The loop makes sure that the program retries constantly even when
     # capturing device is having trouble
     while True:
         try:
@@ -62,7 +45,7 @@ def main(on_cap, check_network_close):
             print(processing_time)
             print(result)
 
-        # on_cap(result, getTimeStamp())
+        # on_cap(result, ts)
 
         # error = check_network_close()
         # if error is not None:

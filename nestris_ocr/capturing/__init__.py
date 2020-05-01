@@ -1,9 +1,15 @@
+import platform
 import time
 
 from nestris_ocr.config import config
 
-if config["calibration.capture_method"] == "OPENCV":
+capture_method = config["calibration.capture_method"]
+if capture_method == "OPENCV":
     from nestris_ocr.capturing.opencv import OpenCVCapture as Capture
+elif capture_method == "FILE":
+    from nestris_ocr.capturing.file import FileCapture as Capture
+elif capture_method == "WINDOW" and platform.system() == "Windows":
+    from nestris_ocr.capturing.win32 import Win32Capture as Capture
 else:
     raise ImportError("Invalid capture method")
 
