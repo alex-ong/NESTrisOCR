@@ -3,7 +3,6 @@ from nestris_ocr.ocr_state.field_state import FieldState
 from nestris_ocr.full_state_optimizer.full_state_config import FS_CONFIG
 from nestris_ocr.ocr_state.level_transition import get_level
 from nestris_ocr.scan_strat.scan_helpers import (
-    scan_full,
     scan_level,
     scan_score,
     scan_lines,
@@ -22,10 +21,9 @@ class FastestStrategy(BaseStrategy):
 
     # simply tries to get into game
     def update_menu(self):
-        img = scan_full(self.hwnd)
-        lines = scan_lines(img, "OOO")
-        score = scan_score(img, "OOOOOO")
-        level = scan_level(img)
+        lines = scan_lines(self.current_frame, "OOO")
+        score = scan_score(self.current_frame, "OOOOOO")
+        level = scan_level(self.current_frame)
 
         if lines and score and level:
             if lines == "000" and score == "000000":
@@ -43,11 +41,10 @@ class FastestStrategy(BaseStrategy):
                 # requireFullRefresh = True
 
     def update_ingame(self):
-        img = scan_full(self.hwnd)
         piece_spawned = False
         soft_drop_updated = False  # check softdrop once per frame.
 
-        lines_cleared = self.get_lines_cleared(img)
+        lines_cleared = self.get_lines_cleared(self.current_frame)
 
         if lines_cleared is None:  # possibly menu
             self.gamestate = GameState.MENU
@@ -61,11 +58,11 @@ class FastestStrategy(BaseStrategy):
                 self.color1 = None
                 self.color2 = None
             self.score += self.get_score(lines_cleared)
-            self.update_softdrop(img)
+            self.update_softdrop(self.current_frame)
             soft_drop_updated = True
 
         if FS_CONFIG.capture_field:
-            field_info = scan_field(img, self.color1, self.color2)
+            field_info = scan_field(self.current_frame, self.color1, self.color2)
             field = FieldState(field_info["field"])
             if field == self.field:
                 return
@@ -76,11 +73,11 @@ class FastestStrategy(BaseStrategy):
             self.field = field
 
         if FS_CONFIG.capture_stats and FS_CONFIG.stats_method == "FIELD":
-            spawned = scan_spawn(img)
+            spawned = scan_spawn(self.current_frame)
             did_spawn = self.piece_stats.update(spawned, self.current_time)
             piece_spawned = piece_spawned or did_spawn
         elif FS_CONFIG.capture_stats and FS_CONFIG.stats_method == "TEXT":
-            counts = scan_stats_text(img)
+            counts = scan_stats_text(self.current_frame)
             if sum(counts) > self.piece_stats.piece_count():
                 self.piece_stats.rewrite(counts)
                 piece_spawned = True
@@ -88,15 +85,15 @@ class FastestStrategy(BaseStrategy):
         # check softdrop only on piece spawn
         if piece_spawned:
             if FS_CONFIG.capture_preview:
-                self.preview = self.get_next_piece(img)
+                self.preview = self.get_next_piece(self.current_frame)
             if not soft_drop_updated:
-                success = self.update_softdrop(img)
+                success = self.update_softdrop(self.current_frame)
                 if not success:
                     pass
         # check softdrop on every frame, if we're not detecting piece spawns.
         elif not FS_CONFIG.capture_field and not FS_CONFIG.capture_stats:
             if not soft_drop_updated:
-                success = self.update_softdrop(img)
+                success = self.update_softdrop(self.current_frame)
                 if not success:
                     pass
 

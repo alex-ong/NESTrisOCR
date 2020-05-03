@@ -1,14 +1,11 @@
-﻿from nestris_ocr.config import config
-from nestris_ocr.utils.lib import WindowCapture
+from nestris_ocr.config import config
 from nestris_ocr.ocr_algo.digit import scoreImage as processDigits
 from nestris_ocr.ocr_algo.board import parseImageSmart as processBoard
 from nestris_ocr.ocr_algo.preview2 import parseImage as processPreview
 from nestris_ocr.ocr_algo.piece_stats_spawn import parseImage as processSpawn
+from nestris_ocr.utils import xywh_to_ltrb
+from nestris_ocr.utils.lib import mult_rect
 
-if config["performance.capture_method"] == "WINDOW_N_SLICE":
-    from nestris_ocr.capturing.WindowAreasSlice import getWindowAreas
-else:
-    from nestris_ocr.capturing.WindowAreasDirect import getWindowAreas
 
 PATTERNS = {
     "score": "ADDDDD",
@@ -22,7 +19,28 @@ PATTERNS = {
 # We always support scores past maxout
 # We always support levels past 29
 
-WINDOW_AREAS, FULL_RECT = getWindowAreas()
+
+def get_window_areas():
+    mapping = {
+        "score": config["calibration.pct.score"],
+        "lines": config["calibration.pct.lines"],
+        "level": config["calibration.pct.level"],
+        "field": config["calibration.pct.field"],
+        "color1": config["calibration.pct.color1"],
+        "color2": config["calibration.pct.color2"],
+        "stats2": config.stats2_percentages,
+        "stats": config["calibration.pct.stats"],
+        "preview": config["calibration.pct.preview"],
+        "flash": config["calibration.pct.flash"],
+    }
+
+    return {
+        key: xywh_to_ltrb(mult_rect(config["calibration.game_coords"], value))
+        for key, value in mapping.items()
+    }
+
+
+WINDOW_AREAS = get_window_areas()
 
 
 def mask_pattern(source, mask):
@@ -35,22 +53,8 @@ def mask_pattern(source, mask):
     return result
 
 
-last_hwnd = None
-
-
-def scan_full(hwnd):
-    global last_hwnd
-    if FULL_RECT is None:
-        last_hwnd = hwnd
-        return None
-    return WindowCapture.ImageCapture(FULL_RECT, hwnd)
-
-
 def get_sub_image(full_image, area):
-    if full_image is not None:
-        return full_image.crop(area)
-    else:
-        return WindowCapture.ImageCapture(area, last_hwnd)
+    return full_image.crop(area)
 
 
 def scan_text(full_image, pattern, digit_mask, window_area):
@@ -62,7 +66,7 @@ def scan_text(full_image, pattern, digit_mask, window_area):
 # scans the level image and returns a string
 def scan_level(full_image):
     return scan_text(
-        full_image, PATTERNS["level"], PATTERNS["lines"], WINDOW_AREAS["level"]
+        full_image, PATTERNS["level"], PATTERNS["level"], WINDOW_AREAS["level"]
     )
 
 

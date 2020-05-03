@@ -20,7 +20,7 @@ def dict_zfill(item, digits):
 
 
 class BaseStrategy(object):
-    def __init__(self, hwnd):
+    def __init__(self):
         self.lines = None
         self.score = None
         self.level = None
@@ -33,7 +33,6 @@ class BaseStrategy(object):
         self.piece_stats = PieceStatAccumulator()
         self.gamestate = GameState.MENU
         self.das_counter = 0
-        self.hwnd = hwnd
         self.current_time = 0
 
     # todo: don't include items that aren't enabled in config
@@ -63,11 +62,12 @@ class BaseStrategy(object):
         result.update(self.piece_stats.toDict())
         return result
 
-    def update(self, timestamp):
+    def update(self, timestamp, frame):
         # todo. get time from outside, based on Capture method
         # e.g. opencv/file should report time from method,
         # win32 and quartz from os.
         self.current_time = timestamp
+        self.current_frame = frame
         if self.gamestate == GameState.MENU:
             self.update_menu()
         else:

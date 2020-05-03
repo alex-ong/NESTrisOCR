@@ -4,77 +4,57 @@ import time
 import sys
 
 from calibrate import mainLoop as calibrateLoop
+
+from nestris_ocr.capturing import capture
 from nestris_ocr.scan_strat.fastest_strategy import FastestStrategy as Strategy
 
-# from scan_strat.naive_strategy import NaiveStrategy as Strategy
+# from nestris_ocr.scan_strat.naive_strategy import NaiveStrategy as Strategy
 from nestris_ocr.network.network_client import NetClient
 
 from nestris_ocr.network.cached_sender import CachedSender
 from nestris_ocr.config import config
-from nestris_ocr.utils.lib import (
-    checkWindow,
-    getWindow,
-    WindowCapture,
-)
 
 RATE = 1.0 / config["performance.scan_rate"]
 
-# how are we calculating timestamp? Time.time, or from the file?
-firstTime = time.time()
 
+def main(on_cap, check_network_close):
+    strategy = Strategy()
 
-def getRealTimeStamp():
-    return time.time() - firstTime
+    # The loop makes sure that the program retries constantly even when
+    # capturing device is having trouble
+    while True:
+        try:
+            ts, image = capture.get_image(rgb=True)
 
+            if not ts and not image:
+                if config["debug.print_packet"]:
+                    print("clean exit")
 
-getTimeStamp = getRealTimeStamp
-if config["calibration.capture_method"] == "FILE":
-    if config["network.protocol"] == "FILE":
-        RATE = 0.000
-        getTimeStamp = WindowCapture.TimeStamp
-
-SLEEP_TIME = 0.001
-
-
-def main(onCap, checkNetworkClose):
-    finished = False
-    while not finished:
-        # outer loop waits for the window to exists
-        frame_start = time.time()
-        frame_end = frame_start + RATE
-        hwnd = getWindow()
-
-        if not hwnd:
-            while time.time() < frame_end:
-                time.sleep(SLEEP_TIME)
+                break
+        except Exception:
+            time.sleep(RATE)
             continue
 
-        strat = Strategy(hwnd)
-        while checkWindow(hwnd):
-            # inner loop gets fresh data for just the desired window
-            frame_start = time.time()
-            frame_end = frame_start + RATE
-            strat.update(getTimeStamp())
-            result = strat.to_dict()
-            processing_time = time.time() - frame_start
-            # if processing_time > BIG_BOI:
-            print(processing_time)
-            #    BIG_BOI = processing_time
+        frame_end_ts = ts + RATE
+        pre_strategy_ts = time.time()
+
+        strategy.update(ts, image)
+        result = strategy.to_dict()
+
+        if config["debug.print_packet"]:
+            elapsed_time = time.time() - ts
+            print(f"Elapsed time since capture: {elapsed_time}")
+            strategy_time = time.time() - pre_strategy_ts
+            print(f"Strategy processing time: {strategy_time}")
             print(result)
-            # onCap(result, getTimeStamp())
 
-            # error = checkNetworkClose()
-            # if error is not None:
-            #    return error
+        # on_cap(result, ts)
 
-            while time.time() < frame_end - SLEEP_TIME:
-                time.sleep(SLEEP_TIME)
+        # error = check_network_close()
+        # if error is not None:
+        #    return error
 
-            if not WindowCapture.NextFrame():  # finished reading video
-                finished = True
-                break
-
-        print("cleanexit")
+        time.sleep(max(frame_end_ts - time.time(), 0))
 
 
 if __name__ == "__main__":
