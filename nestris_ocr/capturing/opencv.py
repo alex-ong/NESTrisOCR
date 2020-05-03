@@ -1,7 +1,8 @@
 import cv2
+from multiprocessing import Lock
+from multiprocessing.pool import ThreadPool
 from PIL import Image
 import time
-import threading
 from typing import Tuple
 
 from nestris_ocr.capturing.base import AbstractCapture
@@ -20,7 +21,7 @@ class OpenCVCapture(AbstractCapture):
         self.image_ts = None
 
         self.started = False
-        self.read_lock = threading.Lock()
+        self.read_lock = Lock()
         self.start()
 
     def get_image(self, rgb: bool = False) -> Tuple[float, Image.Image]:
@@ -43,8 +44,8 @@ class OpenCVCapture(AbstractCapture):
             print("[!] Threaded video capturing has already been started.")
             return None
         self.started = True
-        self.thread = threading.Thread(target=self.update, args=())
-        self.thread.start()
+        self.pool = ThreadPool(processes=1)
+        self.pool.apply_async(self.update)
 
     def update(self):
         while self.started:
@@ -56,7 +57,3 @@ class OpenCVCapture(AbstractCapture):
 
     def stop(self):
         self.started = False
-        self.thread.join()
-
-    def __exit__(self, exec_type, exc_value, traceback):
-        self.cap.release()
