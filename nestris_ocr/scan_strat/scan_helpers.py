@@ -1,6 +1,6 @@
 from nestris_ocr.config import config
 from nestris_ocr.ocr_algo.digit import scoreImage as processDigits
-from nestris_ocr.ocr_algo.board import parseImageSmart as processBoard
+from nestris_ocr.ocr_algo.board import parseImage as processBoard
 from nestris_ocr.ocr_algo.preview2 import parseImage as processPreview
 from nestris_ocr.ocr_algo.piece_stats_spawn import parseImage as processSpawn
 from nestris_ocr.utils import xywh_to_ltrb

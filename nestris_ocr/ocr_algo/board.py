@@ -15,7 +15,7 @@ except ImportError:
     )
 
 
-def parseImageSmart(img, color1, color2, pre_calculated):
+def parseImage(img, color1, color2, pre_calculated=False):
     if not pre_calculated:
         color1 = color1.resize((1, 1), PIL.Image.ANTIALIAS)
         color1 = color1.getpixel((0, 0))
@@ -37,38 +37,6 @@ def parseImageSmart(img, color1, color2, pre_calculated):
     result["field"] = parseImage2(img, black, white, color1, color2)
     result["color1"] = color1
     result["color2"] = color2
-    return result
-
-
-def parseImage(img, color1, color2):
-    color1 = color1.resize((1, 1), PIL.Image.ANTIALIAS)
-    color1 = color1.getpixel((0, 0))
-    color1 = np.array(color1, dtype=np.uint8)
-    color2 = color2.resize((1, 1), PIL.Image.ANTIALIAS)
-    color2 = color2.getpixel((0, 0))
-    color2 = np.array(color2, dtype=np.uint8)
-
-    img = img.resize((10, 20), PIL.Image.NEAREST)
-    img = np.array(img, dtype=np.uint8)
-
-    black = (10, 10, 10)
-    white = (240, 240, 240)
-
-    black = np.array(black, dtype=np.uint8)
-    white = np.array(white, dtype=np.uint8)
-
-    result = parseImage2(img, black, white, color1, color2)
-
-    if config["network.protocol"] == "AUTOBAHN_V2":
-        result = prePackField(result)
-        result = result.tobytes()
-    else:
-        result2 = []
-        for y in range(20):
-            temp = "".join(str(result[y, x]) for x in range(10))
-            result2.append(temp)
-        result = "".join(str(r) for r in result2)
-
     return result
 
 
