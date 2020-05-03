@@ -36,13 +36,16 @@ def main(on_cap, check_network_close):
             continue
 
         frame_end_ts = ts + RATE
+        pre_strategy_ts = time.time()
 
         strategy.update(ts, image)
         result = strategy.to_dict()
 
         if config["debug.print_packet"]:
-            processing_time = time.time() - ts
-            print(processing_time)
+            elapsed_time = time.time() - ts
+            print(f"Elapsed time since capture: {elapsed_time}")
+            strategy_time = time.time() - pre_strategy_ts
+            print(f"Strategy processing time: {strategy_time}")
             print(result)
 
         # on_cap(result, ts)
