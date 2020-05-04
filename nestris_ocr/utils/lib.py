@@ -7,6 +7,8 @@ def ilerp(start, end, perc):
 
 
 def luma(pixel):
+    # ITU-R 601-2 luma transform
+    # See https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.convert
     return pixel[0] * 0.299 + pixel[1] * 0.587 + pixel[2] * 0.114
 
 
