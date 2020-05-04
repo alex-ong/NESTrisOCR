@@ -90,3 +90,12 @@ class BaseStrategy(object):
 
     def update_ingame(self):
         raise NotImplementedError("This is an abstract class, silly")
+
+    def levelInt(self):
+        try:
+            # TODO parse levels 30+ and their weird hex rendering
+            return int(self.level)
+        except ValueError:
+            return 0
+        except TypeError:
+            return 0

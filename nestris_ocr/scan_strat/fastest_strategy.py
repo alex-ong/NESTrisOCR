@@ -5,7 +5,6 @@ from nestris_ocr.ocr_state.level_transition import get_level
 from nestris_ocr.config import config
 
 from nestris_ocr.scan_strat.scan_helpers import (
-    scan_full,
     scan_black_n_white,
     scan_level,
     scan_score,
@@ -36,11 +35,11 @@ class FastestStrategy(BaseStrategy):
             if lines == "000" and score == "000000":
                 if config["calibration.dynamic_black_n_white"]:
                     # read once per game
-                    result = scan_black_n_white(img)
+                    result = scan_black_n_white(self.current_frame)
                     self.black = result["black"]
                     self.white = result["white"]
 
-                self.get_colors(img)
+                self.get_colors(self.current_frame)
                 self.level = int(level)
                 self.lines = 0
                 self.score = 0
@@ -69,16 +68,20 @@ class FastestStrategy(BaseStrategy):
             new_level = get_level(self.lines, self.start_level)
             if self.level != new_level:
                 self.level = new_level
-                self.get_colors(img)
+                self.get_colors(self.current_frame)
             self.score += self.get_score(lines_cleared)
             self.update_softdrop(self.current_frame)
             soft_drop_updated = True
 
         if FS_CONFIG.capture_field:
-            field_info = scan_field(
-                self.current_frame, self.black, self.white, self.color1, self.color2
+            field_data = scan_field(
+                self.current_frame,
+                self.black["rgb"],
+                self.white["rgb"],
+                self.color1,
+                self.color2,
             )
-            field = FieldState(field_info["field"])
+            field = FieldState(field_data)
             if field == self.field:
                 return
             if field.piece_spawned(self.field):
@@ -116,9 +119,11 @@ class FastestStrategy(BaseStrategy):
         if config["calibration.dynamic_color"]:
             result = scan_colors(img)
         elif config["calibration.color_interpolation"]:
-            result = lookup_colors(self.level, self.black["rgb"], self.white["rgb"])
+            result = lookup_colors(
+                self.levelInt(), self.black["rgb"], self.white["rgb"]
+            )
         else:
-            result = lookup_colors(self.level)
+            result = lookup_colors(self.levelInt())
 
         self.color1 = result["color1"]
         self.color2 = result["color2"]

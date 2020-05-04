@@ -3,7 +3,6 @@ from nestris_ocr.ocr_state.field_state import FieldState
 from nestris_ocr.config import config
 
 from nestris_ocr.scan_strat.scan_helpers import (
-    scan_full,
     scan_black_n_white,
     scan_level,
     scan_score,
@@ -74,13 +73,13 @@ class NaiveStrategy(BaseStrategy):
         self.color1 = result["color1"]
         self.color2 = result["color2"]
 
-    def lookup_colors_w_interpolation(self):
-        result = lookup_colors(self.level, self.black["rgb"], self.white["rgb"])
+    def lookup_colors_w_interpolation(self, img):
+        result = lookup_colors(self.levelInt(), self.black["rgb"], self.white["rgb"])
         self.color1 = result["color1"]
         self.color2 = result["color2"]
 
-    def lookup_colors(self):
-        result = lookup_colors(self.level)
+    def lookup_colors(self, img):
+        result = lookup_colors(self.levelInt())
         self.color1 = result["color1"]
         self.color2 = result["color2"]
 
@@ -94,7 +93,9 @@ class NaiveStrategy(BaseStrategy):
         self.level = scan_level(img)
 
     def scan_field(self, img):
-        result = scan_field(img, self.black, self.white, self.color1, self.color2)
+        result = scan_field(
+            img, self.black["rgb"], self.white["rgb"], self.color1, self.color2
+        )
         self.field = FieldState(result)
 
     def scan_preview(self, img):

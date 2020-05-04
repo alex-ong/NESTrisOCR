@@ -1,7 +1,7 @@
 ﻿import PIL
 import numpy as np
 from nestris_ocr.config import config
-from nestris_ocr.utils.lib import WindowCapture, ilerp
+from nestris_ocr.utils.lib import ilerp
 from nestris_ocr.ocr_algo.digit import scoreImage as processDigits
 from nestris_ocr.ocr_algo.board import parseImage as processBoard
 from nestris_ocr.ocr_algo.preview2 import parseImage as processPreview
@@ -103,7 +103,7 @@ def scan_colors(full_image):
     color1 = color1.getpixel((0, 0))
     color1 = np.array(color1, dtype=np.uint8)
 
-    color2 = get_sub_image(full_image, WINDOW_AREAS["color1"])
+    color2 = get_sub_image(full_image, WINDOW_AREAS["color2"])
     color2 = color2.resize((1, 1), PIL.Image.ANTIALIAS)
     color2 = color2.getpixel((0, 0))
     color2 = np.array(color2, dtype=np.uint8)
@@ -111,7 +111,7 @@ def scan_colors(full_image):
     return {"color1": color1, "color2": color2}
 
 
-def lookup_colors(level, black=None, white=None):
+def lookup_colors(level, black=None, white=None):  # caller must pass a valid int level
     color1, color2 = REFERENCE_LEVEL_COLORS[level % 10]
 
     if black and white:  # must interpolate
@@ -146,7 +146,7 @@ def scan_black_n_white(full_image):
     for x in range(img_bnw_mono.width):
         for y in range(img_bnw_mono.height):
 
-            value = img_bnw_mono.getpixel(x, y)
+            value = img_bnw_mono.getpixel((x, y))
 
             if value > whitest:
                 whitest = value
@@ -159,11 +159,11 @@ def scan_black_n_white(full_image):
     return {
         "black": {
             "luma": blackest,
-            "rgb": np.array(img_bnw.getpixel(*blackest_coords), dtype=np.uint8),
+            "rgb": np.array(img_bnw.getpixel(blackest_coords), dtype=np.uint8),
         },
         "white": {
             "luma": whitest,
-            "rgb": np.array(img_bnw.getpixel(*whitest_coords), dtype=np.uint8),
+            "rgb": np.array(img_bnw.getpixel(whitest_coords), dtype=np.uint8),
         },
     }
 

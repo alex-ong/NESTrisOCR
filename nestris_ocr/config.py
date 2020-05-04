@@ -41,7 +41,7 @@ CONFIG_DEFAULTS = {
 
     "calibration.dynamic_black_n_white": True,
     "calibration.color_interpolation": True,
-    "calibration.pct.black_n_white": [0.823, 0.0440, 0.011, 0.36],
+    "calibration.pct.black_n_white": [0.827, 0.431, 0.028, 0.02],
 
     "calibration.capture_preview": True,
     "calibration.pct.preview": [0.753, 0.5, 0.12, 0.064],
