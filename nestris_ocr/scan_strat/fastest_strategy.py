@@ -2,10 +2,16 @@ from nestris_ocr.scan_strat.base_strategy import GameState, BaseStrategy
 from nestris_ocr.ocr_state.field_state import FieldState
 from nestris_ocr.full_state_optimizer.full_state_config import FS_CONFIG
 from nestris_ocr.ocr_state.level_transition import get_level
+from nestris_ocr.config import config
+
 from nestris_ocr.scan_strat.scan_helpers import (
+    scan_full,
+    scan_black_n_white,
     scan_level,
     scan_score,
     scan_lines,
+    scan_colors,
+    lookup_colors,
     scan_field,
     scan_preview,
     scan_spawn,
@@ -27,6 +33,12 @@ class FastestStrategy(BaseStrategy):
 
         if lines and score and level:
             if lines == "000" and score == "000000":
+                if config["calibration.dynamic_black_n_white"]:
+                    result = scan_black_n_white(img)
+                    self.black = result["black"]
+                    self.white = result["white"]
+
+                self.get_colors(img)
                 self.level = int(level)
                 self.lines = 0
                 self.score = 0
@@ -55,14 +67,15 @@ class FastestStrategy(BaseStrategy):
             new_level = get_level(self.lines, self.start_level)
             if self.level != new_level:
                 self.level = new_level
-                self.color1 = None
-                self.color2 = None
+                self.get_colors(img)
             self.score += self.get_score(lines_cleared)
             self.update_softdrop(self.current_frame)
             soft_drop_updated = True
 
         if FS_CONFIG.capture_field:
-            field_info = scan_field(self.current_frame, self.color1, self.color2)
+            field_info = scan_field(
+                self.current_frame, self.black, self.white, self.color1, self.color2
+            )
             field = FieldState(field_info["field"])
             if field == self.field:
                 return
@@ -96,6 +109,17 @@ class FastestStrategy(BaseStrategy):
                 success = self.update_softdrop(self.current_frame)
                 if not success:
                     pass
+
+    def get_colors(self, img):
+        if config["calibration.dynamic_color"]:
+            result = scan_colors(img)
+        elif config["calibration.color_interpolation"]:
+            result = lookup_colors(self.level, self.black["rgb"], self.white["rgb"])
+        else:
+            result = lookup_colors(self.level)
+
+        self.color1 = result["color1"]
+        self.color2 = result["color2"]
 
     def update_softdrop(self, img):
         softdrop = self.get_soft_drop(img)
