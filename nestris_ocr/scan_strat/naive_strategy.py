@@ -98,7 +98,7 @@ class NaiveStrategy(BaseStrategy):
         self.field = FieldState(result)
 
     def scan_preview(self, img):
-        self.preview = scan_preview(img)
+        self.preview = scan_preview(img, self.black["luma"])
 
     def scan_spawn(self, img):
         piece = scan_spawn(img)

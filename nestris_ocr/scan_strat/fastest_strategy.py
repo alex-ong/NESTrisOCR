@@ -170,7 +170,7 @@ class FastestStrategy(BaseStrategy):
         return cleared
 
     def get_next_piece(self, img):
-        return scan_preview(img)
+        return scan_preview(img, self.black["luma"])
 
     # a forced refresh.
     def update_ingame_full(self):

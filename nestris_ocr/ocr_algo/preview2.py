@@ -4,24 +4,13 @@ import numpy as np
 cachedOffsets = []
 cachedPPP = None
 
-BLACK_LIMIT = 15
 COUNT_PERC = 0.7
 
 PreviewImageSize = (31, 15)
 
 
-def isNotBlack(pixel):
-    if pixel > BLACK_LIMIT:
-        return 1
-    else:
-        return 0
-
-
-isNotBlackVectorized = np.vectorize(isNotBlack)
-
-
 # look at assets/doc for description
-def parseImage(img):
+def parseImage(img, black_luma=15):
     img = img.resize((31, 15), Image.BOX)
     img = ImageEnhance.Contrast(img).enhance(3.0)
     img = img.convert("L")
@@ -29,7 +18,7 @@ def parseImage(img):
     img = np.asarray(img)
     # img is in y,x format
     img = np.reshape(img, (15, -1))
-    img = isNotBlackVectorized(img)
+    img = np.vectorize(lambda pixel: 1 if pixel > black_luma else 0)(img)
 
     # first, check for I and None
     i_pixels = np.sum(img[4:11, :4]) + np.sum(img[4:11, -4:])  # perfect score is 56.

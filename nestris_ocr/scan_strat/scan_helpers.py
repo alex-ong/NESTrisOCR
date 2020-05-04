@@ -182,6 +182,6 @@ def scan_stats_text(full_image):
     raise NotImplementedError
 
 
-def scan_preview(full_image):
+def scan_preview(full_image, black_luma):
     sub_image = get_sub_image(full_image, WINDOW_AREAS["preview"])
-    return processPreview(sub_image)
+    return processPreview(sub_image, black_luma)
