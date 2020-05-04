@@ -27,6 +27,7 @@ class FastestStrategy(BaseStrategy):
 
     # simply tries to get into game
     def update_menu(self):
+        # use default black and white on start
         lines = scan_lines(self.current_frame, "OOO")
         score = scan_score(self.current_frame, "OOOOOO")
         level = scan_level(self.current_frame)
@@ -34,6 +35,7 @@ class FastestStrategy(BaseStrategy):
         if lines and score and level:
             if lines == "000" and score == "000000":
                 if config["calibration.dynamic_black_n_white"]:
+                    # read once per game
                     result = scan_black_n_white(img)
                     self.black = result["black"]
                     self.white = result["white"]
