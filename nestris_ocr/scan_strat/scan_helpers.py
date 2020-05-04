@@ -158,12 +158,12 @@ def scan_black_n_white(full_image):
 
     return {
         "black": {
-            "value": blackest,
-            "tuple": np.array(img_bnw.getpixel(*blackest_coords), dtype=np.uint8),
+            "luma": blackest,
+            "rgb": np.array(img_bnw.getpixel(*blackest_coords), dtype=np.uint8),
         },
         "white": {
-            "value": whitest,
-            "tuple": np.array(img_bnw.getpixel(*whitest_coords), dtype=np.uint8),
+            "luma": whitest,
+            "rgb": np.array(img_bnw.getpixel(*whitest_coords), dtype=np.uint8),
         },
     }
 
