@@ -6,9 +6,10 @@ import sys
 from calibrate import mainLoop as calibrateLoop
 
 from nestris_ocr.capturing import capture
-from nestris_ocr.scan_strat.fastest_strategy import FastestStrategy as Strategy
 
-# from nestris_ocr.scan_strat.naive_strategy import NaiveStrategy as Strategy
+# from nestris_ocr.scan_strat.fastest_strategy import FastestStrategy as Strategy
+
+from nestris_ocr.scan_strat.naive_strategy import NaiveStrategy as Strategy
 from nestris_ocr.network.network_client import NetClient
 
 from nestris_ocr.network.cached_sender import CachedSender
@@ -48,7 +49,7 @@ def main(on_cap, check_network_close):
             print(f"Strategy processing time: {strategy_time}")
             print(result)
 
-        # on_cap(result, ts)
+        on_cap(result, ts)
 
         # error = check_network_close()
         # if error is not None:
