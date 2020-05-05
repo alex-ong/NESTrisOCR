@@ -5,7 +5,9 @@ cc = CC("board_ocr")
 cc.verbose = True
 
 
-@cc.export("parseImage2", "uint8[:,:](uint8[:,:,:],uint8[:],uint8[:]],uint8[:],uint8[:])")
+@cc.export(
+    "parseImage2", "uint8[:,:](uint8[:,:,:],uint8[:],uint8[:]],uint8[:],uint8[:])"
+)
 def parseImage2(img, black, white, color1, color2):
 
     colors = [black, white, color1, color2]
