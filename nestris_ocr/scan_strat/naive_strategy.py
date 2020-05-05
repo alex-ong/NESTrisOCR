@@ -111,7 +111,7 @@ class NaiveStrategy(BaseStrategy):
         self.preview = scan_preview(img, self.black["luma"])
 
     def scan_spawn(self, img):
-        piece = scan_spawn(img)
+        piece = scan_spawn(img, self.black["luma"])
         self.piece_stats.update(piece, self.current_time)
 
     def scan_stats_text(self, img):

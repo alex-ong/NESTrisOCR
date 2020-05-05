@@ -178,9 +178,9 @@ def scan_field(full_image, black, white, color1, color2):
     return processBoard(sub_image, black, white, color1, color2)
 
 
-def scan_spawn(full_image):
+def scan_spawn(full_image, black_luma):
     sub_image = get_sub_image(full_image, WINDOW_AREAS["stats2"])
-    return processSpawn(sub_image)
+    return processSpawn(sub_image, black_luma)
 
 
 def scan_stats_text(full_image):

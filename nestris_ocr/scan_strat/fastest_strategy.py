@@ -93,7 +93,7 @@ class FastestStrategy(BaseStrategy):
             self.field = field
 
         if FS_CONFIG.capture_stats and FS_CONFIG.stats_method == "FIELD":
-            spawned = scan_spawn(self.current_frame)
+            spawned = scan_spawn(self.current_frame, self.black["luma"])
             did_spawn = self.piece_stats.update(spawned, self.current_time)
             piece_spawned = piece_spawned or did_spawn
         elif FS_CONFIG.capture_stats and FS_CONFIG.stats_method == "TEXT":
