@@ -73,6 +73,15 @@ class NaiveStrategy(BaseStrategy):
         self.color1 = result["color1"]
         self.color2 = result["color2"]
 
+    def levelInt(self):
+        try:
+            # TODO parse levels 30+ and their weird hex rendering
+            return int(self.level)
+        except ValueError:
+            return 0
+        except TypeError:
+            return 0
+
     def lookup_colors_w_interpolation(self, img):
         result = lookup_colors(self.levelInt(), self.black["rgb"], self.white["rgb"])
         self.color1 = result["color1"]

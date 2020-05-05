@@ -39,7 +39,6 @@ class FastestStrategy(BaseStrategy):
                     self.black = result["black"]
                     self.white = result["white"]
 
-                self.get_colors(self.current_frame)
                 self.level = int(level)
                 self.lines = 0
                 self.score = 0
@@ -48,6 +47,9 @@ class FastestStrategy(BaseStrategy):
                 self.field = None
                 self.gameid += 1
                 self.piece_stats.reset()
+
+                self.get_colors(self.current_frame)
+
                 print("moved from menu to game")
             elif int(lines) == self.lines:
                 self.gamestate = GameState.IN_GAME
@@ -119,11 +121,9 @@ class FastestStrategy(BaseStrategy):
         if config["calibration.dynamic_color"]:
             result = scan_colors(img)
         elif config["calibration.color_interpolation"]:
-            result = lookup_colors(
-                self.levelInt(), self.black["rgb"], self.white["rgb"]
-            )
+            result = lookup_colors(self.level, self.black["rgb"], self.white["rgb"])
         else:
-            result = lookup_colors(self.levelInt())
+            result = lookup_colors(self.level)
 
         self.color1 = result["color1"]
         self.color2 = result["color2"]
