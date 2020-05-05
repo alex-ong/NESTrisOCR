@@ -31,6 +31,12 @@ REFERENCE_LEVEL_COLORS = (
     ((0xC4, 0x1E, 0x0E), (0xF6, 0x9B, 0x00)),
 )
 
+REFERENCE_LEVEL_COLORS = [
+    (np.array(color1, dtype=np.uint8), np.array(color2, dtype=np.uint8))
+    for color1, color2 in REFERENCE_LEVEL_COLORS
+]
+
+
 # A few notes
 # We always support scores past maxout
 # We always support levels past 29
@@ -120,15 +126,14 @@ def lookup_colors(level, black=None, white=None):  # caller must pass a valid in
             ilerp(black[1], white[1], color1[1] / 0xFF),
             ilerp(black[2], white[2], color1[2] / 0xFF),
         )
+        color1 = np.array(color1, dtype=np.uint8)
 
         color2 = (
             ilerp(black[0], white[0], color2[0] / 0xFF),
             ilerp(black[1], white[1], color2[1] / 0xFF),
             ilerp(black[2], white[2], color2[2] / 0xFF),
         )
-
-    color1 = np.array(color1, dtype=np.uint8)
-    color2 = np.array(color2, dtype=np.uint8)
+        color2 = np.array(color2, dtype=np.uint8)
 
     return {"color1": color1, "color2": color2}
 
