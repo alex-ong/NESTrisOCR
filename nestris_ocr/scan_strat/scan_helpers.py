@@ -1,6 +1,7 @@
+﻿import PIL
 from nestris_ocr.config import config
 from nestris_ocr.ocr_algo.digit import scoreImage as processDigits
-from nestris_ocr.ocr_algo.board import parseImageSmart as processBoard
+from nestris_ocr.ocr_algo.board import parseImage as processBoard
 from nestris_ocr.ocr_algo.preview2 import parseImage as processPreview
 from nestris_ocr.ocr_algo.piece_stats_spawn import parseImage as processSpawn
 from nestris_ocr.utils import xywh_to_ltrb
@@ -15,6 +16,7 @@ PATTERNS = {
     "das": "BD",
 }
 
+
 # A few notes
 # We always support scores past maxout
 # We always support levels past 29
@@ -28,6 +30,7 @@ def get_window_areas():
         "field": config["calibration.pct.field"],
         "color1": config["calibration.pct.color1"],
         "color2": config["calibration.pct.color2"],
+        "black_n_white": config["calibration.pct.black_n_white"],
         "stats2": config.stats2_percentages,
         "stats": config["calibration.pct.stats"],
         "preview": config["calibration.pct.preview"],
@@ -80,26 +83,61 @@ def scan_lines(full_image, digit_mask="OOO"):
     return scan_text(full_image, PATTERNS["lines"], digit_mask, WINDOW_AREAS["lines"])
 
 
-def scan_field(full_image, color1=None, color2=None):
+def scan_colors(full_image):
+    color1 = get_sub_image(full_image, WINDOW_AREAS["color1"])
+    color1 = color1.resize((1, 1), PIL.Image.ANTIALIAS)
+    color1 = color1.getpixel((0, 0))
+
+    color2 = get_sub_image(full_image, WINDOW_AREAS["color2"])
+    color2 = color2.resize((1, 1), PIL.Image.ANTIALIAS)
+    color2 = color2.getpixel((0, 0))
+
+    return color1, color2
+
+
+def scan_black_n_white(full_image):
+    img_bnw = get_sub_image(full_image, WINDOW_AREAS["black_n_white"])
+    img_bnw_mono = img_bnw.convert("L")
+
+    whitest = 0x00 - 1
+    whitest_coords = None
+
+    blackest = 0xFF + 1
+    blackest_coords = None
+
+    for x in range(img_bnw_mono.width):
+        for y in range(img_bnw_mono.height):
+
+            value = img_bnw_mono.getpixel((x, y))
+
+            if value > whitest:
+                whitest = value
+                whitest_coords = (x, y)
+
+            if value < blackest:
+                blackest = value
+                blackest_coords = (x, y)
+
+    black = img_bnw.getpixel(blackest_coords)
+    white = img_bnw.getpixel(whitest_coords)
+
+    return black, white
+
+
+def scan_field(full_image, colors):
     sub_image = get_sub_image(full_image, WINDOW_AREAS["field"])
-
-    cached = True
-    if color1 is None and color2 is None:
-        color1 = get_sub_image(full_image, WINDOW_AREAS["color1"])
-        color2 = get_sub_image(full_image, WINDOW_AREAS["color2"])
-        cached = False
-    return processBoard(sub_image, color1, color2, cached)
+    return processBoard(sub_image, colors)
 
 
-def scan_spawn(full_image):
+def scan_spawn(full_image, colors):
     sub_image = get_sub_image(full_image, WINDOW_AREAS["stats2"])
-    return processSpawn(sub_image)
+    return processSpawn(sub_image, colors)
 
 
 def scan_stats_text(full_image):
     raise NotImplementedError
 
 
-def scan_preview(full_image):
+def scan_preview(full_image, colors):
     sub_image = get_sub_image(full_image, WINDOW_AREAS["preview"])
-    return processPreview(sub_image)
+    return processPreview(sub_image, colors)

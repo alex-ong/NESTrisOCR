@@ -1,4 +1,5 @@
 ﻿from enum import Enum
+from nestris_ocr.colors import Colors
 from nestris_ocr.ocr_state.piece_stats import PieceStatAccumulator
 
 
@@ -27,13 +28,12 @@ class BaseStrategy(object):
         self.start_level = None
         self.field = None
         self.preview = None
-        self.color1 = None  # cached color1
-        self.color2 = None  # cached color2
         self.gameid = 0
         self.piece_stats = PieceStatAccumulator()
         self.gamestate = GameState.MENU
         self.das_counter = 0
         self.current_time = 0
+        self.colors = Colors()
 
     # todo: don't include items that aren't enabled in config
     def to_dict_menu(self):

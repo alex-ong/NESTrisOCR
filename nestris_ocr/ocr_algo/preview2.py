@@ -4,24 +4,13 @@ import numpy as np
 cachedOffsets = []
 cachedPPP = None
 
-BLACK_LIMIT = 15
 COUNT_PERC = 0.7
 
 PreviewImageSize = (31, 15)
 
 
-def isNotBlack(pixel):
-    if pixel > BLACK_LIMIT:
-        return 1
-    else:
-        return 0
-
-
-isNotBlackVectorized = np.vectorize(isNotBlack)
-
-
 # look at assets/doc for description
-def parseImage(img):
+def parseImage(img, colors):
     img = img.resize((31, 15), Image.BOX)
     img = ImageEnhance.Contrast(img).enhance(3.0)
     img = img.convert("L")
@@ -29,7 +18,10 @@ def parseImage(img):
     img = np.asarray(img)
     # img is in y,x format
     img = np.reshape(img, (15, -1))
-    img = isNotBlackVectorized(img)
+
+    black_luma = colors.black_luma
+
+    img = np.vectorize(lambda pixel: 1 if pixel > black_luma else 0)(img)
 
     # first, check for I and None
     i_pixels = np.sum(img[4:11, :4]) + np.sum(img[4:11, -4:])  # perfect score is 56.
@@ -82,11 +74,16 @@ def parseImage(img):
 
 
 if __name__ == "__main__":
-    # run this from parent directory as "python -m ocr_algo.preview2"
-    img = Image.open("assets/test/s.png")
+    # run this from root directory as "python -m nestris_ocr.ocr_algo.preview2"
+    img = Image.open("nestris_ocr/assets/test/s.png")
     import time
+    from nestris_ocr.colors import Colors
+
+    colors = Colors()
+
+    iterations = 10000
 
     t = time.time()
-    for i in range(10000):
-        parseImage(img)
-    print(time.time() - t, (time.time() - t) / 10000)
+    for i in range(iterations):
+        parseImage(img, colors)
+    print(time.time() - t, (time.time() - t) / iterations)

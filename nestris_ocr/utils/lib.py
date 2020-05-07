@@ -2,6 +2,10 @@ def lerp(start, end, perc):
     return perc * (end - start) + start
 
 
+def ilerp(start, end, perc):
+    return round(lerp(start, end, perc))
+
+
 def mult_rect(rect, mult):
     return (
         round(rect[2] * mult[0]),
