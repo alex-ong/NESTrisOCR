@@ -4,8 +4,7 @@ from nestris_ocr.utils.lib import ilerp
 
 Color = Tuple[int, int, int]
 
-BLACKISH = (10, 10, 10)
-WHITEISH = (245, 245, 245)
+LUMA_OFFSET = 15
 
 REFERENCE_LEVEL_COLORS = (
     ((0x4A, 0x32, 0xFF), (0x4A, 0xAF, 0xFE)),
@@ -40,7 +39,9 @@ class Colors:
         # See https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.convert
         return pixel[0] * 0.299 + pixel[1] * 0.587 + pixel[2] * 0.114
 
-    def __init__(self, black=BLACKISH, white=WHITEISH, color1=None, color2=None):
+    def __init__(
+        self, black=(0, 0, 0), white=(255, 255, 255), color1=None, color2=None
+    ):
         self.setBlackWhite(black, white)
         self.setColor1Color2(color1, color2)
         pass
@@ -49,11 +50,11 @@ class Colors:
         self.color1 = np.array(color1 or (0, 0, 0), dtype=np.uint8)
         self.color2 = np.array(color2 or (0, 0, 0), dtype=np.uint8)
 
-    def setBlackWhite(self, black=(0, 0, 0), white=(255, 255, 255)):
+    def setBlackWhite(self, black, white):
         self.black = np.array(black, dtype=np.uint8)
-        self.black_luma = Colors.luma(black)
+        self.black_luma = Colors.luma(black) + LUMA_OFFSET
         self.white = np.array(white, dtype=np.uint8)
-        self.white_luma = Colors.luma(white)
+        self.white_luma = Colors.luma(white) - LUMA_OFFSET
 
     def setLevel(self, level, interpolate=False):  # caller must pass a valid int level
         color1, color2 = REFERENCE_LEVEL_COLORS[level % 10]
@@ -81,3 +82,6 @@ class Colors:
 
         self.color1 = color1
         self.color2 = color2
+
+    def isBlack(self, pixel):
+        return Colors.luma(pixel) <= self.black_luma

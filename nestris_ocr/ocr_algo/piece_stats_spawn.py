@@ -2,24 +2,19 @@ import PIL
 from nestris_ocr.ocr_state.piece_enum import Piece
 
 
-def isBlack(colour, black_luma):
-    return colour[0] < black_luma and colour[1] < black_luma and colour[2] < black_luma
-
-
 def parseImage(img, colors):
     img = img.resize((4, 2), PIL.Image.NEAREST)
     img = img.load()
-    black_luma = colors.black_luma
 
-    r = not isBlack(img[3, 1], black_luma)
-    g = not isBlack(img[3, 0], black_luma)
-    b = not isBlack(img[2, 1], black_luma)
-    o = not isBlack(img[1, 1], black_luma)
+    r = not colors.isBlack(img[3, 1])
+    g = not colors.isBlack(img[3, 0])
+    b = not colors.isBlack(img[2, 1])
+    o = not colors.isBlack(img[1, 1])
 
-    k1 = isBlack(img[0, 0], black_luma)
-    k2 = isBlack(img[1, 0], black_luma)
-    k3 = isBlack(img[2, 0], black_luma)
-    k4 = isBlack(img[0, 1], black_luma)
+    k1 = colors.isBlack(img[0, 0])
+    k2 = colors.isBlack(img[1, 0])
+    k3 = colors.isBlack(img[2, 0])
+    k4 = colors.isBlack(img[0, 1])
 
     k = k1 and k2 and k3 and k4  # are all the other 4 tiles black?
 
