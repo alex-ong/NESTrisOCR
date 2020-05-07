@@ -99,10 +99,10 @@ def scan_black_n_white(full_image):
     img_bnw = get_sub_image(full_image, WINDOW_AREAS["black_n_white"])
     img_bnw_mono = img_bnw.convert("L")
 
-    whitest = 0x00
+    whitest = 0x00 - 1
     whitest_coords = None
 
-    blackest = 0xFF
+    blackest = 0xFF + 1
     blackest_coords = None
 
     for x in range(img_bnw_mono.width):
