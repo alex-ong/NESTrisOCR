@@ -10,7 +10,6 @@ from nestris_ocr.scan_strat.scan_helpers import (
     scan_score,
     scan_lines,
     scan_colors,
-    lookup_colors,
     scan_field,
     scan_preview,
     scan_spawn,
@@ -23,7 +22,6 @@ def clamp(my_value, min_value, max_value):
 
 
 class FastestStrategy(BaseStrategy):
-
     # simply tries to get into game
     def update_menu(self):
         # use default black and white on start
@@ -113,12 +111,9 @@ class FastestStrategy(BaseStrategy):
     def get_colors(self, img):
         if config["calibration.dynamic_color"]:
             result = scan_colors(img)
-        elif config["calibration.color_interpolation"]:
-            result = lookup_colors(self.level, self.colors)
+            self.colors.setColor1Color2(*result)
         else:
-            result = lookup_colors(self.level)
-
-        self.colors.setColor1Color2(*result)
+            self.colors.setLevel(self.level, config["calibration.color_interpolation"])
 
     def update_softdrop(self, img):
         softdrop = self.get_soft_drop(img)

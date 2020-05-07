@@ -8,7 +8,6 @@ from nestris_ocr.scan_strat.scan_helpers import (
     scan_score,
     scan_lines,
     scan_colors,
-    lookup_colors,
     scan_field,
     scan_preview,
     scan_spawn,
@@ -23,6 +22,7 @@ class NaiveStrategy(BaseStrategy):
     def __init__(self, *args):
         super(NaiveStrategy, self).__init__(*args)
         self.tasks = self.setup_tasks()
+        self.interpolate = config["calibration.color_interpolation"]
 
     # sets up the tasks that we will be doing naively.
     def setup_tasks(self):
@@ -39,8 +39,6 @@ class NaiveStrategy(BaseStrategy):
         if config["calibration.capture_field"]:
             if config["calibration.dynamic_color"]:
                 tasks.append(self.scan_colors)
-            elif config["calibration.color_interpolation"]:
-                tasks.append(self.lookup_colors_w_interpolation)
             else:
                 tasks.append(self.lookup_colors)
 
@@ -80,13 +78,8 @@ class NaiveStrategy(BaseStrategy):
         except TypeError:
             return 0
 
-    def lookup_colors_w_interpolation(self, img):
-        result = lookup_colors(self.levelInt(), self.colors)
-        self.colors.setColor1Color2(*result)
-
     def lookup_colors(self, img):
-        result = lookup_colors(self.levelInt())
-        self.colors.setColor1Color2(*result)
+        self.colors.setLevel(self.levelInt(), self.interpolate)
 
     def scan_score(self, img):
         self.score = scan_score(img, "OOOOOO")

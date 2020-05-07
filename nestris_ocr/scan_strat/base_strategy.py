@@ -3,10 +3,6 @@ from nestris_ocr.types import Colors
 from nestris_ocr.ocr_state.piece_stats import PieceStatAccumulator
 
 
-BLACKISH = (10, 10, 10)
-WHITEISH = (245, 245, 245)
-
-
 class GameState(Enum):
     MENU = 1
     IN_GAME = 2
@@ -32,14 +28,12 @@ class BaseStrategy(object):
         self.start_level = None
         self.field = None
         self.preview = None
-        self.color1 = None  # cached color1
-        self.color2 = None  # cached color2
         self.gameid = 0
         self.piece_stats = PieceStatAccumulator()
         self.gamestate = GameState.MENU
         self.das_counter = 0
         self.current_time = 0
-        self.colors = Colors(BLACKISH, WHITEISH)
+        self.colors = Colors()
 
     # todo: don't include items that aren't enabled in config
     def to_dict_menu(self):
