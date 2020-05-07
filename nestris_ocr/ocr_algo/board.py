@@ -1,4 +1,4 @@
-import PIL
+from PIL import Image
 import numpy as np
 import time
 
@@ -14,21 +14,24 @@ except ImportError:
 
 # expecting all 4 colors as np.array(dtype=np.uint8)
 def parseImage(img, colors):
-    img = img.resize((10, 20), PIL.Image.NEAREST)
+    img = img.resize((10, 20), Image.NEAREST)
     img = np.array(img, dtype=np.uint8)
 
     return parseImage2(img, colors.black, colors.white, colors.color1, colors.color2)
 
 
-# run as python -m ocr_algo.board
 if __name__ == "__main__":
+    # run this from root directory as "python -m nestris_ocr.ocr_algo.board"
+    from nestris_ocr.colors import Colors
 
-    from PIL import Image
+    img = Image.open("nestris_ocr/assets/test/board_lvl7.png")
 
-    img = Image.open("assets/test/board.jpg")
-    color1 = Image.open("assets/test/color1.jpg")
-    color2 = Image.open("assets/test/color2.jpg")
+    colors = Colors()
+    colors.setLevel(7)
+
     t = time.time()
     for i in range(100):
-        parseImage(img, color1, color2)
+        parseImage(img, colors)
     print(time.time() - t)
+
+    print(parseImage(img, colors))
