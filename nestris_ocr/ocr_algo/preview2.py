@@ -74,11 +74,16 @@ def parseImage(img, colors):
 
 
 if __name__ == "__main__":
-    # run this from parent directory as "python -m ocr_algo.preview2"
-    img = Image.open("assets/test/s.png")
+    # run this from root directory as "python -m nestris_ocr.ocr_algo.preview2"
+    img = Image.open("nestris_ocr/assets/test/s.png")
     import time
+    from nestris_ocr.colors import Colors
+
+    colors = Colors()
+
+    iterations = 10000
 
     t = time.time()
-    for i in range(10000):
-        parseImage(img)
-    print(time.time() - t, (time.time() - t) / 10000)
+    for i in range(iterations):
+        parseImage(img, colors)
+    print(time.time() - t, (time.time() - t) / iterations)
