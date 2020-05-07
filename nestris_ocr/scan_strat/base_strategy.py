@@ -1,5 +1,5 @@
 ﻿from enum import Enum
-from nestris_ocr.types import Colors
+from nestris_ocr.colors import Colors
 from nestris_ocr.ocr_state.piece_stats import PieceStatAccumulator
 
 
