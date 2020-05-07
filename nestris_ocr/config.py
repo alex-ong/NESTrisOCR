@@ -54,7 +54,8 @@ CONFIG_DEFAULTS = {
     "network.port": 3338,
     "network.protocol": "LEGACY",
 
-    "debug.print_packet": True
+    "debug.print_packet": True,
+    "debug.print_benchmark": False
 }
 # fmt: on
 CONFIG_CHOICES = {

@@ -42,11 +42,13 @@ def main(on_cap, check_network_close):
         strategy.update(ts, image)
         result = strategy.to_dict()
 
-        if config["debug.print_packet"]:
+        if config["debug.print_benchmark"]:
             elapsed_time = time.time() - ts
             print(f"Elapsed time since capture: {elapsed_time}")
             strategy_time = time.time() - pre_strategy_ts
             print(f"Strategy processing time: {strategy_time}")
+
+        if config["debug.print_packet"]:
             print(result)
 
         on_cap(result, ts)
