@@ -1,9 +1,9 @@
-import PIL
+from PIL import Image
 from nestris_ocr.ocr_state.piece_enum import Piece
 
 
 def parseImage(img, colors):
-    img = img.resize((4, 2), PIL.Image.NEAREST)
+    img = img.resize((4, 2), Image.NEAREST)
     img = img.load()
 
     r = not colors.isBlack(img[3, 1])
@@ -49,3 +49,19 @@ def patternToPiece(r, g, b, o, k):
         return Piece.EMPTY
     else:
         return Piece.UNKNOWN
+
+
+if __name__ == "__main__":
+    # run this from root directory as "python -m nestris_ocr.ocr_algo.piece_stats_spawn"
+    img = Image.open("nestris_ocr/assets/test/spawn_z.png")
+    import time
+    from nestris_ocr.colors import Colors
+
+    colors = Colors()
+
+    iterations = 100000
+
+    t = time.time()
+    for i in range(iterations):
+        parseImage(img, colors)
+    print(time.time() - t, (time.time() - t) / iterations)
