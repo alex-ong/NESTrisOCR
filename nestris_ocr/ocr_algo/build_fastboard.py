@@ -6,7 +6,7 @@ cc.verbose = True
 
 
 @cc.export(
-    "parseImage2", "uint8[:,:](uint8[:,:,:],uint8[:],uint8[:]],uint8[:],uint8[:])"
+    "parseImage2", "uint8[:,:](uint8[:,:,:],uint8[:],uint8[:],uint8[:],uint8[:])"
 )
 def parseImage2(img, black, white, color1, color2):
 
