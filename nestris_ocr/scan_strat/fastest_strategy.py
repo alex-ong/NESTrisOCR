@@ -36,8 +36,7 @@ class FastestStrategy(BaseStrategy):
                 if config["calibration.dynamic_black_n_white"]:
                     # read once per game
                     result = scan_black_n_white(self.current_frame)
-                    self.black = result["black"]
-                    self.white = result["white"]
+                    self.colors(*result)
 
                 self.level = int(level)
                 self.lines = 0
@@ -76,13 +75,7 @@ class FastestStrategy(BaseStrategy):
             soft_drop_updated = True
 
         if FS_CONFIG.capture_field:
-            field_data = scan_field(
-                self.current_frame,
-                self.black["rgb"],
-                self.white["rgb"],
-                self.color1,
-                self.color2,
-            )
+            field_data = scan_field(self.current_frame, self.colors)
             field = FieldState(field_data)
             if field == self.field:
                 return
@@ -93,7 +86,7 @@ class FastestStrategy(BaseStrategy):
             self.field = field
 
         if FS_CONFIG.capture_stats and FS_CONFIG.stats_method == "FIELD":
-            spawned = scan_spawn(self.current_frame, self.black["luma"])
+            spawned = scan_spawn(self.current_frame, self.colors)
             did_spawn = self.piece_stats.update(spawned, self.current_time)
             piece_spawned = piece_spawned or did_spawn
         elif FS_CONFIG.capture_stats and FS_CONFIG.stats_method == "TEXT":
@@ -121,12 +114,11 @@ class FastestStrategy(BaseStrategy):
         if config["calibration.dynamic_color"]:
             result = scan_colors(img)
         elif config["calibration.color_interpolation"]:
-            result = lookup_colors(self.level, self.black["rgb"], self.white["rgb"])
+            result = lookup_colors(self.level, self.colors)
         else:
             result = lookup_colors(self.level)
 
-        self.color1 = result["color1"]
-        self.color2 = result["color2"]
+        self.colors.setColor1Color2(*result)
 
     def update_softdrop(self, img):
         softdrop = self.get_soft_drop(img)
@@ -175,7 +167,7 @@ class FastestStrategy(BaseStrategy):
         return cleared
 
     def get_next_piece(self, img):
-        return scan_preview(img, self.black["luma"])
+        return scan_preview(img, self.colors)
 
     # a forced refresh.
     def update_ingame_full(self):

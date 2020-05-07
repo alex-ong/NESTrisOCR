@@ -6,9 +6,11 @@ def isBlack(colour, black_luma):
     return colour[0] < black_luma and colour[1] < black_luma and colour[2] < black_luma
 
 
-def parseImage(img, black_luma=10):
+def parseImage(img, colors):
     img = img.resize((4, 2), PIL.Image.NEAREST)
     img = img.load()
+    black_luma = colors.black_luma
+
     r = not isBlack(img[3, 1], black_luma)
     g = not isBlack(img[3, 0], black_luma)
     b = not isBlack(img[2, 1], black_luma)

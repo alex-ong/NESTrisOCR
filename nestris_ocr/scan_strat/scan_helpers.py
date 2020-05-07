@@ -107,14 +107,12 @@ def scan_colors(full_image):
     color1 = get_sub_image(full_image, WINDOW_AREAS["color1"])
     color1 = color1.resize((1, 1), PIL.Image.ANTIALIAS)
     color1 = color1.getpixel((0, 0))
-    color1 = np.array(color1, dtype=np.uint8)
 
     color2 = get_sub_image(full_image, WINDOW_AREAS["color2"])
     color2 = color2.resize((1, 1), PIL.Image.ANTIALIAS)
     color2 = color2.getpixel((0, 0))
-    color2 = np.array(color2, dtype=np.uint8)
 
-    return {"color1": color1, "color2": color2}
+    return color1, color2
 
 
 def lookup_colors(level, black=None, white=None):  # caller must pass a valid int level
@@ -126,16 +124,14 @@ def lookup_colors(level, black=None, white=None):  # caller must pass a valid in
             ilerp(black[1], white[1], color1[1] / 0xFF),
             ilerp(black[2], white[2], color1[2] / 0xFF),
         )
-        color1 = np.array(color1, dtype=np.uint8)
 
         color2 = (
             ilerp(black[0], white[0], color2[0] / 0xFF),
             ilerp(black[1], white[1], color2[1] / 0xFF),
             ilerp(black[2], white[2], color2[2] / 0xFF),
         )
-        color2 = np.array(color2, dtype=np.uint8)
 
-    return {"color1": color1, "color2": color2}
+    return color1, color2
 
 
 def scan_black_n_white(full_image):
@@ -161,32 +157,26 @@ def scan_black_n_white(full_image):
                 blackest = value
                 blackest_coords = (x, y)
 
-    return {
-        "black": {
-            "luma": blackest,
-            "rgb": np.array(img_bnw.getpixel(blackest_coords), dtype=np.uint8),
-        },
-        "white": {
-            "luma": whitest,
-            "rgb": np.array(img_bnw.getpixel(whitest_coords), dtype=np.uint8),
-        },
-    }
+    black = img_bnw.getpixel(blackest_coords)
+    white = img_bnw.getpixel(whitest_coords)
+
+    return black, white
 
 
-def scan_field(full_image, black, white, color1, color2):
+def scan_field(full_image, colors):
     sub_image = get_sub_image(full_image, WINDOW_AREAS["field"])
-    return processBoard(sub_image, black, white, color1, color2)
+    return processBoard(sub_image, colors)
 
 
-def scan_spawn(full_image, black_luma):
+def scan_spawn(full_image, colors):
     sub_image = get_sub_image(full_image, WINDOW_AREAS["stats2"])
-    return processSpawn(sub_image, black_luma)
+    return processSpawn(sub_image, colors)
 
 
 def scan_stats_text(full_image):
     raise NotImplementedError
 
 
-def scan_preview(full_image, black_luma):
+def scan_preview(full_image, colors):
     sub_image = get_sub_image(full_image, WINDOW_AREAS["preview"])
-    return processPreview(sub_image, black_luma)
+    return processPreview(sub_image, colors)

@@ -13,11 +13,11 @@ except ImportError:
 
 
 # expecting all 4 colors as np.array(dtype=np.uint8)
-def parseImage(img, black, white, color1, color2):
+def parseImage(img, colors):
     img = img.resize((10, 20), PIL.Image.NEAREST)
     img = np.array(img, dtype=np.uint8)
 
-    return parseImage2(img, black, white, color1, color2)
+    return parseImage2(img, colors.black, colors.white, colors.color1, colors.color2)
 
 
 # run as python -m ocr_algo.board

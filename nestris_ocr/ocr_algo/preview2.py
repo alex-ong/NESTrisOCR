@@ -10,7 +10,7 @@ PreviewImageSize = (31, 15)
 
 
 # look at assets/doc for description
-def parseImage(img, black_luma=15):
+def parseImage(img, colors):
     img = img.resize((31, 15), Image.BOX)
     img = ImageEnhance.Contrast(img).enhance(3.0)
     img = img.convert("L")
@@ -18,6 +18,9 @@ def parseImage(img, black_luma=15):
     img = np.asarray(img)
     # img is in y,x format
     img = np.reshape(img, (15, -1))
+
+    black_luma = colors.black_luma
+
     img = np.vectorize(lambda pixel: 1 if pixel > black_luma else 0)(img)
 
     # first, check for I and None

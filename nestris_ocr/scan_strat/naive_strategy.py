@@ -65,13 +65,11 @@ class NaiveStrategy(BaseStrategy):
 
     def scan_black_n_white(self, img):
         result = scan_black_n_white(img)
-        self.black = result["black"]
-        self.white = result["white"]
+        self.colors.setBlackWhite(*result)
 
     def scan_colors(self, img):
         result = scan_colors(img)
-        self.color1 = result["color1"]
-        self.color2 = result["color2"]
+        self.colors.setColor1Color2(*result)
 
     def levelInt(self):
         try:
@@ -83,14 +81,12 @@ class NaiveStrategy(BaseStrategy):
             return 0
 
     def lookup_colors_w_interpolation(self, img):
-        result = lookup_colors(self.levelInt(), self.black["rgb"], self.white["rgb"])
-        self.color1 = result["color1"]
-        self.color2 = result["color2"]
+        result = lookup_colors(self.levelInt(), self.colors)
+        self.colors.setColor1Color2(*result)
 
     def lookup_colors(self, img):
         result = lookup_colors(self.levelInt())
-        self.color1 = result["color1"]
-        self.color2 = result["color2"]
+        self.colors.setColor1Color2(*result)
 
     def scan_score(self, img):
         self.score = scan_score(img, "OOOOOO")
@@ -102,16 +98,14 @@ class NaiveStrategy(BaseStrategy):
         self.level = scan_level(img)
 
     def scan_field(self, img):
-        result = scan_field(
-            img, self.black["rgb"], self.white["rgb"], self.color1, self.color2
-        )
+        result = scan_field(img, self.colors)
         self.field = FieldState(result)
 
     def scan_preview(self, img):
-        self.preview = scan_preview(img, self.black["luma"])
+        self.preview = scan_preview(img, self.colors)
 
     def scan_spawn(self, img):
-        piece = scan_spawn(img, self.black["luma"])
+        piece = scan_spawn(img, self.colors)
         self.piece_stats.update(piece, self.current_time)
 
     def scan_stats_text(self, img):

@@ -1,14 +1,10 @@
-﻿import numpy as np
-from enum import Enum
-from nestris_ocr.utils.lib import luma
+﻿from enum import Enum
+from nestris_ocr.types import Colors
 from nestris_ocr.ocr_state.piece_stats import PieceStatAccumulator
 
 
 BLACKISH = (10, 10, 10)
 WHITEISH = (245, 245, 245)
-
-DEFAULT_BLACK = {"luma": luma(BLACKISH), "rgb": np.array(BLACKISH, dtype=np.uint8)}
-DEFAULT_WHITE = {"luma": luma(WHITEISH), "rgb": np.array(WHITEISH, dtype=np.uint8)}
 
 
 class GameState(Enum):
@@ -30,9 +26,6 @@ def dict_zfill(item, digits):
 
 class BaseStrategy(object):
     def __init__(self):
-        self.black = DEFAULT_BLACK
-        self.white = DEFAULT_WHITE
-
         self.lines = None
         self.score = None
         self.level = None
@@ -46,6 +39,7 @@ class BaseStrategy(object):
         self.gamestate = GameState.MENU
         self.das_counter = 0
         self.current_time = 0
+        self.colors = Colors(BLACKISH, WHITEISH)
 
     # todo: don't include items that aren't enabled in config
     def to_dict_menu(self):
