@@ -34,7 +34,7 @@ class FastestStrategy(BaseStrategy):
                 if config["calibration.dynamic_black_n_white"]:
                     # read once per game
                     result = scan_black_n_white(self.current_frame)
-                    self.colors(*result)
+                    self.colors.setBlackWhite(*result)
 
                 self.level = int(level)
                 self.lines = 0
