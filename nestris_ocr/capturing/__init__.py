@@ -40,6 +40,7 @@ def init_capture(source_id, xywh_box):
             if image:
                 print("Capture device ready!")
                 break
+
         except Exception:
             print("Capture device not ready. {}...".format(i))
             time.sleep(1)

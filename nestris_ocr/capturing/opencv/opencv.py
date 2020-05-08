@@ -13,9 +13,8 @@ from nestris_ocr.types import XYWHBox
 class OpenCVCapture(AbstractCapture):
     def __init__(self, source_id: str, xywh_box: XYWHBox) -> None:
         super().__init__(source_id, xywh_box)
-
+        print("Initializing capture device")
         self.cap = cv2.VideoCapture(int(source_id))
-
         self.cv2_retval = None
         self.cv2_image = None
         self.image_ts = None
