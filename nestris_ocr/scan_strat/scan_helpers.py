@@ -46,18 +46,17 @@ def get_window_areas():
 
     # calibration of the color blocks include the edges (black),
     # and some of the "shine" white pixels
-    # The actual color is in the center, so we do an extra crop now
-    color_crop_factor = 0.5
+    # For the stats pieces, the color is in the lower-right quadrant of the piece block
     for color in ("color1", "color2"):
         x, y, w, h = mult_rect(
             config["calibration.game_coords"], config["calibration.pct." + color]
         )
 
         xywh = (
-            x + floor(w * color_crop_factor / 2),
-            y + floor(h * color_crop_factor / 2),
-            ceil(w * color_crop_factor),
-            ceil(h * color_crop_factor),
+            x + floor(w * 0.5),
+            y + floor(h * 0.5),
+            ceil(w * 0.4),
+            ceil(h * 0.4),
         )
 
         base_map[color] = xywh_to_ltrb(xywh)

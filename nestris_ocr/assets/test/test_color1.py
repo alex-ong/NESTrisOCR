@@ -6,7 +6,7 @@ from math import floor, ceil
 
 big_size = 150
 
-original_img = Image.open("nestris_ocr/assets/test/color2.jpg")
+original_img = Image.open("nestris_ocr/assets/sample_inputs/easiercap/lvl7/color1.png")
 original_img.resize((big_size, big_size), Image.NEAREST).show()
 
 iterations = 1000
@@ -54,13 +54,12 @@ original_img.filter(blur).resize((1, 1), Image.NEAREST).resize(
 ### Crop First + blur + resize nearest ###
 # =============================
 
-crop_factor = 0.5
 img = original_img.crop(
     (
-        floor(original_img.width * crop_factor * 0.5),
-        floor(original_img.height * crop_factor * 0.5),
-        ceil(original_img.width * crop_factor * 1.5),
-        ceil(original_img.height * crop_factor * 1.5),
+        floor(original_img.width * 0.5),
+        floor(original_img.height * 0.5),
+        ceil(original_img.width * 0.9),
+        ceil(original_img.height * 0.9),
     )
 )
 
