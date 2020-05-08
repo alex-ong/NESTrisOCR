@@ -1,4 +1,4 @@
-﻿from PIL import Image, ImageFilter
+﻿from PIL import Image
 from math import ceil, floor
 from nestris_ocr.config import config
 from nestris_ocr.ocr_algo.digit import scoreImage as processDigits
@@ -16,9 +16,6 @@ PATTERNS = {
     "stats": "DDD",
     "das": "BD",
 }
-
-SLIGHT_BLUR = ImageFilter.GaussianBlur()
-SLIGHT_BLUR.radius = 1
 
 
 # A few notes
@@ -105,19 +102,13 @@ def scan_lines(full_image, digit_mask="OOO"):
 
 
 def scan_colors(full_image):
-    color1 = (
-        get_sub_image(full_image, WINDOW_AREAS["color1"])
-        .filter(SLIGHT_BLUR)
-        .resize((1, 1), Image.NEAREST)
-        .getpixel((0, 0))
-    )
+    color1 = get_sub_image(full_image, WINDOW_AREAS["color1"])
+    color1 = color1.resize((1, 1), Image.ANTIALIAS)
+    color1 = color1.getpixel((0, 0))
 
-    color2 = (
-        get_sub_image(full_image, WINDOW_AREAS["color2"])
-        .filter(SLIGHT_BLUR)
-        .resize((1, 1), Image.NEAREST)
-        .getpixel((0, 0))
-    )
+    color2 = get_sub_image(full_image, WINDOW_AREAS["color2"])
+    color2 = color2.resize((1, 1), Image.ANTIALIAS)
+    color2 = color2.getpixel((0, 0))
 
     return color1, color2
 

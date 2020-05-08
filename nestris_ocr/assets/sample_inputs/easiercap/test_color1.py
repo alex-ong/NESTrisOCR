@@ -8,11 +8,11 @@ big_size = 60
 offset = 10
 span = big_size + offset
 
-result_image = Image.new("RGB", (span * 4, span * 3 * 2 * 10), (0, 0, 0, 255))
+result_image = Image.new("RGB", (span * 4, span * 4 * 2 * 10), (0, 0, 0, 255))
 
 
 def runFor(level, color, iterations=1):
-    result_y = (span * 3) * (2 * level + (color - 1))
+    result_y = (span * 4) * (2 * level + (color - 1))
 
     original_img = Image.open(
         "nestris_ocr/assets/sample_inputs/easiercap/lvl%d/color%d.png" % (level, color)
@@ -22,6 +22,7 @@ def runFor(level, color, iterations=1):
     result_image.paste(tmp, (0, result_y))
     result_image.paste(tmp, (0, result_y + span))
     result_image.paste(tmp, (0, result_y + span * 2))
+    result_image.paste(tmp, (0, result_y + span * 3))
 
     # =============================
     ### Current algoritm ###
@@ -69,7 +70,7 @@ def runFor(level, color, iterations=1):
     ### Crop First + blur + resize nearest ###
     # =============================
 
-    img = original_img.crop(
+    cropped = original_img.crop(
         (
             floor(original_img.width * 0.5),
             floor(original_img.height * 0.5),
@@ -78,26 +79,46 @@ def runFor(level, color, iterations=1):
         )
     )
 
-    tmp = img.resize((big_size, big_size), Image.NEAREST)
+    tmp = cropped.resize((big_size, big_size), Image.NEAREST)
     result_image.paste(tmp, (span * 1, result_y + span * 2))
 
-    tmp = img.filter(blur).resize((big_size, big_size), Image.NEAREST)
+    tmp = cropped.filter(blur).resize((big_size, big_size), Image.NEAREST)
     result_image.paste(tmp, (span * 2, result_y + span * 2))
 
     start = time.time()
     for i in range(iterations):
-        color = img.filter(blur).resize((1, 1), Image.NEAREST).getpixel((0, 0))
+        color = cropped.filter(blur).resize((1, 1), Image.NEAREST).getpixel((0, 0))
 
     elapsed = time.time() - start
     print("crop first+blur", elapsed, elapsed / iterations)
     print("crop first+blur", color)
 
     tmp = (
-        img.filter(blur)
+        cropped.filter(blur)
         .resize((1, 1), Image.NEAREST)
         .resize((big_size, big_size), Image.NEAREST)
     )
     result_image.paste(tmp, (span * 3, result_y + span * 2))
+
+    # =============================
+    ### Crop First + resize antialias ###
+    # =============================
+
+    tmp = cropped.resize((big_size, big_size), Image.NEAREST)
+    result_image.paste(tmp, (span * 1, result_y + span * 3))
+
+    start = time.time()
+    for i in range(iterations):
+        color = cropped.resize((1, 1), Image.ANTIALIAS).getpixel((0, 0))
+
+    elapsed = time.time() - start
+    print("crop first+blur", elapsed, elapsed / iterations)
+    print("crop first+blur", color)
+
+    tmp = cropped.resize((1, 1), Image.ANTIALIAS).resize(
+        (big_size, big_size), Image.NEAREST
+    )
+    result_image.paste(tmp, (span * 3, result_y + span * 3))
 
 
 for level in range(10):
