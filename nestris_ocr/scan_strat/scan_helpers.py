@@ -103,11 +103,11 @@ def scan_lines(full_image, digit_mask="OOO"):
 
 def scan_colors(full_image):
     color1 = get_sub_image(full_image, WINDOW_AREAS["color1"])
-    color1 = color1.resize((1, 1), Image.ANTIALIAS)
+    color1 = color1.resize((1, 1), Image.BOX)
     color1 = color1.getpixel((0, 0))
 
     color2 = get_sub_image(full_image, WINDOW_AREAS["color2"])
-    color2 = color2.resize((1, 1), Image.ANTIALIAS)
+    color2 = color2.resize((1, 1), Image.BOX)
     color2 = color2.getpixel((0, 0))
 
     return color1, color2

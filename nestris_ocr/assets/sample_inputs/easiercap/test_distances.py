@@ -8,21 +8,39 @@ blur = ImageFilter.GaussianBlur()
 blur.radius = 1
 
 
-def getColorOld(colImg):
-    return colImg.resize((1, 1), Image.ANTIALIAS).getpixel((0, 0))
-
-
-def getColorNew(colImg):
-    tmp = colImg.crop(
+def crop(source):
+    return source.crop(
         (
-            floor(colImg.width * 0.5),
-            floor(colImg.height * 0.5),
-            ceil(colImg.width * 0.9),
-            ceil(colImg.height * 0.9),
+            floor(source.width * 0.5),
+            floor(source.height * 0.5),
+            ceil(source.width * 0.9),
+            ceil(source.height * 0.9),
         )
     )
 
-    return tmp.filter(blur).resize((1, 1), Image.NEAREST).getpixel((0, 0))
+
+def getColorExisting(colImg):
+    return colImg.resize((1, 1), Image.ANTIALIAS).getpixel((0, 0))
+
+
+def getColorCropBlurNearest(colImg):
+    return crop(colImg).filter(blur).resize((1, 1), Image.NEAREST).getpixel((0, 0))
+
+
+def getColorCropAntialias(colImg):
+    return crop(colImg).resize((1, 1), Image.ANTIALIAS).getpixel((0, 0))
+
+
+def getColorCropBox(colImg):
+    return crop(colImg).resize((1, 1), Image.BOX).getpixel((0, 0))
+
+
+methods = {
+    "existing": getColorExisting,
+    "cropBlurNearest": getColorCropBlurNearest,
+    "cropAntialias": getColorCropAntialias,
+    "cropBox": getColorCropBox,
+}
 
 
 def distance(pixel, color):
@@ -37,8 +55,9 @@ def getMatchAndDistance(field, colorsOld, colorsNew):
     total_distance = 0
     matches = 0
     differs = 0
-    better = 0
     equal = 0
+    better = 0
+    worse = 0
     issues = []
     data = []
 
@@ -74,8 +93,10 @@ def getMatchAndDistance(field, colorsOld, colorsNew):
 
                 if dist > 0:  # old is larger than new. i.e. worse
                     better += 1
-                if dist == 0:  # old is larger than new. i.e. worse
+                elif dist == 0:  # old is larger than new. i.e. worse
                     equal += 1
+                else:
+                    worse += 1
 
             else:
                 differs += 1
@@ -83,7 +104,7 @@ def getMatchAndDistance(field, colorsOld, colorsNew):
 
     return {
         "matches": matches,
-        "better_and_equal": (better, equal),
+        "equal_better_worse": (equal, better, worse),
         "differs": differs,
         "issues": issues,
         "avg_gain": total_distance / 200.0,
@@ -91,7 +112,7 @@ def getMatchAndDistance(field, colorsOld, colorsNew):
     }
 
 
-def printRes(res, debug=False):
+def printRes(res, method1, method2, debug=False):
     print("board")
 
     if debug:
@@ -102,7 +123,7 @@ def printRes(res, debug=False):
         print("==========")
 
     print("matches", res["matches"])
-    print("better_and_equal", res["better_and_equal"])
+    print("equal,better,worse", res["equal_better_worse"])
     print("differs", res["differs"])
     print("avg_gain", res["avg_gain"])
 
@@ -115,7 +136,8 @@ def printRes(res, debug=False):
             print(issue[3])
 
 
-def test(level, debug=False):
+def test(method1, method2, level, debug=False):
+    print("Comparing %s vs %s" % (method1, method2))
     print("==========")
     print("level %d" % (level,))
 
@@ -134,25 +156,28 @@ def test(level, debug=False):
         img_col1.show()
         img_col2.show()
 
+    # this is how the field is looked at to pick 10x20 unique pixels
     img_field = img_field.resize((10, 20), Image.NEAREST)
 
     if debug:
         img_field.show()
 
-    colorsOld = Colors()
-    colorsOld.setColor1Color2(getColorOld(img_col1), getColorOld(img_col2))
-    print("old", colorsOld.black, colorsOld.white, colorsOld.color1, colorsOld.color2)
+    getter1 = methods[method1]
+    colorsM1 = Colors()
+    colorsM1.setColor1Color2(getter1(img_col1), getter1(img_col2))
+    print(method1, colorsM1.black, colorsM1.white, colorsM1.color1, colorsM1.color2)
 
-    colorsNew = Colors()
-    colorsNew.setColor1Color2(getColorNew(img_col1), getColorNew(img_col2))
-    print("new", colorsNew.black, colorsNew.white, colorsNew.color1, colorsNew.color2)
+    getter2 = methods[method2]
+    colorsM2 = Colors()
+    colorsM2.setColor1Color2(getter2(img_col1), getter2(img_col2))
+    print(method2, colorsM2.black, colorsM2.white, colorsM2.color1, colorsM2.color2)
 
-    res = getMatchAndDistance(img_field, colorsOld, colorsNew)
+    res = getMatchAndDistance(img_field, colorsM1, colorsM2)
 
-    printRes(res)
+    printRes(res, method1, method2)
 
     return res
 
 
 for level in range(10):
-    test(level)
+    test("cropAntialias", "cropBox", level)
