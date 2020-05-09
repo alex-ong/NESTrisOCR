@@ -61,18 +61,24 @@ def highlight_preview(c):
 
 def highlight_das_trainer(c):
     currentPiecePix = mult_rect(
-        c["calibration.game_coords"], c["calibration.pct.das_current_piece"]
+        c["calibration.game_coords"], c["calibration.pct.das.current_piece"]
     )
     currentPieceImg = captureArea(currentPiecePix)
     currentPieceImg = currentPieceImg.resize(PreviewImageSize, Image.BOX)
 
     currentPieceDasPix = mult_rect(
-        c["calibration.game_coords"], c["calibration.pct.das_current_piece_das"]
+        c["calibration.game_coords"], c["calibration.pct.das.current_piece_das"]
     )
     currentPieceDasImg = captureArea(currentPieceDasPix)
     currentPieceDasImg = currentPieceDasImg.resize(finalImageSize(2))
 
-    return currentPieceImg, currentPieceDasImg
+    instantDasPix = mult_rect(
+        c["calibration.game_coords"], c["calibration.pct.das.instant_das"]
+    )
+    instantDasImg = captureArea(instantDasPix)
+    instantDasImg = instantDasImg.resize(finalImageSize(2))
+
+    return currentPieceImg, currentPieceDasImg, instantDasImg
 
 
 def highlight_calibration(img, c):
@@ -206,13 +212,19 @@ def highlight_calibration(img, c):
     if c["calibration.capture_das"]:
         draw.rectangle(
             screenPercToPixels(
-                img.width, img.height, c["calibration.pct.das_current_piece_das"]
+                img.width, img.height, c["calibration.pct.das.current_piece_das"]
             ),
             fill=green,
         )
         draw.rectangle(
             screenPercToPixels(
-                img.width, img.height, c["calibration.pct.das_current_piece"]
+                img.width, img.height, c["calibration.pct.das.instant_das"]
+            ),
+            fill=red,
+        )
+        draw.rectangle(
+            screenPercToPixels(
+                img.width, img.height, c["calibration.pct.das.current_piece"]
             ),
             fill=blue,
         )

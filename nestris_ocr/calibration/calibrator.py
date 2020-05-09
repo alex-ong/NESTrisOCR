@@ -268,12 +268,14 @@ class Calibrator(tk.Frame):
         )
         self.dasEnabledChooser.grid(row=0, columnspan=2)
 
+        # Current Piece
+
         self.dasCurrentPieceChooser = CompactRectChooser(
             f,
             "Current Piece (imagePerc)",
-            config["calibration.pct.das_current_piece"],
+            config["calibration.pct.das.current_piece"],
             True,
-            self.gen_set_config_and_redraw("calibration.pct.das_current_piece"),
+            self.gen_set_config_and_redraw("calibration.pct.das.current_piece"),
         )
         self.dasCurrentPieceChooser.grid(row=1, columnspan=2)
 
@@ -281,23 +283,45 @@ class Calibrator(tk.Frame):
         self.dasCurrentPieceImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
         self.dasCurrentPieceImage.grid(row=2, columnspan=2)
 
+        # Instant DAS
+
+        canvasSize = [UPSCALE * i for i in finalImageSize(2)]
+        Button(
+            f,
+            text="Auto Adjust Instant DAS \n Needs CURRENT DAS = 00",
+            command=self.autoInstantDas,
+            bg="red",
+        ).grid(row=3, column=0)
+        self.instantDasPercChooser = CompactRectChooser(
+            f,
+            "instantDas (imagePerc)",
+            config["calibration.pct.das.instant_das"],
+            True,
+            self.gen_set_config_and_redraw("calibration.pct.das.instant_das"),
+        )
+        self.instantDasPercChooser.grid(row=3, column=1)
+        self.instantDasImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
+        self.instantDasImage.grid(row=4, columnspan=2)
+
+        # Current piece DAS
+
         canvasSize = [UPSCALE * i for i in finalImageSize(2)]
         Button(
             f,
             text="Auto Adjust Current Piece DAS \n Needs START DAS = 00",
             command=self.autoCurrentPieceDas,
             bg="red",
-        ).grid(row=3, column=0)
+        ).grid(row=5, column=0)
         self.currentPieceDasPercChooser = CompactRectChooser(
             f,
             "currentPieceDas (imagePerc)",
-            config["calibration.pct.das_current_piece_das"],
+            config["calibration.pct.das.current_piece_das"],
             True,
-            self.gen_set_config_and_redraw("calibration.pct.das_current_piece_das"),
+            self.gen_set_config_and_redraw("calibration.pct.das.current_piece_das"),
         )
-        self.currentPieceDasPercChooser.grid(row=3, column=1)
+        self.currentPieceDasPercChooser.grid(row=5, column=1)
         self.currentPieceDasImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
-        self.currentPieceDasImage.grid(row=4, columnspan=2)
+        self.currentPieceDasImage.grid(row=6, columnspan=2)
 
         self.tabManager.add(f, text="DasTrainer")
 
@@ -341,6 +365,7 @@ class Calibrator(tk.Frame):
             self.previewImage.grid()
             self.dasCurrentPieceImage.grid()
             self.currentPieceDasImage.grid()
+            self.instantDasImage.grid()
             self.samplePreviewImage.grid()
             self.samplePreviewLabel.grid()
         else:
@@ -348,6 +373,7 @@ class Calibrator(tk.Frame):
             self.previewImage.grid_forget()
             self.dasCurrentPieceImage.grid_forget()
             self.currentPieceDasImage.grid_forget()
+            self.instantDasImage.grid_forget()
             self.samplePreviewImage.grid_forget()
             self.samplePreviewLabel.grid_forget()
 
@@ -396,16 +422,22 @@ class Calibrator(tk.Frame):
             )
             self.previewImage.updateImage(preview_img)
         elif self.getActiveTab() == 3:  # DAS Trainer
-            current_piece_img, current_piece_das_img = highlight_das_trainer(
-                self.config
-            )
+            (
+                current_piece_img,
+                current_piece_das_img,
+                instant_das_img,
+            ) = highlight_das_trainer(self.config)
             current_piece_img = current_piece_img.resize(
                 (UPSCALE * 2 * i for i in current_piece_img.size)
+            )
+            instant_das_img = instant_das_img.resize(
+                (UPSCALE * i for i in instant_das_img.size)
             )
             current_piece_das_img = current_piece_das_img.resize(
                 (UPSCALE * i for i in current_piece_das_img.size)
             )
 
+            self.instantDasImage.updateImage(instant_das_img)
             self.dasCurrentPieceImage.updateImage(current_piece_img)
             self.currentPieceDasImage.updateImage(current_piece_das_img)
 
@@ -448,14 +480,26 @@ class Calibrator(tk.Frame):
     def autoCurrentPieceDas(self):
         bestRect = autoAdjustRectangle(
             self.config["calibration.game_coords"],
-            self.config["calibration.pct.das_current_piece_das"],
+            self.config["calibration.pct.das.current_piece_das"],
             2,
         )
         if bestRect is not None:
             self.levelPerc.show(str(item) for item in bestRect)
-            self.config["calibration.pct.das_current_piece_das"] = bestRect
+            self.config["calibration.pct.das.current_piece_das"] = bestRect
         else:
             print("Please have current piece das on screen as 00")
+
+    def autoInstantDas(self):
+        bestRect = autoAdjustRectangle(
+            self.config["calibration.game_coords"],
+            self.config["calibration.pct.das.instant_das"],
+            2,
+        )
+        if bestRect is not None:
+            self.levelPerc.show(str(item) for item in bestRect)
+            self.config["calibration.pct.das.instant_das"] = bestRect
+        else:
+            print("Please have instant das on screen as 00")
 
     def getNewBoardImage(self):
         return draw_calibration(self.config)
