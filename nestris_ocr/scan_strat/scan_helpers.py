@@ -1,4 +1,5 @@
-﻿import PIL
+﻿from PIL import Image
+from math import ceil, floor
 from nestris_ocr.config import config
 from nestris_ocr.ocr_algo.digit import scoreImage as processDigits
 from nestris_ocr.ocr_algo.board import parseImage as processBoard
@@ -28,8 +29,6 @@ def get_window_areas():
         "lines": config["calibration.pct.lines"],
         "level": config["calibration.pct.level"],
         "field": config["calibration.pct.field"],
-        "color1": config["calibration.pct.color1"],
-        "color2": config["calibration.pct.color2"],
         "black_n_white": config["calibration.pct.black_n_white"],
         "stats2": config.stats2_percentages,
         "stats": config["calibration.pct.stats"],
@@ -37,10 +36,29 @@ def get_window_areas():
         "flash": config["calibration.pct.flash"],
     }
 
-    return {
+    base_map = {
         key: xywh_to_ltrb(mult_rect(config["calibration.game_coords"], value))
         for key, value in mapping.items()
     }
+
+    # calibration of the color blocks include the edges (black),
+    # and some of the "shine" white pixels
+    # For the stats pieces, the color is in the lower-right quadrant of the piece block
+    for color in ("color1", "color2"):
+        x, y, w, h = mult_rect(
+            config["calibration.game_coords"], config["calibration.pct." + color]
+        )
+
+        xywh = (
+            x + floor(w * 0.5),
+            y + floor(h * 0.5),
+            ceil(w * 0.4),
+            ceil(h * 0.4),
+        )
+
+        base_map[color] = xywh_to_ltrb(xywh)
+
+    return base_map
 
 
 WINDOW_AREAS = get_window_areas()
@@ -85,11 +103,11 @@ def scan_lines(full_image, digit_mask="OOO"):
 
 def scan_colors(full_image):
     color1 = get_sub_image(full_image, WINDOW_AREAS["color1"])
-    color1 = color1.resize((1, 1), PIL.Image.ANTIALIAS)
+    color1 = color1.resize((1, 1), Image.BOX)
     color1 = color1.getpixel((0, 0))
 
     color2 = get_sub_image(full_image, WINDOW_AREAS["color2"])
-    color2 = color2.resize((1, 1), PIL.Image.ANTIALIAS)
+    color2 = color2.resize((1, 1), Image.BOX)
     color2 = color2.getpixel((0, 0))
 
     return color1, color2
