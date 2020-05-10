@@ -53,13 +53,23 @@ class NaiveStrategy(BaseStrategy):
                 tasks.append(self.scan_stats_text)
         return tasks
 
-    # Naive strategy does not care about gamestate
     def update_menu(self):
-        self.gamestate = GameState.IN_GAME
+        for task in self.tasks:
+            task(self.current_frame)
+
+        if self.lines and self.score and self.level:
+            self.gamestate = GameState.IN_GAME
+            if self.lines == "000" and self.score == "000000":
+                return True
+
+        return False
 
     def update_ingame(self):
         for task in self.tasks:
             task(self.current_frame)
+
+        if not self.lines:
+            self.gamestate = GameState.MENU
 
     def scan_black_n_white(self, img):
         result = scan_black_n_white(img)

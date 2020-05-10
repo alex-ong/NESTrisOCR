@@ -22,35 +22,39 @@ def clamp(my_value, min_value, max_value):
 
 
 class FastestStrategy(BaseStrategy):
+    def on_newgame(self):
+        super().on_newgame()
+        if config["calibration.dynamic_black_n_white"]:
+            # read once per game
+            bw_info = scan_black_n_white(self.current_frame)
+            self.colors.setBlackWhite(*bw_info)
+
+        self.lines = 0
+        self.score = 0
+        self.start_level = self.level
+        self.field = None
+        self.piece_stats.reset()
+
+        self.get_colors(self.current_frame)
+
     # simply tries to get into game
     def update_menu(self):
-        # use default black and white on start
         lines = scan_lines(self.current_frame, "OOO")
         score = scan_score(self.current_frame, "OOOOOO")
         level = scan_level(self.current_frame)
 
         if lines and score and level:
             if lines == "000" and score == "000000":
-                if config["calibration.dynamic_black_n_white"]:
-                    # read once per game
-                    result = scan_black_n_white(self.current_frame)
-                    self.colors.setBlackWhite(*result)
-
-                self.level = int(level)
-                self.lines = 0
-                self.score = 0
-                self.start_level = self.level
+                self.level = int(level)  # need to set this here.
                 self.gamestate = GameState.IN_GAME
-                self.field = None
-                self.gameid += 1
-                self.piece_stats.reset()
-
-                self.get_colors(self.current_frame)
-
-                print("moved from menu to game")
+                return True
             elif int(lines) == self.lines:
                 self.gamestate = GameState.IN_GAME
-                # requireFullRefresh = True
+                return False
+            else:
+                pass  # TODO: full refresh required
+
+        return False
 
     def update_ingame(self):
         piece_spawned = False
