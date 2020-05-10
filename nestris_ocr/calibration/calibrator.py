@@ -103,6 +103,7 @@ class Calibrator(tk.Frame):
 
         self.tabManager = ttk.Notebook(self)
         self.tabManager.grid(row=3, column=1, sticky="nsew")
+        self.tabManager.bind("<<NotebookTabChanged>>", self.redrawImages)
 
         self.setupTab1()
         self.setupTab2()
@@ -404,7 +405,7 @@ class Calibrator(tk.Frame):
         capture.xywh_box = result
         self.redrawImages()
 
-    def redrawImages(self):
+    def redrawImages(self, event=None):
         self.lastUpdate = time.time()
         board = self.getNewBoardImage()
         if board is None:
