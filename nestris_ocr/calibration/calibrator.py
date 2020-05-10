@@ -200,8 +200,16 @@ class Calibrator(tk.Frame):
             True,
             self.gen_set_config_and_redraw("calibration.pct.flash"),
         )
+        e = CompactRectChooser(
+            f,
+            "Black and White",
+            config["calibration.pct.black_n_white"],
+            True,
+            self.gen_set_config_and_redraw("calibration.pct.black_n_white"),
+        )
 
         self.flashPosition = d
+        self.blackWhite = e
         self.fieldCaptures = [a, b, c]
         self.pieceStats = CompactRectChooser(
             f,
@@ -210,10 +218,10 @@ class Calibrator(tk.Frame):
             True,
             self.gen_set_config_and_redraw("calibration.pct.stats"),
         )
-        a.grid()
         b.grid()
         c.grid()
         d.grid()
+        e.grid()
 
         self.pieceStats.grid()
         self.setFieldTextVisible()

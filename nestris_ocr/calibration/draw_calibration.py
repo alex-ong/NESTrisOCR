@@ -108,28 +108,14 @@ def highlight_calibration(img, c):
             screenPercToPixels(img.width, img.height, rect), fill=blue
         )  # level
 
+    if c["calibration.dynamic_black_n_white"]:
+        highlight_calibration_blackwhite(img, c, draw)
+
     if c["calibration.capture_field"]:
-        fieldPerc = c["calibration.pct.field"]
-        for x in range(10):
-            for y in range(20):
-                blockPercX = lerp(
-                    fieldPerc[0], fieldPerc[0] + fieldPerc[2], x / 10.0 + 1 / 20.0
-                )
-                blockPercY = lerp(
-                    fieldPerc[1], fieldPerc[1] + fieldPerc[3], y / 20.0 + 1 / 40.0
-                )
-                rect = (blockPercX - 0.01, blockPercY - 0.01, 0.02, 0.02)
-                draw.rectangle(
-                    screenPercToPixels(img.width, img.height, rect), fill=red
-                )
-        draw.rectangle(
-            screenPercToPixels(img.width, img.height, c["calibration.pct.color1"]),
-            fill=orange,
-        )
-        draw.rectangle(
-            screenPercToPixels(img.width, img.height, c["calibration.pct.color2"]),
-            fill=orange,
-        )
+        highlight_calibration_field(img, c, draw)
+
+        if c["calibration.dynamic_color"]:
+            highlight_calibration_color1color2(img, c, draw)
 
     if c["stats.enabled"]:
         if c["stats.capture_method"] == "TEXT":
@@ -176,6 +162,38 @@ def highlight_calibration(img, c):
 
     img.paste(poly, mask=poly)
     del draw
+
+
+def highlight_calibration_field(img, c, draw):
+    fieldPerc = c["calibration.pct.field"]
+    for x in range(10):
+        for y in range(20):
+            blockPercX = lerp(
+                fieldPerc[0], fieldPerc[0] + fieldPerc[2], x / 10.0 + 1 / 20.0
+            )
+            blockPercY = lerp(
+                fieldPerc[1], fieldPerc[1] + fieldPerc[3], y / 20.0 + 1 / 40.0
+            )
+            rect = (blockPercX - 0.01, blockPercY - 0.01, 0.02, 0.02)
+            draw.rectangle(screenPercToPixels(img.width, img.height, rect), fill=red)
+
+
+def highlight_calibration_color1color2(img, c, draw):
+    draw.rectangle(
+        screenPercToPixels(img.width, img.height, c["calibration.pct.color1"]),
+        fill=orange,
+    )
+    draw.rectangle(
+        screenPercToPixels(img.width, img.height, c["calibration.pct.color2"]),
+        fill=orange,
+    )
+
+
+def highlight_calibration_blackwhite(img, c, draw):
+    draw.rectangle(
+        screenPercToPixels(img.width, img.height, c["calibration.pct.black_n_white"]),
+        fill=orange,
+    )
 
 
 def highlight_calibration_preview(img, c, draw):
