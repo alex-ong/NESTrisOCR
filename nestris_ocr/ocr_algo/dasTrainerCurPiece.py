@@ -1,7 +1,5 @@
 ﻿CurPieceImageSize = (23, 12)
 
-BLACK_LIMIT = 20
-
 CURRENT_PIECE_BLOCKS = {
     # Alignment 1
     "Z": ((0.140, 0.192), (0.462, 0.192), (0.462, 0.846), (0.769, 0.846)),
@@ -17,26 +15,18 @@ CURRENT_PIECE_BLOCKS = {
 }
 
 
-def luma(pixel):
-    return pixel[0] * 0.299 + pixel[1] * 0.587 + pixel[2] * 0.114
-
-
-def is_block_active(stage_img, x, y):
-    # fastest, but perhaps not so accurate?
-    _luma = luma(stage_img[x, y])
-    return _luma > BLACK_LIMIT
-
-
 def parseImage(img, colors):
-    loaded_img = img.load()
+    w = img.width
+    h = img.height
 
     for name, blocks in CURRENT_PIECE_BLOCKS.items():
         detected = True
 
         for block in blocks:
-            if not is_block_active(
-                loaded_img, round(block[0] * img.width), round(block[1] * img.height)
-            ):
+            x = round(block[0] * w)
+            y = round(block[1] * h)
+
+            if colors.isBlack(img.getpixel((x, y))):
                 detected = False
                 break
 
