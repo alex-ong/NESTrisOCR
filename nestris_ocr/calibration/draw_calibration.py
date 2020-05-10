@@ -11,6 +11,12 @@ from nestris_ocr.ocr_algo.digit import finalImageSize
 from nestris_ocr.ocr_algo.piece_stats_text import generate_stats
 from nestris_ocr.ocr_algo.preview import calculateOffsets, PreviewImageSize
 
+red = (255, 0, 0, 128)
+green = (0, 255, 0, 128)
+blue = (0, 100, 255, 128)
+orange = (255, 165, 0, 128)
+yellow = (255, 255, 0, 128)
+
 
 # splits rectangle by digits.
 # assumes 7 pixels with 1 pixel gaps.
@@ -84,12 +90,6 @@ def highlight_das_trainer(c):
 def highlight_calibration(img, c):
     poly = Image.new("RGBA", (img.width, img.height))
     draw = ImageDraw.Draw(poly)
-
-    red = (255, 0, 0, 128)
-    green = (0, 255, 0, 128)
-    blue = (0, 100, 255, 128)
-    orange = (255, 165, 0, 128)
-    yellow = (255, 255, 0, 128)
 
     scorePerc, linesPerc, levelPerc = (
         c["calibration.pct.score"],
@@ -210,27 +210,25 @@ def highlight_calibration(img, c):
         )
 
     if c["calibration.capture_das"]:
-        draw.rectangle(
-            screenPercToPixels(
-                img.width, img.height, c["calibration.pct.das.current_piece_das"]
-            ),
-            fill=green,
-        )
-        draw.rectangle(
-            screenPercToPixels(
-                img.width, img.height, c["calibration.pct.das.instant_das"]
-            ),
-            fill=red,
-        )
-        draw.rectangle(
-            screenPercToPixels(
-                img.width, img.height, c["calibration.pct.das.current_piece"]
-            ),
-            fill=blue,
-        )
+        highlight_calibration_das(img, c, draw)
 
     img.paste(poly, mask=poly)
     del draw
+
+
+def highlight_calibration_das(img, c, draw):
+    for rect in splitRect(c["calibration.pct.das.current_piece_das"], 2):
+        draw.rectangle(screenPercToPixels(img.width, img.height, rect), fill=green)
+
+    for rect in splitRect(c["calibration.pct.das.instant_das"], 2):
+        draw.rectangle(screenPercToPixels(img.width, img.height, rect), fill=red)
+
+    draw.rectangle(
+        screenPercToPixels(
+            img.width, img.height, c["calibration.pct.das.current_piece"]
+        ),
+        fill=blue,
+    )
 
 
 # todo, return image or array of images with cropped out sections.
