@@ -189,10 +189,10 @@ class Calibrator(tk.Frame):
             True,
             self.gen_set_config_and_redraw("calibration.pct.field"),
         )
-        self.fieldChooser.grid(row=0, columnspan=2)
+        self.fieldChooser.grid(row=0)
 
         self.colorCapture = tk.Frame(self.fieldCapture)
-        self.colorCapture.grid(row=1, columnspan=2)
+        self.colorCapture.grid(row=1)
 
         self.color1Chooser = CompactRectChooser(
             self.colorCapture,
@@ -398,17 +398,11 @@ class Calibrator(tk.Frame):
         if show:
             self.previewPiece.grid()
             self.previewImage.grid()
-            self.dasCurrentPieceImage.grid()
-            self.currentPieceDasImage.grid()
-            self.instantDasImage.grid()
             self.samplePreviewImage.grid()
             self.samplePreviewLabel.grid()
         else:
             self.previewPiece.grid_forget()
             self.previewImage.grid_forget()
-            self.dasCurrentPieceImage.grid_forget()
-            self.currentPieceDasImage.grid_forget()
-            self.instantDasImage.grid_forget()
             self.samplePreviewImage.grid_forget()
             self.samplePreviewLabel.grid_forget()
 

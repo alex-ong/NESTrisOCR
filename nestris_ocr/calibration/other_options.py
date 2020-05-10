@@ -36,12 +36,26 @@ class OtherOptions(tk.Toplevel):
             config["performance.support_hex_score"],
             self.changeHexSupport,
         )
+
+        self.blackWhiteCap = BoolChooser(
+            self,
+            "Capture Black & White",
+            config["calibration.dynamic_black_n_white"],
+            self.changeCaptureBlackWhite,
+        )
+
         # captureField
         self.fieldCap = BoolChooser(
             self,
             "Capture game field",
             config["calibration.capture_field"],
             self.changeCaptureField,
+        )
+        self.colorsCap = BoolChooser(
+            self,
+            "Capture colors",
+            config["calibration.dynamic_colors"],
+            self.changeCaptureColors,
         )
 
         # capturePreview
@@ -82,7 +96,9 @@ class OtherOptions(tk.Toplevel):
         self.presets.pack(fill="both")
         self.mt.pack(fill="both")
         self.hex.pack(fill="both")
+        self.blackWhiteCap.pack(fill="both")
         self.fieldCap.pack(fill="both")
+        self.colorsCap.pack(fill="both")
         self.prevCap.pack(fill="both")
         self.statCap.pack(fill="both")
         if config["stats.enabled"]:
@@ -100,11 +116,14 @@ class OtherOptions(tk.Toplevel):
     def refreshValues(self):
         self.mt.refresh(self.config["performance.num_threads"])
         self.hex.refresh(self.config["performance.support_hex_score"])
+        self.blackWhiteCap.refresh(self.config["calibration.dynamic_black_n_white"])
         self.fieldCap.refresh(self.config["calibration.capture_field"])
+        self.colorsCap.refresh(self.config["calibration.dynamic_colors"])
         self.prevCap.refresh(self.config["calibration.capture_preview"])
         self.statCap.refresh(self.config["stats.enabled"])
         self.statsMethod.refresh(self.config["stats.capture_method"])
         self.showHideStatsMethod()
+        self.showHideColors()
 
     def changeMultiThread(self, value):
         self.config["performance.num_threads"] = value
@@ -114,6 +133,13 @@ class OtherOptions(tk.Toplevel):
 
     def changeCaptureField(self, value):
         self.config["calibration.capture_field"] = value
+        self.showHideColors()
+
+    def changeCaptureBlackWhite(self, value):
+        self.config["calibration.dynamic_black_n_white"] = value
+
+    def changeCaptureColors(self, value):
+        self.config["calibration.dynamic_colors"] = value
 
     def changeCapturePreview(self, value):
         self.config["calibration.capture_preview"] = value
@@ -123,6 +149,12 @@ class OtherOptions(tk.Toplevel):
             self.statsMethod.pack(fill="both")
         else:
             self.statsMethod.pack_forget()
+
+    def showHideColors(self):
+        if self.config["calibration.capture_field"]:
+            self.colorsCap.pack(fill="both")
+        else:
+            self.colorsCap.pack_forget()
 
     def changeCaptureStats(self, value):
         self.config["stats.enabled"] = value
