@@ -47,9 +47,9 @@ CONFIG_DEFAULTS = {
     "calibration.pct.preview": [0.753, 0.5, 0.12, 0.064],
 
     "calibration.capture_das": True,
-    "calibration.pct.das.current_piece": [0.0620, 0.199, 0.09, 0.052],
-    "calibration.pct.das.current_piece_das": [0.22, 0.216, 0.058, 0.03],
-    "calibration.pct.das.instant_das": [0.158, 0.142, 0.058, 0.032],
+    "calibration.pct.das.current_piece": [0.060, 0.191, 0.09, 0.059],
+    "calibration.pct.das.current_piece_das": [0.216, 0.211, 0.061, 0.034],
+    "calibration.pct.das.instant_das": [0.154, 0.134, 0.061, 0.034],
 
     "network.host": "127.0.0.1",
     "network.port": 3338,
