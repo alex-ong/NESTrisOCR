@@ -55,7 +55,8 @@ CONFIG_DEFAULTS = {
     "network.port": 3338,
     "network.protocol": "LEGACY",
 
-    "debug.print_packet": True
+    "debug.print_packet": True,
+    "debug.print_benchmark": False
 }
 # fmt: on
 CONFIG_CHOICES = {
@@ -81,7 +82,7 @@ class Config:
 
     def __getitem__(self, key):
         if key not in CONFIG_DEFAULTS:
-            raise KeyError("Invalid key")
+            raise KeyError("Invalid key %s" % (key,))
 
         return self.data.get(key, CONFIG_DEFAULTS[key])
 

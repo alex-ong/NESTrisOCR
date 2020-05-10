@@ -27,7 +27,7 @@ def is_block_active(stage_img, x, y):
     return _luma > BLACK_LIMIT
 
 
-def parseImage(img):
+def parseImage(img, colors):
     loaded_img = img.load()
 
     for name, blocks in CURRENT_PIECE_BLOCKS.items():
