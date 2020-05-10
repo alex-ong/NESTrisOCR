@@ -35,7 +35,7 @@ CONFIG_DEFAULTS = {
     "calibration.capture_field": False,
     "calibration.pct.field": [0.376, 0.175, 0.311, 0.72],
 
-    "calibration.dynamic_color": True,
+    "calibration.dynamic_colors": True,
     "calibration.pct.color1": [0.151, 0.48, 0.018, 0.018],
     "calibration.pct.color2": [0.151, 0.554, 0.018, 0.018],
 

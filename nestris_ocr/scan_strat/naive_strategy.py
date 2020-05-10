@@ -37,7 +37,7 @@ class NaiveStrategy(BaseStrategy):
         tasks.append(self.scan_level)
 
         if config["calibration.capture_field"]:
-            if config["calibration.dynamic_color"]:
+            if config["calibration.dynamic_colors"]:
                 tasks.append(self.scan_colors)
             else:
                 tasks.append(self.lookup_colors)

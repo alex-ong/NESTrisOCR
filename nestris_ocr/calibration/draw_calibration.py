@@ -42,7 +42,7 @@ def captureArea(coords=None):
     return image.crop(xywh_to_ltrb(coords))
 
 
-def highlight_split_digits(c):
+def capture_split_digits(c):
     scorePix = mult_rect(c["calibration.game_coords"], c["calibration.pct.score"])
     linesPix = mult_rect(c["calibration.game_coords"], c["calibration.pct.lines"])
     levelPix = mult_rect(c["calibration.game_coords"], c["calibration.pct.level"])
@@ -58,14 +58,33 @@ def highlight_split_digits(c):
     return scoreImg, linesImg, levelImg
 
 
-def highlight_preview(c):
+def capture_preview(c):
     previewPix = mult_rect(c["calibration.game_coords"], c["calibration.pct.preview"])
     previewImg = captureArea(previewPix)
     previewImg = previewImg.resize(PreviewImageSize, Image.BOX)
     return previewImg
 
 
-def highlight_das_trainer(c):
+def capture_color1color2(c):
+    color1Pix = mult_rect(c["calibration.game_coords"], c["calibration.pct.color1"])
+    color1Img = captureArea(color1Pix)
+
+    color2Pix = mult_rect(c["calibration.game_coords"], c["calibration.pct.color2"])
+    color2Img = captureArea(color2Pix)
+
+    return color1Img, color2Img
+
+
+def capture_blackwhite(c):
+    blackWhitePix = mult_rect(
+        c["calibration.game_coords"], c["calibration.pct.black_n_white"]
+    )
+    blackWhiteImg = captureArea(blackWhitePix)
+
+    return blackWhiteImg
+
+
+def capture_das_trainer(c):
     currentPiecePix = mult_rect(
         c["calibration.game_coords"], c["calibration.pct.das.current_piece"]
     )
@@ -114,7 +133,7 @@ def highlight_calibration(img, c):
     if c["calibration.capture_field"]:
         highlight_calibration_field(img, c, draw)
 
-        if c["calibration.dynamic_color"]:
+        if c["calibration.dynamic_colors"]:
             highlight_calibration_color1color2(img, c, draw)
 
     if c["stats.enabled"]:

@@ -113,7 +113,7 @@ class FastestStrategy(BaseStrategy):
                     pass
 
     def get_colors(self, img):
-        if config["calibration.dynamic_color"]:
+        if config["calibration.dynamic_colors"]:
             result = scan_colors(img)
             self.colors.setColor1Color2(*result)
         else:
