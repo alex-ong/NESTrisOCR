@@ -196,7 +196,7 @@ class Calibrator(tk.Frame):
 
         self.color1Chooser = CompactRectChooser(
             self.colorCapture,
-            "Color1 (imagePerc)",
+            "Color1 (imagePerc)\nSelect whole block without black border",
             config["calibration.pct.color1"],
             True,
             self.gen_set_config_and_redraw("calibration.pct.color1"),
@@ -209,7 +209,7 @@ class Calibrator(tk.Frame):
 
         self.color2Chooser = CompactRectChooser(
             self.colorCapture,
-            "Color2 (imagePerc)",
+            "Color2 (imagePerc)\nSelect whole block without black border",
             config["calibration.pct.color2"],
             True,
             self.gen_set_config_and_redraw("calibration.pct.color2"),
@@ -231,7 +231,7 @@ class Calibrator(tk.Frame):
 
         self.blackWhiteChooser = CompactRectChooser(
             f,
-            "Black and White",
+            "Black and White\nSelect an area with both pure white and pure black",
             config["calibration.pct.black_n_white"],
             True,
             self.gen_set_config_and_redraw("calibration.pct.black_n_white"),
