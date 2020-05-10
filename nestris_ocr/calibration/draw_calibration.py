@@ -7,9 +7,8 @@ from nestris_ocr.utils.lib import (
     lerp,
     mult_rect,
 )
-from nestris_ocr.ocr_algo.digit import finalImageSize
 from nestris_ocr.ocr_algo.piece_stats_text import generate_stats
-from nestris_ocr.ocr_algo.preview import calculateOffsets, PreviewImageSize
+from nestris_ocr.ocr_algo.preview import calculateOffsets
 
 red = (255, 0, 0, 128)
 green = (0, 255, 0, 128)
@@ -51,17 +50,12 @@ def capture_split_digits(c):
     linesImg = captureArea(linesPix)
     levelImg = captureArea(levelPix)
 
-    scoreImg = scoreImg.resize(finalImageSize(6))
-    linesImg = linesImg.resize(finalImageSize(3))
-    levelImg = levelImg.resize(finalImageSize(2))
-
     return scoreImg, linesImg, levelImg
 
 
 def capture_preview(c):
     previewPix = mult_rect(c["calibration.game_coords"], c["calibration.pct.preview"])
     previewImg = captureArea(previewPix)
-    previewImg = previewImg.resize(PreviewImageSize, Image.BOX)
     return previewImg
 
 
@@ -89,19 +83,16 @@ def capture_das_trainer(c):
         c["calibration.game_coords"], c["calibration.pct.das.current_piece"]
     )
     currentPieceImg = captureArea(currentPiecePix)
-    currentPieceImg = currentPieceImg.resize(PreviewImageSize, Image.BOX)
 
     currentPieceDasPix = mult_rect(
         c["calibration.game_coords"], c["calibration.pct.das.current_piece_das"]
     )
     currentPieceDasImg = captureArea(currentPieceDasPix)
-    currentPieceDasImg = currentPieceDasImg.resize(finalImageSize(2))
 
     instantDasPix = mult_rect(
         c["calibration.game_coords"], c["calibration.pct.das.instant_das"]
     )
     instantDasImg = captureArea(instantDasPix)
-    instantDasImg = instantDasImg.resize(finalImageSize(2))
 
     return currentPieceImg, currentPieceDasImg, instantDasImg
 

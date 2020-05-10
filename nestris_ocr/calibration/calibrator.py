@@ -444,9 +444,9 @@ class Calibrator(tk.Frame):
 
         if self.getActiveTab() == 0:  # text
             score_img, lines_img, level_img = capture_split_digits(self.config)
-            score_img = score_img.resize((UPSCALE * i for i in score_img.size))
-            lines_img = lines_img.resize((UPSCALE * i for i in lines_img.size))
-            level_img = level_img.resize((UPSCALE * i for i in level_img.size))
+            score_img = score_img.resize((UPSCALE * i for i in finalImageSize(6)))
+            lines_img = lines_img.resize((UPSCALE * i for i in finalImageSize(3)))
+            level_img = level_img.resize((UPSCALE * i for i in finalImageSize(2)))
             self.linesImage.updateImage(lines_img)
             self.scoreImage.updateImage(score_img)
             self.levelImage.updateImage(level_img)
@@ -466,7 +466,7 @@ class Calibrator(tk.Frame):
         elif self.getActiveTab() == 2:  # preview
             preview_img = capture_preview(self.config)
             preview_img = preview_img.resize(
-                (UPSCALE * 2 * i for i in preview_img.size)
+                (UPSCALE * 2 * i for i in PreviewImageSize)
             )
             self.previewImage.updateImage(preview_img)
 
@@ -480,10 +480,10 @@ class Calibrator(tk.Frame):
                 (UPSCALE * 2 * i for i in current_piece_img.size)
             )
             instant_das_img = instant_das_img.resize(
-                (UPSCALE * i for i in instant_das_img.size)
+                (UPSCALE * i for i in finalImageSize(2))
             )
             current_piece_das_img = current_piece_das_img.resize(
-                (UPSCALE * i for i in current_piece_das_img.size)
+                (UPSCALE * i for i in finalImageSize(2))
             )
 
             self.instantDasImage.updateImage(instant_das_img)
