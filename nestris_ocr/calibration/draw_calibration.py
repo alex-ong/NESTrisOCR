@@ -163,45 +163,7 @@ def highlight_calibration(img, c):
                     )
 
     if c["calibration.capture_preview"]:
-        draw.rectangle(
-            screenPercToPixels(img.width, img.height, c["calibration.pct.preview"]),
-            fill=blue,
-        )
-        pixelWidth = c["calibration.pct.preview"][2] / 31.0
-        pixelHeight = c["calibration.pct.preview"][3] / 15.0
-
-        blockWidth = pixelWidth * 7
-        blockHeight = pixelHeight * 7
-
-        t1 = (
-            c["calibration.pct.preview"][0] + 4 * pixelWidth,
-            c["calibration.pct.preview"][1],
-            blockWidth,
-            blockHeight,
-        )
-        t2 = (
-            c["calibration.pct.preview"][0] + 12 * pixelWidth,
-            c["calibration.pct.preview"][1],
-            blockWidth,
-            blockHeight,
-        )
-        t3 = (
-            c["calibration.pct.preview"][0] + 20 * pixelWidth,
-            c["calibration.pct.preview"][1],
-            blockWidth,
-            blockHeight,
-        )
-        t4 = (
-            c["calibration.pct.preview"][0] + 12 * pixelWidth,
-            c["calibration.pct.preview"][1] + pixelHeight * 8,
-            blockWidth,
-            blockHeight,
-        )
-        for rect in [t1, t2, t3, t4]:
-            draw.rectangle(screenPercToPixels(img.width, img.height, rect), fill=orange)
-        for o in calculateOffsets():
-            rect = (o[0], o[1], pixelWidth, pixelHeight)
-            draw.rectangle(screenPercToPixels(img.width, img.height, rect), fill="red")
+        highlight_calibration_preview(img, c, draw)
 
     if c["calibration.flash_method"] == "BACKGROUND":
         draw.rectangle(
@@ -214,6 +176,51 @@ def highlight_calibration(img, c):
 
     img.paste(poly, mask=poly)
     del draw
+
+
+def highlight_calibration_preview(img, c, draw):
+    draw.rectangle(
+        screenPercToPixels(img.width, img.height, c["calibration.pct.preview"]),
+        fill=blue,
+    )
+
+    pixelWidth = c["calibration.pct.preview"][2] / 31.0
+    pixelHeight = c["calibration.pct.preview"][3] / 15.0
+
+    blockWidth = pixelWidth * 7
+    blockHeight = pixelHeight * 7
+
+    t1 = (
+        c["calibration.pct.preview"][0] + 4 * pixelWidth,
+        c["calibration.pct.preview"][1],
+        blockWidth,
+        blockHeight,
+    )
+    t2 = (
+        c["calibration.pct.preview"][0] + 12 * pixelWidth,
+        c["calibration.pct.preview"][1],
+        blockWidth,
+        blockHeight,
+    )
+    t3 = (
+        c["calibration.pct.preview"][0] + 20 * pixelWidth,
+        c["calibration.pct.preview"][1],
+        blockWidth,
+        blockHeight,
+    )
+    t4 = (
+        c["calibration.pct.preview"][0] + 12 * pixelWidth,
+        c["calibration.pct.preview"][1] + pixelHeight * 8,
+        blockWidth,
+        blockHeight,
+    )
+
+    for rect in [t1, t2, t3, t4]:
+        draw.rectangle(screenPercToPixels(img.width, img.height, rect), fill=orange)
+
+    for o in calculateOffsets():
+        rect = (o[0], o[1], pixelWidth, pixelHeight)
+        draw.rectangle(screenPercToPixels(img.width, img.height, rect), fill="red")
 
 
 def highlight_calibration_das(img, c, draw):
