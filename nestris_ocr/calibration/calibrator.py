@@ -26,6 +26,7 @@ from nestris_ocr.capturing import capture
 from nestris_ocr.config import config
 from nestris_ocr.ocr_algo.digit import finalImageSize, scoreImage0
 from nestris_ocr.ocr_algo.preview2 import PreviewImageSize
+from nestris_ocr.ocr_algo.dasTrainerCurPiece import CurPieceImageSize
 from nestris_ocr.utils.lib import mult_rect
 
 UPSCALE = 2
@@ -52,7 +53,7 @@ class Calibrator(tk.Frame):
             "capture window starts with:",
             config["calibration.source_id"],
             self.gen_set_config_and_redraw("calibration.source_id"),
-            20,
+            100,  # source ids can be local file or openCV stream URLs
         ).grid(row=0, sticky="nsew")
         StringChooser(
             self,
@@ -307,7 +308,6 @@ class Calibrator(tk.Frame):
         self.dasEnabledChooser.grid(row=0, columnspan=2)
 
         # Current Piece
-
         self.dasCurrentPieceChooser = CompactRectChooser(
             f,
             "Current Piece (imagePerc)",
@@ -317,13 +317,14 @@ class Calibrator(tk.Frame):
         )
         self.dasCurrentPieceChooser.grid(row=1, columnspan=2)
 
-        canvasSize = [UPSCALE * 2 * i for i in PreviewImageSize]
+        canvasSize = [UPSCALE * 2 * i for i in CurPieceImageSize]
         self.dasCurrentPieceImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
         self.dasCurrentPieceImage.grid(row=2, columnspan=2)
 
         # Instant DAS
 
         canvasSize = [UPSCALE * i for i in finalImageSize(2)]
+
         Button(
             f,
             text="Auto Adjust Instant DAS \n Needs CURRENT DAS = 00",
@@ -349,6 +350,7 @@ class Calibrator(tk.Frame):
             command=self.autoCurrentPieceDas,
             bg="red",
         ).grid(row=5, column=0)
+
         self.currentPieceDasPercChooser = CompactRectChooser(
             f,
             "currentPieceDas (imagePerc)",
@@ -479,7 +481,7 @@ class Calibrator(tk.Frame):
                 instant_das_img,
             ) = capture_das_trainer(self.config)
             current_piece_img = current_piece_img.resize(
-                (UPSCALE * 2 * i for i in current_piece_img.size)
+                (UPSCALE * 2 * i for i in CurPieceImageSize)
             )
             instant_das_img = instant_das_img.resize(
                 (UPSCALE * i for i in finalImageSize(2))

@@ -268,6 +268,13 @@ def highlight_calibration_das(img, c, draw):
 
 # todo, return image or array of images with cropped out sections.
 def draw_calibration(config):
+    try:
+        capture.set_source_id(config["calibration.source_id"])
+    except AttributeError:
+        pass
+    except FileNotFoundError:
+        pass
+
     img = captureArea()
     if config["calibration.capture_method"] == "FILE":
         for i in range(10):
