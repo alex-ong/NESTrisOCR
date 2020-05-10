@@ -229,18 +229,21 @@ class Calibrator(tk.Frame):
         )
         self.flashChooser.grid(row=1, columnspan=2)
 
+        self.blackWhiteCapture = tk.Frame(self.fieldCapture)
+        self.blackWhiteCapture.grid(row=2, columnspan=2)
+
         self.blackWhiteChooser = CompactRectChooser(
-            f,
+            self.blackWhiteCapture,
             "Black and White\nSelect an area with both pure white and pure black",
             config["calibration.pct.black_n_white"],
             True,
             self.gen_set_config_and_redraw("calibration.pct.black_n_white"),
         )
-        self.blackWhiteChooser.grid(row=2, column=0)
+        self.blackWhiteChooser.grid(row=0, column=0)
         self.blackWhiteImage = ImageCanvas(
-            f, blackWhiteImageSize[0], blackWhiteImageSize[1]
+            self.blackWhiteCapture, blackWhiteImageSize[0], blackWhiteImageSize[1]
         )
-        self.blackWhiteImage.grid(row=2, column=1)
+        self.blackWhiteImage.grid(row=0, column=1)
 
         self.pieceStatsChooser = CompactRectChooser(
             f,
@@ -370,6 +373,11 @@ class Calibrator(tk.Frame):
             self.flashChooser.grid_forget()
 
     def setFieldTextVisible(self):
+        if self.config["calibration.dynamic_black_n_white"]:
+            self.blackWhiteCapture.grid(row=2, columnspan=2)
+        else:
+            self.blackWhiteCapture.grid_forget()
+
         if self.config["calibration.capture_field"] or (
             self.config["stats.enabled"]
             and self.config["stats.capture_method"] == "FIELD"
