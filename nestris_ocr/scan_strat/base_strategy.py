@@ -31,8 +31,8 @@ class BaseStrategy(object):
         self.gameid = 0
         self.piece_stats = PieceStatAccumulator()
         self.gamestate = GameState.MENU
-        self.current_piece = None
-        self.current_piece_das = None
+        self.cur_piece = None
+        self.cur_piece_das = None
         self.instant_das = None
         self.current_time = 0
         self.colors = Colors()

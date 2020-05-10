@@ -67,8 +67,8 @@ class NaiveStrategy(BaseStrategy):
         result = super(NaiveStrategy, self).to_dict()
 
         if config["calibration.capture_das"]:
-            result["current_piece"] = self.current_piece
-            result["current_piece_das"] = self.current_piece_das
+            result["cur_piece"] = self.cur_piece
+            result["cur_piece_das"] = self.cur_piece_das
             result["instant_das"] = self.instant_das
 
         return result
@@ -133,10 +133,10 @@ class NaiveStrategy(BaseStrategy):
         self.piece_stats.update(piece, self.current_time)
 
     def scan_das_current_piece(self, img):
-        self.current_piece = scan_das_current_piece(img, self.colors)
+        self.cur_piece = scan_das_current_piece(img, self.colors)
 
     def scan_das_current_piece_das(self, img):
-        self.current_piece_das = scan_das_current_piece_das(img, "OO")
+        self.cur_piece_das = scan_das_current_piece_das(img, "OO")
 
     def scan_das_instant_das(self, img):
         self.instant_das = scan_das_instant_das(img, "OO")
