@@ -4,7 +4,9 @@ import time
 from nestris_ocr.config import config
 
 capture_method = config["calibration.capture_method"]
-if capture_method == "OPENCV":
+if capture_method == "STATIC":
+    from nestris_ocr.capturing.static import StaticCapture as Capture
+elif capture_method == "OPENCV":
     from nestris_ocr.capturing.opencv import OpenCVCapture as Capture
 elif capture_method == "FILE":
     from nestris_ocr.capturing.file import FileCapture as Capture
