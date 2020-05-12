@@ -16,12 +16,14 @@ class StringChooser(tk.Frame):
 
     def changeValueText(self):
         success = len(self.value.get()) < self.maxLength
+        """
         for item in self.value.get():
             if (
                 item
                 not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRUSTUVWXYZ-_1234567890"
             ):
                 success = False
+        """
         if success:
             self.OnChange(self.value.get())
             self.lastValue = self.value.get()

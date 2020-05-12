@@ -35,7 +35,7 @@ CONFIG_DEFAULTS = {
     "calibration.capture_field": False,
     "calibration.pct.field": [0.376, 0.175, 0.311, 0.72],
 
-    "calibration.dynamic_color": True,
+    "calibration.dynamic_colors": True,
     "calibration.pct.color1": [0.151, 0.48, 0.018, 0.018],
     "calibration.pct.color2": [0.151, 0.554, 0.018, 0.018],
 
@@ -47,8 +47,9 @@ CONFIG_DEFAULTS = {
     "calibration.pct.preview": [0.753, 0.5, 0.12, 0.064],
 
     "calibration.capture_das": True,
-    "calibration.pct.das_current_piece": [0.0620, 0.199, 0.09, 0.052],
-    "calibration.pct.das_current_piece_das": [0.22, 0.216, 0.058, 0.03],
+    "calibration.pct.das.current_piece": [0.060, 0.191, 0.09, 0.059],
+    "calibration.pct.das.current_piece_das": [0.216, 0.211, 0.061, 0.034],
+    "calibration.pct.das.instant_das": [0.154, 0.134, 0.061, 0.034],
 
     "network.host": "127.0.0.1",
     "network.port": 3338,
@@ -81,7 +82,7 @@ class Config:
 
     def __getitem__(self, key):
         if key not in CONFIG_DEFAULTS:
-            raise KeyError("Invalid key")
+            raise KeyError("Invalid key %s" % (key,))
 
         return self.data.get(key, CONFIG_DEFAULTS[key])
 

@@ -4,6 +4,7 @@ from nestris_ocr.config import config
 from nestris_ocr.ocr_algo.digit import scoreImage as processDigits
 from nestris_ocr.ocr_algo.board import parseImage as processBoard
 from nestris_ocr.ocr_algo.preview2 import parseImage as processPreview
+from nestris_ocr.ocr_algo.dasTrainerCurPiece import parseImage as processCurrentPiece
 from nestris_ocr.ocr_algo.piece_stats_spawn import parseImage as processSpawn
 from nestris_ocr.utils import xywh_to_ltrb
 from nestris_ocr.utils.lib import mult_rect
@@ -34,6 +35,10 @@ def get_window_areas():
         "stats": config["calibration.pct.stats"],
         "preview": config["calibration.pct.preview"],
         "flash": config["calibration.pct.flash"],
+        # das trainer
+        "current_piece": config["calibration.pct.das.current_piece"],
+        "current_piece_das": config["calibration.pct.das.current_piece_das"],
+        "instant_das": config["calibration.pct.das.instant_das"],
     }
 
     base_map = {
@@ -159,3 +164,20 @@ def scan_stats_text(full_image):
 def scan_preview(full_image, colors):
     sub_image = get_sub_image(full_image, WINDOW_AREAS["preview"])
     return processPreview(sub_image, colors)
+
+
+def scan_das_current_piece(full_image, colors):
+    sub_image = get_sub_image(full_image, WINDOW_AREAS["current_piece"])
+    return processCurrentPiece(sub_image, colors)
+
+
+def scan_das_current_piece_das(full_image, digit_mask="OO"):
+    return scan_text(
+        full_image, PATTERNS["das"], digit_mask, WINDOW_AREAS["current_piece_das"]
+    )
+
+
+def scan_das_instant_das(full_image, digit_mask="OO"):
+    return scan_text(
+        full_image, PATTERNS["das"], digit_mask, WINDOW_AREAS["instant_das"]
+    )

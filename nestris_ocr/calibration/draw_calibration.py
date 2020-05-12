@@ -7,9 +7,14 @@ from nestris_ocr.utils.lib import (
     lerp,
     mult_rect,
 )
-from nestris_ocr.ocr_algo.digit import finalImageSize
 from nestris_ocr.ocr_algo.piece_stats_text import generate_stats
-from nestris_ocr.ocr_algo.preview import calculateOffsets, PreviewImageSize
+from nestris_ocr.ocr_algo.preview import calculateOffsets
+
+red = (255, 0, 0, 128)
+green = (0, 255, 0, 128)
+blue = (0, 100, 255, 128)
+orange = (255, 165, 0, 128)
+yellow = (255, 255, 0, 128)
 
 
 # splits rectangle by digits.
@@ -36,7 +41,7 @@ def captureArea(coords=None):
     return image.crop(xywh_to_ltrb(coords))
 
 
-def highlight_split_digits(c):
+def capture_split_digits(c):
     scorePix = mult_rect(c["calibration.game_coords"], c["calibration.pct.score"])
     linesPix = mult_rect(c["calibration.game_coords"], c["calibration.pct.lines"])
     levelPix = mult_rect(c["calibration.game_coords"], c["calibration.pct.level"])
@@ -45,45 +50,56 @@ def highlight_split_digits(c):
     linesImg = captureArea(linesPix)
     levelImg = captureArea(levelPix)
 
-    scoreImg = scoreImg.resize(finalImageSize(6))
-    linesImg = linesImg.resize(finalImageSize(3))
-    levelImg = levelImg.resize(finalImageSize(2))
-
     return scoreImg, linesImg, levelImg
 
 
-def highlight_preview(c):
+def capture_preview(c):
     previewPix = mult_rect(c["calibration.game_coords"], c["calibration.pct.preview"])
     previewImg = captureArea(previewPix)
-    previewImg = previewImg.resize(PreviewImageSize, Image.BOX)
     return previewImg
 
 
-def highlight_das_trainer(c):
+def capture_color1color2(c):
+    color1Pix = mult_rect(c["calibration.game_coords"], c["calibration.pct.color1"])
+    color1Img = captureArea(color1Pix)
+
+    color2Pix = mult_rect(c["calibration.game_coords"], c["calibration.pct.color2"])
+    color2Img = captureArea(color2Pix)
+
+    return color1Img, color2Img
+
+
+def capture_blackwhite(c):
+    blackWhitePix = mult_rect(
+        c["calibration.game_coords"], c["calibration.pct.black_n_white"]
+    )
+    blackWhiteImg = captureArea(blackWhitePix)
+
+    return blackWhiteImg
+
+
+def capture_das_trainer(c):
     currentPiecePix = mult_rect(
-        c["calibration.game_coords"], c["calibration.pct.das_current_piece"]
+        c["calibration.game_coords"], c["calibration.pct.das.current_piece"]
     )
     currentPieceImg = captureArea(currentPiecePix)
-    currentPieceImg = currentPieceImg.resize(PreviewImageSize, Image.BOX)
 
     currentPieceDasPix = mult_rect(
-        c["calibration.game_coords"], c["calibration.pct.das_current_piece_das"]
+        c["calibration.game_coords"], c["calibration.pct.das.current_piece_das"]
     )
     currentPieceDasImg = captureArea(currentPieceDasPix)
-    currentPieceDasImg = currentPieceDasImg.resize(finalImageSize(2))
 
-    return currentPieceImg, currentPieceDasImg
+    instantDasPix = mult_rect(
+        c["calibration.game_coords"], c["calibration.pct.das.instant_das"]
+    )
+    instantDasImg = captureArea(instantDasPix)
+
+    return currentPieceImg, currentPieceDasImg, instantDasImg
 
 
 def highlight_calibration(img, c):
     poly = Image.new("RGBA", (img.width, img.height))
     draw = ImageDraw.Draw(poly)
-
-    red = (255, 0, 0, 128)
-    green = (0, 255, 0, 128)
-    blue = (0, 100, 255, 128)
-    orange = (255, 165, 0, 128)
-    yellow = (255, 255, 0, 128)
 
     scorePerc, linesPerc, levelPerc = (
         c["calibration.pct.score"],
@@ -102,28 +118,14 @@ def highlight_calibration(img, c):
             screenPercToPixels(img.width, img.height, rect), fill=blue
         )  # level
 
+    if c["calibration.dynamic_black_n_white"]:
+        highlight_calibration_blackwhite(img, c, draw)
+
     if c["calibration.capture_field"]:
-        fieldPerc = c["calibration.pct.field"]
-        for x in range(10):
-            for y in range(20):
-                blockPercX = lerp(
-                    fieldPerc[0], fieldPerc[0] + fieldPerc[2], x / 10.0 + 1 / 20.0
-                )
-                blockPercY = lerp(
-                    fieldPerc[1], fieldPerc[1] + fieldPerc[3], y / 20.0 + 1 / 40.0
-                )
-                rect = (blockPercX - 0.01, blockPercY - 0.01, 0.02, 0.02)
-                draw.rectangle(
-                    screenPercToPixels(img.width, img.height, rect), fill=red
-                )
-        draw.rectangle(
-            screenPercToPixels(img.width, img.height, c["calibration.pct.color1"]),
-            fill=orange,
-        )
-        draw.rectangle(
-            screenPercToPixels(img.width, img.height, c["calibration.pct.color2"]),
-            fill=orange,
-        )
+        highlight_calibration_field(img, c, draw)
+
+        if c["calibration.dynamic_colors"]:
+            highlight_calibration_color1color2(img, c, draw)
 
     if c["stats.enabled"]:
         if c["stats.capture_method"] == "TEXT":
@@ -157,45 +159,7 @@ def highlight_calibration(img, c):
                     )
 
     if c["calibration.capture_preview"]:
-        draw.rectangle(
-            screenPercToPixels(img.width, img.height, c["calibration.pct.preview"]),
-            fill=blue,
-        )
-        pixelWidth = c["calibration.pct.preview"][2] / 31.0
-        pixelHeight = c["calibration.pct.preview"][3] / 15.0
-
-        blockWidth = pixelWidth * 7
-        blockHeight = pixelHeight * 7
-
-        t1 = (
-            c["calibration.pct.preview"][0] + 4 * pixelWidth,
-            c["calibration.pct.preview"][1],
-            blockWidth,
-            blockHeight,
-        )
-        t2 = (
-            c["calibration.pct.preview"][0] + 12 * pixelWidth,
-            c["calibration.pct.preview"][1],
-            blockWidth,
-            blockHeight,
-        )
-        t3 = (
-            c["calibration.pct.preview"][0] + 20 * pixelWidth,
-            c["calibration.pct.preview"][1],
-            blockWidth,
-            blockHeight,
-        )
-        t4 = (
-            c["calibration.pct.preview"][0] + 12 * pixelWidth,
-            c["calibration.pct.preview"][1] + pixelHeight * 8,
-            blockWidth,
-            blockHeight,
-        )
-        for rect in [t1, t2, t3, t4]:
-            draw.rectangle(screenPercToPixels(img.width, img.height, rect), fill=orange)
-        for o in calculateOffsets():
-            rect = (o[0], o[1], pixelWidth, pixelHeight)
-            draw.rectangle(screenPercToPixels(img.width, img.height, rect), fill="red")
+        highlight_calibration_preview(img, c, draw)
 
     if c["calibration.flash_method"] == "BACKGROUND":
         draw.rectangle(
@@ -204,25 +168,113 @@ def highlight_calibration(img, c):
         )
 
     if c["calibration.capture_das"]:
-        draw.rectangle(
-            screenPercToPixels(
-                img.width, img.height, c["calibration.pct.das_current_piece_das"]
-            ),
-            fill=green,
-        )
-        draw.rectangle(
-            screenPercToPixels(
-                img.width, img.height, c["calibration.pct.das_current_piece"]
-            ),
-            fill=blue,
-        )
+        highlight_calibration_das(img, c, draw)
 
     img.paste(poly, mask=poly)
     del draw
 
 
+def highlight_calibration_field(img, c, draw):
+    fieldPerc = c["calibration.pct.field"]
+    for x in range(10):
+        for y in range(20):
+            blockPercX = lerp(
+                fieldPerc[0], fieldPerc[0] + fieldPerc[2], x / 10.0 + 1 / 20.0
+            )
+            blockPercY = lerp(
+                fieldPerc[1], fieldPerc[1] + fieldPerc[3], y / 20.0 + 1 / 40.0
+            )
+            rect = (blockPercX - 0.01, blockPercY - 0.01, 0.02, 0.02)
+            draw.rectangle(screenPercToPixels(img.width, img.height, rect), fill=red)
+
+
+def highlight_calibration_color1color2(img, c, draw):
+    draw.rectangle(
+        screenPercToPixels(img.width, img.height, c["calibration.pct.color1"]),
+        fill=orange,
+    )
+    draw.rectangle(
+        screenPercToPixels(img.width, img.height, c["calibration.pct.color2"]),
+        fill=orange,
+    )
+
+
+def highlight_calibration_blackwhite(img, c, draw):
+    draw.rectangle(
+        screenPercToPixels(img.width, img.height, c["calibration.pct.black_n_white"]),
+        fill=orange,
+    )
+
+
+def highlight_calibration_preview(img, c, draw):
+    draw.rectangle(
+        screenPercToPixels(img.width, img.height, c["calibration.pct.preview"]),
+        fill=blue,
+    )
+
+    pixelWidth = c["calibration.pct.preview"][2] / 31.0
+    pixelHeight = c["calibration.pct.preview"][3] / 15.0
+
+    blockWidth = pixelWidth * 7
+    blockHeight = pixelHeight * 7
+
+    t1 = (
+        c["calibration.pct.preview"][0] + 4 * pixelWidth,
+        c["calibration.pct.preview"][1],
+        blockWidth,
+        blockHeight,
+    )
+    t2 = (
+        c["calibration.pct.preview"][0] + 12 * pixelWidth,
+        c["calibration.pct.preview"][1],
+        blockWidth,
+        blockHeight,
+    )
+    t3 = (
+        c["calibration.pct.preview"][0] + 20 * pixelWidth,
+        c["calibration.pct.preview"][1],
+        blockWidth,
+        blockHeight,
+    )
+    t4 = (
+        c["calibration.pct.preview"][0] + 12 * pixelWidth,
+        c["calibration.pct.preview"][1] + pixelHeight * 8,
+        blockWidth,
+        blockHeight,
+    )
+
+    for rect in [t1, t2, t3, t4]:
+        draw.rectangle(screenPercToPixels(img.width, img.height, rect), fill=orange)
+
+    for o in calculateOffsets():
+        rect = (o[0], o[1], pixelWidth, pixelHeight)
+        draw.rectangle(screenPercToPixels(img.width, img.height, rect), fill="red")
+
+
+def highlight_calibration_das(img, c, draw):
+    for rect in splitRect(c["calibration.pct.das.current_piece_das"], 2):
+        draw.rectangle(screenPercToPixels(img.width, img.height, rect), fill=green)
+
+    for rect in splitRect(c["calibration.pct.das.instant_das"], 2):
+        draw.rectangle(screenPercToPixels(img.width, img.height, rect), fill=red)
+
+    draw.rectangle(
+        screenPercToPixels(
+            img.width, img.height, c["calibration.pct.das.current_piece"]
+        ),
+        fill=blue,
+    )
+
+
 # todo, return image or array of images with cropped out sections.
 def draw_calibration(config):
+    try:
+        capture.set_source_id(config["calibration.source_id"])
+    except AttributeError:
+        pass
+    except FileNotFoundError:
+        pass
+
     img = captureArea()
     if config["calibration.capture_method"] == "FILE":
         for i in range(10):

@@ -12,9 +12,11 @@ from nestris_ocr.calibration.rect_chooser import RectChooser, CompactRectChooser
 from nestris_ocr.calibration.image_canvas import ImageCanvas
 from nestris_ocr.calibration.draw_calibration import (
     draw_calibration,
-    highlight_das_trainer,
-    highlight_split_digits,
-    highlight_preview,
+    capture_das_trainer,
+    capture_split_digits,
+    capture_preview,
+    capture_color1color2,
+    capture_blackwhite,
     captureArea,
 )
 from nestris_ocr.calibration.other_options import create_window
@@ -24,10 +26,14 @@ from nestris_ocr.capturing import capture
 from nestris_ocr.config import config
 from nestris_ocr.ocr_algo.digit import finalImageSize, scoreImage0
 from nestris_ocr.ocr_algo.preview2 import PreviewImageSize
+from nestris_ocr.ocr_algo.dasTrainerCurPiece import CurPieceImageSize
 from nestris_ocr.utils.lib import mult_rect
 
 UPSCALE = 2
 ENABLE_OTHER_OPTIONS = True
+
+colorsImageSize = (80, 80)
+blackWhiteImageSize = (80, 80)
 
 
 class Calibrator(tk.Frame):
@@ -47,7 +53,7 @@ class Calibrator(tk.Frame):
             "capture window starts with:",
             config["calibration.source_id"],
             self.gen_set_config_and_redraw("calibration.source_id"),
-            20,
+            100,  # source ids can be local file or openCV stream URLs
         ).grid(row=0, sticky="nsew")
         StringChooser(
             self,
@@ -103,6 +109,7 @@ class Calibrator(tk.Frame):
 
         self.tabManager = ttk.Notebook(self)
         self.tabManager.grid(row=3, column=1, sticky="nsew")
+        self.tabManager.bind("<<NotebookTabChanged>>", self.redrawImages)
 
         self.setupTab1()
         self.setupTab2()
@@ -172,50 +179,82 @@ class Calibrator(tk.Frame):
 
     def setupTab2(self):
         f = tk.Frame(self.tabManager)
-        a = CompactRectChooser(
-            f,
+
+        self.fieldCapture = tk.Frame(f)
+        self.fieldCapture.grid(row=0, columnspan=2)
+
+        self.fieldChooser = CompactRectChooser(
+            self.fieldCapture,
             "field (imagePerc)",
             config["calibration.pct.field"],
             True,
             self.gen_set_config_and_redraw("calibration.pct.field"),
         )
-        b = CompactRectChooser(
-            f,
-            "Color1 (imagePerc)",
+        self.fieldChooser.grid(row=0)
+
+        self.colorCapture = tk.Frame(self.fieldCapture)
+        self.colorCapture.grid(row=1)
+
+        self.color1Chooser = CompactRectChooser(
+            self.colorCapture,
+            "Color1 (imagePerc)\nSelect whole block without black border",
             config["calibration.pct.color1"],
             True,
             self.gen_set_config_and_redraw("calibration.pct.color1"),
         )
-        c = CompactRectChooser(
-            f,
-            "Color2 (imagePerc)",
+        self.color1Chooser.grid(row=0, column=0)
+        self.color1Image = ImageCanvas(
+            self.colorCapture, colorsImageSize[0], colorsImageSize[1]
+        )
+        self.color1Image.grid(row=0, column=1)
+
+        self.color2Chooser = CompactRectChooser(
+            self.colorCapture,
+            "Color2 (imagePerc)\nSelect whole block without black border",
             config["calibration.pct.color2"],
             True,
             self.gen_set_config_and_redraw("calibration.pct.color2"),
         )
-        d = CompactRectChooser(
+        self.color2Chooser.grid(row=1, column=0)
+        self.color2Image = ImageCanvas(
+            self.colorCapture, colorsImageSize[0], colorsImageSize[1]
+        )
+        self.color2Image.grid(row=1, column=1)
+
+        self.flashChooser = CompactRectChooser(
             f,
             "Flash (imagePerc)",
             config["calibration.pct.flash"],
             True,
             self.gen_set_config_and_redraw("calibration.pct.flash"),
         )
+        self.flashChooser.grid(row=1, columnspan=2)
 
-        self.flashPosition = d
-        self.fieldCaptures = [a, b, c]
-        self.pieceStats = CompactRectChooser(
+        self.blackWhiteCapture = tk.Frame(self.fieldCapture)
+        self.blackWhiteCapture.grid(row=2, columnspan=2)
+
+        self.blackWhiteChooser = CompactRectChooser(
+            self.blackWhiteCapture,
+            "Black and White\nSelect an area with both pure white and pure black",
+            config["calibration.pct.black_n_white"],
+            True,
+            self.gen_set_config_and_redraw("calibration.pct.black_n_white"),
+        )
+        self.blackWhiteChooser.grid(row=0, column=0)
+        self.blackWhiteImage = ImageCanvas(
+            self.blackWhiteCapture, blackWhiteImageSize[0], blackWhiteImageSize[1]
+        )
+        self.blackWhiteImage.grid(row=0, column=1)
+
+        self.pieceStatsChooser = CompactRectChooser(
             f,
             "pieceStats (imagePerc)",
             config["calibration.pct.stats"],
             True,
             self.gen_set_config_and_redraw("calibration.pct.stats"),
         )
-        a.grid()
-        b.grid()
-        c.grid()
-        d.grid()
+        self.pieceStatsChooser.grid(row=3, columnspan=2)
 
-        self.pieceStats.grid()
         self.setFieldTextVisible()
         self.setStatsTextVisible()
         self.tabManager.add(f, text="FieldStats")
@@ -268,36 +307,60 @@ class Calibrator(tk.Frame):
         )
         self.dasEnabledChooser.grid(row=0, columnspan=2)
 
+        # Current Piece
         self.dasCurrentPieceChooser = CompactRectChooser(
             f,
             "Current Piece (imagePerc)",
-            config["calibration.pct.das_current_piece"],
+            config["calibration.pct.das.current_piece"],
             True,
-            self.gen_set_config_and_redraw("calibration.pct.das_current_piece"),
+            self.gen_set_config_and_redraw("calibration.pct.das.current_piece"),
         )
         self.dasCurrentPieceChooser.grid(row=1, columnspan=2)
 
-        canvasSize = [UPSCALE * 2 * i for i in PreviewImageSize]
+        canvasSize = [UPSCALE * 2 * i for i in CurPieceImageSize]
         self.dasCurrentPieceImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
         self.dasCurrentPieceImage.grid(row=2, columnspan=2)
 
+        # Instant DAS
+
         canvasSize = [UPSCALE * i for i in finalImageSize(2)]
+
+        Button(
+            f,
+            text="Auto Adjust Instant DAS \n Needs CURRENT DAS = 00",
+            command=self.autoInstantDas,
+            bg="red",
+        ).grid(row=3, column=0)
+        self.instantDasPercChooser = CompactRectChooser(
+            f,
+            "instantDas (imagePerc)",
+            config["calibration.pct.das.instant_das"],
+            True,
+            self.gen_set_config_and_redraw("calibration.pct.das.instant_das"),
+        )
+        self.instantDasPercChooser.grid(row=3, column=1)
+        self.instantDasImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
+        self.instantDasImage.grid(row=4, columnspan=2)
+
+        # Current piece DAS
+
         Button(
             f,
             text="Auto Adjust Current Piece DAS \n Needs START DAS = 00",
             command=self.autoCurrentPieceDas,
             bg="red",
-        ).grid(row=3, column=0)
+        ).grid(row=5, column=0)
+
         self.currentPieceDasPercChooser = CompactRectChooser(
             f,
             "currentPieceDas (imagePerc)",
-            config["calibration.pct.das_current_piece_das"],
+            config["calibration.pct.das.current_piece_das"],
             True,
-            self.gen_set_config_and_redraw("calibration.pct.das_current_piece_das"),
+            self.gen_set_config_and_redraw("calibration.pct.das.current_piece_das"),
         )
-        self.currentPieceDasPercChooser.grid(row=3, column=1)
+        self.currentPieceDasPercChooser.grid(row=5, column=1)
         self.currentPieceDasImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
-        self.currentPieceDasImage.grid(row=4, columnspan=2)
+        self.currentPieceDasImage.grid(row=6, columnspan=2)
 
         self.tabManager.add(f, text="DasTrainer")
 
@@ -307,47 +370,49 @@ class Calibrator(tk.Frame):
             show = True
 
         if show:
-            self.flashPosition.grid()
+            self.flashChooser.grid()
         else:
-            self.flashPosition.grid_forget()
+            self.flashChooser.grid_forget()
 
     def setFieldTextVisible(self):
-        show = False
+        if self.config["calibration.dynamic_black_n_white"]:
+            self.blackWhiteCapture.grid(row=2, columnspan=2)
+        else:
+            self.blackWhiteCapture.grid_forget()
+
         if self.config["calibration.capture_field"] or (
             self.config["stats.enabled"]
             and self.config["stats.capture_method"] == "FIELD"
         ):
-            show = True
+            self.fieldCapture.grid(row=0, columnspan=2)
 
-        for item in self.fieldCaptures:
-            if show:
-                item.grid()
+            if self.config["calibration.dynamic_colors"]:
+                self.colorCapture.grid()
             else:
-                item.grid_forget()
+                self.colorCapture.grid_forget()
+
+        else:
+            self.fieldCapture.grid_forget()
 
     def setStatsTextVisible(self):
         if (
             self.config["stats.enabled"]
             and self.config["stats.capture_method"] == "TEXT"
         ):
-            self.pieceStats.grid()
+            self.pieceStatsChooser.grid()
         else:
-            self.pieceStats.grid_forget()
+            self.pieceStatsChooser.grid_forget()
 
     def setPreviewTextVisible(self):
         show = self.config["calibration.capture_preview"]
         if show:
             self.previewPiece.grid()
             self.previewImage.grid()
-            self.dasCurrentPieceImage.grid()
-            self.currentPieceDasImage.grid()
             self.samplePreviewImage.grid()
             self.samplePreviewLabel.grid()
         else:
             self.previewPiece.grid_forget()
             self.previewImage.grid_forget()
-            self.dasCurrentPieceImage.grid_forget()
-            self.currentPieceDasImage.grid_forget()
             self.samplePreviewImage.grid_forget()
             self.samplePreviewLabel.grid_forget()
 
@@ -370,7 +435,7 @@ class Calibrator(tk.Frame):
         capture.xywh_box = result
         self.redrawImages()
 
-    def redrawImages(self):
+    def redrawImages(self, event=None):
         self.lastUpdate = time.time()
         board = self.getNewBoardImage()
         if board is None:
@@ -382,30 +447,50 @@ class Calibrator(tk.Frame):
         self.boardImage.updateImage(board)
 
         if self.getActiveTab() == 0:  # text
-            score_img, lines_img, level_img = highlight_split_digits(self.config)
-            score_img = score_img.resize((UPSCALE * i for i in score_img.size))
-            lines_img = lines_img.resize((UPSCALE * i for i in lines_img.size))
-            level_img = level_img.resize((UPSCALE * i for i in level_img.size))
+            score_img, lines_img, level_img = capture_split_digits(self.config)
+            score_img = score_img.resize((UPSCALE * i for i in finalImageSize(6)))
+            lines_img = lines_img.resize((UPSCALE * i for i in finalImageSize(3)))
+            level_img = level_img.resize((UPSCALE * i for i in finalImageSize(2)))
             self.linesImage.updateImage(lines_img)
             self.scoreImage.updateImage(score_img)
             self.levelImage.updateImage(level_img)
+
+        elif self.getActiveTab() == 1:  # field
+            color1Img, color2Img = capture_color1color2(self.config)
+            color1Img = color1Img.resize(colorsImageSize)
+            self.color1Image.updateImage(color1Img)
+
+            color2Img = color2Img.resize(colorsImageSize)
+            self.color2Image.updateImage(color2Img)
+
+            blackWhiteImg = capture_blackwhite(self.config)
+            blackWhiteImg = blackWhiteImg.resize(blackWhiteImageSize)
+            self.blackWhiteImage.updateImage(blackWhiteImg)
+
         elif self.getActiveTab() == 2:  # preview
-            preview_img = highlight_preview(self.config)
+            preview_img = capture_preview(self.config)
             preview_img = preview_img.resize(
-                (UPSCALE * 2 * i for i in preview_img.size)
+                (UPSCALE * 2 * i for i in PreviewImageSize)
             )
             self.previewImage.updateImage(preview_img)
+
         elif self.getActiveTab() == 3:  # DAS Trainer
-            current_piece_img, current_piece_das_img = highlight_das_trainer(
-                self.config
-            )
+            (
+                current_piece_img,
+                current_piece_das_img,
+                instant_das_img,
+            ) = capture_das_trainer(self.config)
             current_piece_img = current_piece_img.resize(
-                (UPSCALE * 2 * i for i in current_piece_img.size)
+                (UPSCALE * 2 * i for i in CurPieceImageSize)
+            )
+            instant_das_img = instant_das_img.resize(
+                (UPSCALE * i for i in finalImageSize(2))
             )
             current_piece_das_img = current_piece_das_img.resize(
-                (UPSCALE * i for i in current_piece_das_img.size)
+                (UPSCALE * i for i in finalImageSize(2))
             )
 
+            self.instantDasImage.updateImage(instant_das_img)
             self.dasCurrentPieceImage.updateImage(current_piece_img)
             self.currentPieceDasImage.updateImage(current_piece_das_img)
 
@@ -448,14 +533,26 @@ class Calibrator(tk.Frame):
     def autoCurrentPieceDas(self):
         bestRect = autoAdjustRectangle(
             self.config["calibration.game_coords"],
-            self.config["calibration.pct.das_current_piece_das"],
+            self.config["calibration.pct.das.current_piece_das"],
             2,
         )
         if bestRect is not None:
             self.levelPerc.show(str(item) for item in bestRect)
-            self.config["calibration.pct.das_current_piece_das"] = bestRect
+            self.config["calibration.pct.das.current_piece_das"] = bestRect
         else:
             print("Please have current piece das on screen as 00")
+
+    def autoInstantDas(self):
+        bestRect = autoAdjustRectangle(
+            self.config["calibration.game_coords"],
+            self.config["calibration.pct.das.instant_das"],
+            2,
+        )
+        if bestRect is not None:
+            self.levelPerc.show(str(item) for item in bestRect)
+            self.config["calibration.pct.das.instant_das"] = bestRect
+        else:
+            print("Please have instant das on screen as 00")
 
     def getNewBoardImage(self):
         return draw_calibration(self.config)

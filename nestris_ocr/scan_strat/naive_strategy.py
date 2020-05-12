@@ -11,6 +11,9 @@ from nestris_ocr.scan_strat.scan_helpers import (
     scan_field,
     scan_preview,
     scan_spawn,
+    scan_das_current_piece,
+    scan_das_current_piece_das,
+    scan_das_instant_das,
 )
 
 # from FullStateOptimizer.Transition import TRANSITION
@@ -37,7 +40,7 @@ class NaiveStrategy(BaseStrategy):
         tasks.append(self.scan_level)
 
         if config["calibration.capture_field"]:
-            if config["calibration.dynamic_color"]:
+            if config["calibration.dynamic_colors"]:
                 tasks.append(self.scan_colors)
             else:
                 tasks.append(self.lookup_colors)
@@ -46,13 +49,31 @@ class NaiveStrategy(BaseStrategy):
 
         if config["calibration.capture_preview"]:
             tasks.append(self.scan_preview)
+
         if config["stats.enabled"]:
             if config["stats.capture_method"] == "FIELD":
                 tasks.append(self.scan_spawn)
             elif config["stats.capture_method"] == "TEXT":
                 tasks.append(self.scan_stats_text)
+
+        if config["calibration.capture_das"]:
+            tasks.append(self.scan_das_current_piece)
+            tasks.append(self.scan_das_current_piece_das)
+            tasks.append(self.scan_das_instant_das)
+
         return tasks
 
+    def to_dict(self):
+        result = super(NaiveStrategy, self).to_dict()
+
+        if config["calibration.capture_das"]:
+            result["cur_piece"] = self.cur_piece
+            result["cur_piece_das"] = self.cur_piece_das
+            result["instant_das"] = self.instant_das
+
+        return result
+
+    # Naive strategy does not care about gamestate
     def update_menu(self):
         for task in self.tasks:
             task(self.current_frame)
@@ -110,6 +131,15 @@ class NaiveStrategy(BaseStrategy):
     def scan_spawn(self, img):
         piece = scan_spawn(img, self.colors)
         self.piece_stats.update(piece, self.current_time)
+
+    def scan_das_current_piece(self, img):
+        self.cur_piece = scan_das_current_piece(img, self.colors)
+
+    def scan_das_current_piece_das(self, img):
+        self.cur_piece_das = scan_das_current_piece_das(img, "OO")
+
+    def scan_das_instant_das(self, img):
+        self.instant_das = scan_das_instant_das(img, "OO")
 
     def scan_stats_text(self, img):
         pass
