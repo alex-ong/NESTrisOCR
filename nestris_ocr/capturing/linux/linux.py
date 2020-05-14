@@ -6,20 +6,18 @@ from PIL import Image
 
 class LinuxUICapture(object):
     def __init__(self):
-        self.lastHwnd = None
+        self.last_hwnd = None
         self.cached_win = None
 
     def ImageCapture(self, rectangle, hwnd):
         x, y, w, h = rectangle
-        if w <= 0 or h <= 0 or hwnd == 0:
-            raise
+        if w <= 0 or h <= 0 or hwnd == 0 or hwnd is None:
+            return None
 
-        if self.lastHwnd != hwnd:
-            self.lastHwnd = hwnd
+        if self.last_hwnd != hwnd:
+            self.last_hwnd = hwnd
             self.cached_win = None
 
-        # at some point we want to cache the root/win
-        # root = Xlib.display.Display().screen().root
         if self.cached_win is None:
             display = Xlib.display.Display()
             self.cached_win = display.create_resource_object("window", hwnd)
@@ -27,14 +25,14 @@ class LinuxUICapture(object):
         try:
             geom = self.cached_win.get_geometry()
         except Exception:  # Xlib.error.BadDrawable
-            raise  # or return blank image?
+            raise
 
         x, y, w, h = self.check_geometry(geom, (x, y, w, h))
 
         try:
             raw = self.cached_win.get_image(x, y, w, h, X.ZPixmap, 0xFFFFFFFF)
         except Xlib.error.BadMatch:
-            raise  # or return blank image?
+            raise
 
         # note that we actually want to support a BGR and RGB Image
         # for the return type eventually, since BGR is double the speed
