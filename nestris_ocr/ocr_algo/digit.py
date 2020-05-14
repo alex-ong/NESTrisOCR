@@ -31,7 +31,7 @@ def finalImageSize(numDigits):
 def setupColour(prefix, outputDict, digitList):
     # setup white digits
     for digit in digitList:
-        filename = prefix + str(digit) + ".png"
+        filename = prefix + str(digit).lower() + ".png"
         img = Image.open(filename)
 
         img = img.convert("L")
