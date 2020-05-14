@@ -89,6 +89,7 @@ class Win32UICapture(object):
         return None
 
 
+# I believe we no longer need the below items - Alex
 imgCap = Win32UICapture()
 
 

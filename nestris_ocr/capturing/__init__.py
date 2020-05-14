@@ -23,6 +23,8 @@ elif capture_method == "WINDOW" and platform.system() == "Darwin":
         )
 
     from nestris_ocr.capturing.quartz import QuartzCapture as Capture
+elif capture_method == "WINDOW" and platform.system() == "Linux":
+    from nestris_ocr.capturing.linux import LinuxCapture as Capture
 else:
     raise ImportError("Invalid capture method")
 
