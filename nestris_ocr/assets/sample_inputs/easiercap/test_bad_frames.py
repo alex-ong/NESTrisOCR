@@ -3,11 +3,14 @@ import sys
 from PIL import Image
 import numpy as np
 from nestris_ocr.colors import Colors
+import math
 
 
 def runFor(src):
     img = Image.open(src)
-    scaled_img = img.resize((10, 20), Image.NEAREST)
+    scaled_img = img.resize((10, 20), Image.BOX)
+
+    res_image = Image.new("RGB", (10, 20), (0, 0, 0, 255))
 
     spanx = img.width / 10
     spany = img.height / 20
@@ -29,20 +32,32 @@ def runFor(src):
             xidx = round(spanx * (x + 0.5))
             yidx = round(spany * (y + 0.5))
 
-            # approach 1 straight average
             target = np_img[yidx - 1 : yidx + 2, xidx - 1 : xidx + 2]
-            pix = np.average(target, axis=(0, 1))
 
-            # approach 2 square -> average -> sqrt
-            target = np.square(target)
-            pix = np.average(target, axis=(0, 1))
-            pix = np.sqrt(pix)
+            pix = [0, 0, 0]
+
+            # grab 9 pixels in a 3x3 square
+            # and compute average
+            for i in range(3):
+                for j in range(3):
+                    tmp = target[i, j]
+                    pix[0] += tmp[0] * tmp[0]
+                    pix[1] += tmp[1] * tmp[1]
+                    pix[2] += tmp[2] * tmp[2]
+
+            pix[0] = int(math.sqrt(pix[0] / 9))
+            pix[1] = int(math.sqrt(pix[1] / 9))
+            pix[2] = int(math.sqrt(pix[2] / 9))
+
+            res_image.putpixel((x, y), tuple(pix))
 
             res_a = getColor(pix, colors)
 
             row.append("%d%d" % (res_n, res_a))
 
         print(row)
+
+    res_image.show()
 
 
 def getColor(pix, colors):
