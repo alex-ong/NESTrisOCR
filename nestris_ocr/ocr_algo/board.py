@@ -29,9 +29,13 @@ if __name__ == "__main__":
     colors = Colors()
     colors.setLevel(7)
 
-    t = time.time()
-    for i in range(100):
+    iterations = 10000
+
+    start = time.time()
+    for i in range(iterations):
         parseImage(img, colors)
-    print(time.time() - t)
+
+    elapsed = time.time() - start
+    print(elapsed, elapsed / iterations)
 
     print(parseImage(img, colors))
