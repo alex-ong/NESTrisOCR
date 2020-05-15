@@ -40,15 +40,18 @@ def parseImage2(img, black, white, color1, color2):
             closest = 0
             lowest_dist = (256 * 256) * 3
             i = 0
+
             for color in colors:
-                dist = (
-                    (color[0] - pix[0]) * (color[0] - pix[0])
-                    + (color[1] - pix[1]) * (color[1] - pix[1])
-                    + (color[2] - pix[2]) * (color[2] - pix[2])
-                )
+                r = color[0] - pix[0]
+                g = color[1] - pix[1]
+                b = color[2] - pix[2]
+
+                dist = r * r + g * g + b * b
+
                 if dist < lowest_dist:
                     lowest_dist = dist
                     closest = i
+
                 i += 1
 
             result[y, x] = closest
