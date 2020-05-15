@@ -1,6 +1,6 @@
 import numpy as np
 from numba import njit
-import math
+from math import sqrt
 
 # atm this takes 12 millseconds to complete, with jit it takes <1ms.
 # we want to eventually compile this numba AOT, so we don't need numba.
@@ -33,9 +33,9 @@ def parseImage2(img, black, white, color1, color2):
                     pix[1] += tmp[1] * tmp[1]
                     pix[2] += tmp[2] * tmp[2]
 
-            pix[0] = math.sqrt(pix[0] / 9)
-            pix[1] = math.sqrt(pix[1] / 9)
-            pix[2] = math.sqrt(pix[2] / 9)
+            pix[0] = sqrt(pix[0] / 9)
+            pix[1] = sqrt(pix[1] / 9)
+            pix[2] = sqrt(pix[2] / 9)
 
             closest = 0
             lowest_dist = (256 * 256) * 3
