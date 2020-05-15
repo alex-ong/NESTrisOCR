@@ -14,7 +14,6 @@ except ImportError:
 
 # expecting all 4 colors as np.array(dtype=np.uint8)
 def parseImage(img, colors):
-    img = img.resize((10, 20), Image.NEAREST)
     img = np.array(img, dtype=np.uint8)
 
     return parseImage2(img, colors.black, colors.white, colors.color1, colors.color2)

@@ -1,5 +1,6 @@
 import numpy as np
 from numba import njit
+import math
 
 # atm this takes 12 millseconds to complete, with jit it takes <1ms.
 # we want to eventually compile this numba AOT, so we don't need numba.
@@ -10,11 +11,32 @@ def parseImage2(img, black, white, color1, color2):
 
     colors = [black, white, color1, color2]
 
+    spanx = len(img[0]) / 10
+    spany = len(img) / 20
+
     result = np.zeros((20, 10), dtype=np.uint8)
 
     for x in range(10):
         for y in range(20):
-            pix = img[y, x]
+            xidx = round(spanx * (x + 0.5))
+            yidx = round(spany * (y + 0.5))
+
+            pix = [0, 0, 0]
+
+            # grab 9 pixels in a 3x3 square
+            # and compute average
+            target = img[yidx - 1 : yidx + 2, xidx - 1 : xidx + 2]
+            for i in range(3):
+                for j in range(3):
+                    tmp = target[i, j]
+                    pix[0] += tmp[0] * tmp[0]
+                    pix[1] += tmp[1] * tmp[1]
+                    pix[2] += tmp[2] * tmp[2]
+
+            pix[0] = math.sqrt(pix[0] / 9)
+            pix[1] = math.sqrt(pix[1] / 9)
+            pix[2] = math.sqrt(pix[2] / 9)
+
             closest = 0
             lowest_dist = (256 * 256) * 3
             i = 0
