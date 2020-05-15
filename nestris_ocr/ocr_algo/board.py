@@ -14,7 +14,6 @@ except ImportError:
 
 # expecting all 4 colors as np.array(dtype=np.uint8)
 def parseImage(img, colors):
-    img = img.resize((10, 20), Image.NEAREST)
     img = np.array(img, dtype=np.uint8)
 
     return parseImage2(img, colors.black, colors.white, colors.color1, colors.color2)
@@ -29,9 +28,13 @@ if __name__ == "__main__":
     colors = Colors()
     colors.setLevel(7)
 
-    t = time.time()
-    for i in range(100):
+    iterations = 10000
+
+    start = time.time()
+    for i in range(iterations):
         parseImage(img, colors)
-    print(time.time() - t)
+
+    elapsed = time.time() - start
+    print(elapsed, elapsed / iterations)
 
     print(parseImage(img, colors))
