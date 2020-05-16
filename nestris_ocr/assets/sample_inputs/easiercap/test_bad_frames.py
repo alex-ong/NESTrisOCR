@@ -48,22 +48,20 @@ def runFor(src, level):
             xidx = round(spanx * (x + 0.5))
             yidx = round(spany * (y + 0.5))
 
-            target = np_img[yidx - 1 : yidx + 2, xidx - 1 : xidx + 2]
-
             pix = [0, 0, 0]
 
             # grab 9 pixels in a 3x3 square
             # and compute average
-            for i in range(3):
-                for j in range(3):
-                    tmp = target[i, j]
+            for i in range(xidx - 1, xidx + 2):
+                for j in range(yidx - 1, yidx + 2):
+                    tmp = np_img[j, i]
                     pix[0] += tmp[0] * tmp[0]
                     pix[1] += tmp[1] * tmp[1]
                     pix[2] += tmp[2] * tmp[2]
 
-            pix[0] = int(sqrt(pix[0] / 9))
-            pix[1] = int(sqrt(pix[1] / 9))
-            pix[2] = int(sqrt(pix[2] / 9))
+            pix[0] = round(sqrt(pix[0] / 9))
+            pix[1] = round(sqrt(pix[1] / 9))
+            pix[2] = round(sqrt(pix[2] / 9))
 
             col_new = getColor(pix, cols)
 
