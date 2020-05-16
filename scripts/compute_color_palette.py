@@ -3,7 +3,7 @@ import json
 import sys
 from PIL import Image, ImageFilter
 import numpy as np
-from nestris_ocr.colors import Colors, REFERENCE_LEVEL_COLORS
+from nestris_ocr.colors import Colors
 from math import sqrt
 
 
@@ -117,14 +117,16 @@ if __name__ == "__main__":
     palette_name = sys.argv[1]
     field_path_template = sys.argv[2]
 
+    colors = Colors()
+
     palette = getPalette(field_path_template)
     palette_img = getPaletteImage(palette)
 
-    with open("palette_%s.json" % (palette_name,), "w") as outfile:
+    with open("nestris_ocr/palettes/%s.json" % (palette_name,), "w") as outfile:
         json.dump(palette, outfile)
 
-    palette_img.save("palette_%s.png" % (palette_name,))
+    palette_img.save("nestris_ocr/palettes/%s.png" % (palette_name,))
 
     # show both reference palette and computed palette for comparison
     palette_img.show()
-    getPaletteImage(REFERENCE_LEVEL_COLORS).show()
+    getPaletteImage(colors.palette).show()
