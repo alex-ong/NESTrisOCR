@@ -1,4 +1,6 @@
+import json
 from enum import Enum
+from nestris_ocr.config import config
 from nestris_ocr.colors import Colors
 from nestris_ocr.ocr_state.piece_stats import PieceStatAccumulator
 
@@ -35,7 +37,19 @@ class BaseStrategy(object):
         self.cur_piece_das = None
         self.instant_das = None
         self.current_time = 0
+
         self.colors = Colors()
+
+        # initialize palette
+        palette_name = config["calibration.palette"]
+
+        try:
+            with open("nestris_ocr/palettes/%s.json" % (palette_name,), "r") as file:
+                palette = json.load(file)
+                self.colors.setPalette(palette)
+
+        except ValueError:
+            print("Warning: Unable to load palette %s" % (palette_name,))
 
     # todo: don't include items not included in config.
     def to_dict(self):

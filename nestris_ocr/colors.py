@@ -1,3 +1,4 @@
+import json
 from typing import Tuple
 import numpy as np
 from nestris_ocr.utils.lib import ilerp
@@ -6,23 +7,9 @@ Color = Tuple[int, int, int]
 
 LUMA_OFFSET = 15
 
-REFERENCE_LEVEL_COLORS = (
-    ((0x4A, 0x32, 0xFF), (0x4A, 0xAF, 0xFE)),
-    ((0x00, 0x96, 0x00), (0x6A, 0xDC, 0x00)),
-    ((0xB0, 0x00, 0xD4), (0xFF, 0x56, 0xFF)),
-    ((0x4A, 0x32, 0xFF), (0x00, 0xE9, 0x00)),
-    ((0xC8, 0x00, 0x7F), (0x00, 0xE6, 0x78)),
-    ((0x00, 0xE6, 0x78), (0x96, 0x8D, 0xFF)),
-    ((0xC4, 0x1E, 0x0E), (0x66, 0x66, 0x66)),
-    ((0x82, 0x00, 0xFF), (0x78, 0x00, 0x41)),
-    ((0x4A, 0x32, 0xFF), (0xC4, 0x1E, 0x0E)),
-    ((0xC4, 0x1E, 0x0E), (0xF6, 0x9B, 0x00)),
-)
-
-REFERENCE_LEVEL_COLORS = [
-    (np.array(color1, dtype=np.uint8), np.array(color2, dtype=np.uint8))
-    for color1, color2 in REFERENCE_LEVEL_COLORS
-]
+# load the default palette from file
+with open("nestris_ocr/palettes/DEFAULT.json", "r") as file:
+    REFERENCE_LEVEL_COLORS = json.load(file)
 
 
 class Colors:
@@ -42,13 +29,34 @@ class Colors:
     def __init__(
         self, black=(0, 0, 0), white=(255, 255, 255), color1=None, color2=None
     ):
+        self.black = None
+        self.white = None
+        self.color1 = None
+        self.color2 = None
+
+        self.setPalette(REFERENCE_LEVEL_COLORS)
         self.setBlackWhite(black, white)
         self.setColor1Color2(color1, color2)
-        pass
+
+    def _buildColorList(self):
+        self.colors = (
+            self.black,
+            self.white,
+            self.color1,
+            self.color2,
+        )
+
+    def setPalette(self, palette):
+        self.palette = [
+            (np.array(color1, dtype=np.uint8), np.array(color2, dtype=np.uint8))
+            for color1, color2 in palette
+        ]
 
     def setColor1Color2(self, color1, color2):
         self.color1 = np.array(color1 or (0, 0, 0), dtype=np.uint8)
         self.color2 = np.array(color2 or (0, 0, 0), dtype=np.uint8)
+
+        self._buildColorList()
 
     def setBlackWhite(self, black, white):
         self.black = np.array(black, dtype=np.uint8)
@@ -56,8 +64,10 @@ class Colors:
         self.white = np.array(white, dtype=np.uint8)
         self.white_luma = Colors.luma(white) - LUMA_OFFSET
 
+        self._buildColorList()
+
     def setLevel(self, level, interpolate=False):  # caller must pass a valid int level
-        color1, color2 = REFERENCE_LEVEL_COLORS[level % 10]
+        color1, color2 = self.palette[level % 10]
 
         if interpolate:
             black = self.black
@@ -83,5 +93,31 @@ class Colors:
         self.color1 = color1
         self.color2 = color2
 
+        self._buildColorList()
+
     def isBlack(self, pixel):
         return Colors.luma(pixel) <= self.black_luma
+
+    def getColorByIndex(self, index):
+        return self.colors[index]
+
+    # can a class method alone be njited?
+    def getClosestColorIndex(self, pixel):
+        closest = 0
+        lowest_dist = (256 * 256) * 3
+        i = 0
+
+        for color in self.colors:
+            r = int(color[0]) - int(pixel[0])
+            g = int(color[1]) - int(pixel[1])
+            b = int(color[2]) - int(pixel[2])
+
+            dist = r * r + g * g + b * b
+
+            if dist < lowest_dist:
+                lowest_dist = dist
+                closest = i
+
+            i += 1
+
+        return closest

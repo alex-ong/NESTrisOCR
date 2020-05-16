@@ -19,6 +19,7 @@ CONFIG_DEFAULTS = {
 
     "calibration.capture_method": "WINDOW",
     "calibration.source_id": "OBS",
+    "calibration.palette": "DEFAULT",
 
     "calibration.flash_method": "BACKGROUND",
     # rgb limit of flash. Value above threshold is considered flash. Only used in BACKGROUND method
