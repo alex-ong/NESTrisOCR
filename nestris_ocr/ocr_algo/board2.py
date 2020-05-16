@@ -28,10 +28,9 @@ def parseImage2(img, black, white, color1, color2):
 
             # grab 9 pixels in a 3x3 square
             # and compute average
-            target = img[yidx - 1 : yidx + 2, xidx - 1 : xidx + 2]
-            for i in range(3):
-                for j in range(3):
-                    tmp = target[i, j]
+            for i in range(xidx - 1, xidx + 2):
+                for j in range(yidx - 1, yidx + 2):
+                    tmp = img[j, i]
                     pix[0] += tmp[0] * tmp[0]
                     pix[1] += tmp[1] * tmp[1]
                     pix[2] += tmp[2] * tmp[2]
