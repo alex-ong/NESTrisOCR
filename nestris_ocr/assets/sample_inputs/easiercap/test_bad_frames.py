@@ -37,13 +37,11 @@ def runFor(src, level):
     colors = Colors()
     colors.setLevel(level)
 
-    cols = [colors.black, colors.white, colors.color1, colors.color2]
-
     for y in range(20):
         for x in range(10):
             pix = np_scaled_img[y, x]
-            col_old = getColor(pix, cols)
-            res_img_old.putpixel((x, y), tuple(cols[col_old]))
+            col_old = colors.getClosestColorIndex(pix)
+            res_img_old.putpixel((x, y), tuple(colors.getColorByIndex(col_old)))
 
             xidx = round(spanx * (x + 0.5))
             yidx = round(spany * (y + 0.5))
@@ -63,10 +61,10 @@ def runFor(src, level):
             pix[1] = round(sqrt(pix[1] / 9))
             pix[2] = round(sqrt(pix[2] / 9))
 
-            col_new = getColor(pix, cols)
+            col_new = colors.getClosestColorIndex(pix)
 
             scaled_img_new.putpixel((x, y), tuple(pix))
-            res_img_new.putpixel((x, y), tuple(cols[col_new]))
+            res_img_new.putpixel((x, y), tuple(colors.getColorByIndex(col_new)))
 
     result_img.paste(
         scaled_img_new.resize((floor(img.height / 2), img.height), Image.NEAREST),
@@ -84,27 +82,6 @@ def runFor(src, level):
     )
 
     result_img.show()
-
-
-def getColor(pix, cols):
-    closest = 0
-    lowest_dist = (256 * 256) * 3
-    i = 0
-
-    for color in cols:
-        r = int(color[0]) - int(pix[0])
-        g = int(color[1]) - int(pix[1])
-        b = int(color[2]) - int(pix[2])
-
-        dist = r * r + g * g + b * b
-
-        if dist < lowest_dist:
-            lowest_dist = dist
-            closest = i
-
-        i += 1
-
-    return closest
 
 
 runFor(sys.argv[1], 18)

@@ -42,19 +42,35 @@ class Colors:
     def __init__(
         self, black=(0, 0, 0), white=(255, 255, 255), color1=None, color2=None
     ):
+        self.black = None
+        self.white = None
+        self.color1 = None
+        self.color2 = None
+
         self.setBlackWhite(black, white)
         self.setColor1Color2(color1, color2)
-        pass
+
+    def _buildColorList(self):
+        self.colors = (
+            self.black,
+            self.white,
+            self.color1,
+            self.color2,
+        )
 
     def setColor1Color2(self, color1, color2):
         self.color1 = np.array(color1 or (0, 0, 0), dtype=np.uint8)
         self.color2 = np.array(color2 or (0, 0, 0), dtype=np.uint8)
+
+        self._buildColorList()
 
     def setBlackWhite(self, black, white):
         self.black = np.array(black, dtype=np.uint8)
         self.black_luma = Colors.luma(black) + LUMA_OFFSET
         self.white = np.array(white, dtype=np.uint8)
         self.white_luma = Colors.luma(white) - LUMA_OFFSET
+
+        self._buildColorList()
 
     def setLevel(self, level, interpolate=False):  # caller must pass a valid int level
         color1, color2 = REFERENCE_LEVEL_COLORS[level % 10]
@@ -83,5 +99,31 @@ class Colors:
         self.color1 = color1
         self.color2 = color2
 
+        self._buildColorList()
+
     def isBlack(self, pixel):
         return Colors.luma(pixel) <= self.black_luma
+
+    def getColorByIndex(self, index):
+        return self.colors[index]
+
+    # can a class method alone be njited?
+    def getClosestColorIndex(self, pixel):
+        closest = 0
+        lowest_dist = (256 * 256) * 3
+        i = 0
+
+        for color in self.colors:
+            r = int(color[0]) - int(pixel[0])
+            g = int(color[1]) - int(pixel[1])
+            b = int(color[2]) - int(pixel[2])
+
+            dist = r * r + g * g + b * b
+
+            if dist < lowest_dist:
+                lowest_dist = dist
+                closest = i
+
+            i += 1
+
+        return closest
