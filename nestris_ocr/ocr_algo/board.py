@@ -28,7 +28,7 @@ if __name__ == "__main__":
     colors = Colors()
     colors.setLevel(7)
 
-    iterations = 10000
+    iterations = 25000
 
     start = time.time()
     for i in range(iterations):
