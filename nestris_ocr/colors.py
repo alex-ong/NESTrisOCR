@@ -19,11 +19,6 @@ REFERENCE_LEVEL_COLORS = (
     ((0xC4, 0x1E, 0x0E), (0xF6, 0x9B, 0x00)),
 )
 
-REFERENCE_LEVEL_COLORS = [
-    (np.array(color1, dtype=np.uint8), np.array(color2, dtype=np.uint8))
-    for color1, color2 in REFERENCE_LEVEL_COLORS
-]
-
 
 class Colors:
     black: Color
@@ -47,6 +42,7 @@ class Colors:
         self.color1 = None
         self.color2 = None
 
+        self.setPalette(REFERENCE_LEVEL_COLORS)
         self.setBlackWhite(black, white)
         self.setColor1Color2(color1, color2)
 
@@ -57,6 +53,12 @@ class Colors:
             self.color1,
             self.color2,
         )
+
+    def setPalette(self, palette):
+        self.palette = [
+            (np.array(color1, dtype=np.uint8), np.array(color2, dtype=np.uint8))
+            for color1, color2 in palette
+        ]
 
     def setColor1Color2(self, color1, color2):
         self.color1 = np.array(color1 or (0, 0, 0), dtype=np.uint8)
@@ -73,7 +75,7 @@ class Colors:
         self._buildColorList()
 
     def setLevel(self, level, interpolate=False):  # caller must pass a valid int level
-        color1, color2 = REFERENCE_LEVEL_COLORS[level % 10]
+        color1, color2 = self.palette[level % 10]
 
         if interpolate:
             black = self.black
