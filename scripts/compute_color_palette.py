@@ -36,8 +36,8 @@ def getColors(level, field):
             # grab 9 pixels in a 3x3 square for each block
             # on the lower-right quadrant
             # and compute color average
-            for i in range(xidx, xidx + 4):
-                for j in range(yidx, yidx + 4):
+            for i in range(xidx, xidx + 3):
+                for j in range(yidx, yidx + 3):
                     tmp = np_img[j, i]
                     pix[0] += tmp[0] * tmp[0]
                     pix[1] += tmp[1] * tmp[1]
