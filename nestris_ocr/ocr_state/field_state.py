@@ -1,4 +1,4 @@
-﻿from nestris_ocr.config import config  # TODO: remove this dependency.
+from nestris_ocr.config import config  # TODO: remove this dependency.
 from nestris_ocr.network.byte_stuffer import prePackField
 
 # Todo: numba optimize for numTiles
@@ -27,7 +27,7 @@ class FieldState(object):  # noqa: E302
     # in the net code?
     def serialize(self):
         result = self.data
-        if config["network.protocol"] == "AUTOBAHN_V2":
+        if config["network.protocol"] in ["AUTOBAHN_V2", "AUTOBAHN_SERVER"]:
             result = prePackField(result)
             result = result.tobytes()
         else:

@@ -36,9 +36,9 @@ class CachedSender(object):
 
 
 def packMessage(dictionary, protocol):
-    if protocol == "LEGACY" or protocol == "AUTOBAHN" or protocol == "FILE":
+    if protocol in ["LEGACY", "AUTOBAHN", "FILE"]:
         return json.dumps(dictionary), False
-    elif protocol == "AUTOBAHN_V2":
+    elif protocol in ["AUTOBAHN_V2", "AUTOBAHN_SERVER"]:
         return bytes(stuffDictionary(dictionary)), True
 
 
