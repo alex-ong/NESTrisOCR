@@ -1,5 +1,4 @@
 import multiprocessing
-from tkinter import messagebox
 import time
 import sys
 
@@ -32,6 +31,8 @@ def main(on_cap, check_network_close):
                     print("clean exit")
 
                 break
+        except KeyboardInterrupt:
+            break
         except Exception:
             time.sleep(RATE)
             continue
@@ -83,12 +84,6 @@ if __name__ == "__main__":
     print("main thread is here")
     print(result)
 
-    if result is not None:
-        # root = Tk()
-        # root.withdraw()
-        messagebox.showerror(
-            "NESTrisOCR", "You have been kicked. Reason: " + str(result)
-        )
-
+    # todo: close and kill opencv thread if necessary...
     client.stop()
     client.join()
