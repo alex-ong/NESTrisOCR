@@ -37,7 +37,7 @@ def init_capture(source_id, xywh_box):
 
     capture = Capture(source_id, xywh_box)
 
-    for i in range(5):
+    for i in range(50):
         try:
             _, image = capture.get_image()
 
@@ -47,7 +47,7 @@ def init_capture(source_id, xywh_box):
 
         except Exception:
             print("Capture device not ready. {}...".format(i))
-            time.sleep(1)
+            time.sleep(0.1)
             continue
     else:
         print('Capture device cannot be found with "{}"'.format(source_id))

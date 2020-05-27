@@ -1,8 +1,10 @@
 import cv2
 from multiprocessing import Lock
 from multiprocessing.pool import ThreadPool
+
 from PIL import Image
 import time
+import platform
 from typing import Tuple
 
 from nestris_ocr.capturing.base import AbstractCapture
@@ -14,7 +16,11 @@ class OpenCVCapture(AbstractCapture):
     def __init__(self, source_id: str, xywh_box: XYWHBox) -> None:
         super().__init__(source_id, xywh_box)
         print("Initializing capture device")
-        self.cap = cv2.VideoCapture(int(source_id))
+        if platform.system() == "Windows":
+            self.cap = cv2.VideoCapture(int(source_id), cv2.CAP_DSHOW)
+            # todo: call benchmark_setup and cache result in config?
+        else:
+            self.cap = cv2.VideoCapture(int(source_id))
         self.cv2_retval = None
         self.cv2_image = None
         self.image_ts = None
@@ -22,6 +28,21 @@ class OpenCVCapture(AbstractCapture):
         self.started = False
         self.read_lock = Lock()
         self.start()
+
+    def benchmark_startup(self, source_id):
+        times = []
+        WINDOWS_BACKENDS = [cv2.CAP_DSHOW, cv2.CAP_MSMF, cv2.CAP_VFW]
+        for backend in WINDOWS_BACKENDS:
+            timer = time.time()
+            try:
+                cap = cv2.VideoCapture(int(source_id), backend)
+                cap.release()
+            except:  # noqa  E722
+                times.append(10, backend)
+            else:
+                times.append((time.time() - timer, backend))
+        times.sort(key=lambda x: x[0])
+        print(times[0])
 
     def get_image(self, rgb: bool = False) -> Tuple[float, Image.Image]:
         if not self.cv2_retval:
