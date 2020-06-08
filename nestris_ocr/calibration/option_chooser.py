@@ -1,4 +1,4 @@
-﻿import tkinter as tk
+import tkinter as tk
 
 
 class OptionChooser(tk.Frame):
@@ -15,10 +15,8 @@ class OptionChooser(tk.Frame):
         self.stringVar.set(itemsStr[index])
         self.itemIndex = index
 
-        self.mapping = {}
-        # there has got to be a pythonic way of doing this:
-        for i, string in enumerate(itemsStr):
-            self.mapping[string] = itemsRaw[i]
+        # https://stackoverflow.com/questions/209840/convert-two-lists-into-a-dictionary
+        self.mapping = dict(zip(itemsStr, itemsRaw))
 
         self.itemsRaw = itemsRaw
         self.itemsStr = itemsStr

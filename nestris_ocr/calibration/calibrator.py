@@ -1,4 +1,4 @@
-﻿from functools import partial
+from functools import partial
 import tkinter as tk
 import tkinter.ttk as ttk
 import multiprocessing
@@ -19,6 +19,7 @@ from nestris_ocr.calibration.draw_calibration import (
     capture_blackwhite,
     captureArea,
 )
+
 from nestris_ocr.calibration.other_options import create_window
 from nestris_ocr.calibration.widgets import Button
 from nestris_ocr.calibration.auto_calibrate import auto_calibrate_raw
@@ -27,6 +28,7 @@ from nestris_ocr.config import config
 from nestris_ocr.ocr_algo.digit import finalImageSize, scoreImage0
 from nestris_ocr.ocr_algo.preview2 import PreviewImageSize
 from nestris_ocr.ocr_algo.dasTrainerCurPiece import CurPieceImageSize
+from nestris_ocr.calibration.capture_method import CaptureMethod
 from nestris_ocr.utils.lib import mult_rect
 
 UPSCALE = 2
@@ -48,12 +50,13 @@ class Calibrator(tk.Frame):
         self.root = root
         self.destroying = False
         root.config(background="black")
-        StringChooser(
+        CaptureMethod(
             self,
-            "capture window starts with:",
-            config["calibration.source_id"],
-            self.gen_set_config_and_redraw("calibration.source_id"),
-            100,  # source ids can be local file or openCV stream URLs
+            (config["calibration.capture_method"], config["calibration.source_id"]),
+            (
+                self.gen_set_config_and_redraw("calibration.capture_method"),
+                self.gen_set_config_and_redraw("calibration.source_id"),
+            ),
         ).grid(row=0, sticky="nsew")
         StringChooser(
             self,
@@ -97,18 +100,18 @@ class Calibrator(tk.Frame):
         f.grid(row=2, column=0)
 
         # refresh
-        Button(self, text="Refresh Image", command=self.redrawImages).grid(
-            row=2, column=1, sticky="nsew"
+        Button(self, text="Refresh Image", command=self.redrawImages, bg="blue").grid(
+            row=1, column=1, sticky="nsew", rowspan=3,
         )
 
         border = tk.Frame(self)
-        border.grid(row=3, column=0, sticky="nsew")
+        border.grid(row=4, column=0, sticky="nsew")
         border.config(relief=tk.FLAT, bd=5, background="orange")
         self.boardImage = ImageCanvas(border, 512, 224 * 2)
         self.boardImage.pack()
 
         self.tabManager = ttk.Notebook(self)
-        self.tabManager.grid(row=3, column=1, sticky="nsew")
+        self.tabManager.grid(row=4, column=1, sticky="nsew")
         self.tabManager.bind("<<NotebookTabChanged>>", self.redrawImages)
 
         self.setupTab1()
