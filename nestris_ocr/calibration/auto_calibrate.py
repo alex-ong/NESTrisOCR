@@ -23,7 +23,17 @@ def auto_calibrate_raw(config):
 
         result = auto_calibrate(img)
         if result:
-            break
+            capture.xywh_box = original_xywh_box
+            return result
+
+        # try enlargening captured image; that helps sometimes.
+        img = img.resize((img.size[0] * 2, img.size[1] * 2))
+        result = auto_calibrate(img)
+        if result:
+            x, y, w, h = result
+            result = (x // 2, y // 2, w // 2, h // 2)
+            capture.xywh_box = original_xywh_box
+            return result
 
     capture.xywh_box = original_xywh_box
     return result
