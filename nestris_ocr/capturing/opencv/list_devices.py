@@ -12,9 +12,8 @@ except ImportError:
     device = None
 
 
-def get_device_list():
-    device_list = None
-
+# needs to be called before any opencv calls, otherwise will fail.
+def get_device_list_pre():
     if platform.system() == "Windows" and device is not None:
         # Get camera list
         try:
@@ -22,7 +21,13 @@ def get_device_list():
             device_list = list(enumerate(device_list))
             return device_list
         except:  # noqa  E722
+            print("Error using Windows Native device lister")
             pass
+    return None
+
+
+def get_device_list_slow():
+    device_list = None
 
     if device_list is None:
         index = 0
@@ -36,3 +41,18 @@ def get_device_list():
             cap.release()
             index += 1
         return device_list
+
+
+def get_device_list():
+    global device_list
+    if device_list is None:
+        device_list = get_device_list_slow()
+
+    return device_list
+
+
+device_list = None
+pre_called = False
+if not pre_called:
+    device_list = get_device_list_pre()
+    pre_called = True
