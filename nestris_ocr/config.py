@@ -30,7 +30,7 @@ CONFIG_DEFAULTS = {
     "calibration.pct.lines": [0.594, 0.069, 0.092, 0.035],
     "calibration.pct.level": [0.813, 0.713, 0.062, 0.035],
     "calibration.pct.stats": [0.187, 0.392, 0.091, 0.459],
-    "calibration.pct.flash": [0.13, 0.111, 0.065, 0.004],
+    "calibration.pct.flash": [0.749, 0.370, 0.07, 0.012],
 
     # if capture_field, 2 primary colors will be needed
     "calibration.capture_field": False,
