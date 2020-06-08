@@ -13,12 +13,13 @@ class CaptureMethod(tk.Frame):
         super().__init__(master)
         self.modes = MODES
         self.modes_display = MODES_DISPLAY
+        display_mode = self.raw_mode_to_display(default[0], default[1])
         self.option_chooser = OptionChooser(
             self,
             "What are you capturing from",
             MODES_DISPLAY,
             MODES_DISPLAY,
-            default[0],
+            display_mode,
             self.mode_changed,
         )
 
@@ -49,6 +50,17 @@ class CaptureMethod(tk.Frame):
         )
 
         self.on_change_source_id = onChangeArray[1]
+        self.enable_choose_source_id(display_mode)
+
+    def raw_mode_to_display(self, mode, source_id):
+        if mode == "OPENCV":
+            try:
+                int(source_id)
+                return "CAPTURE CARD"
+            except ValueError:
+                return "RTMP"
+        else:
+            return mode
 
     def enable_choose_source_id(self, mode_display):
         if mode_display == "CAPTURE CARD":
