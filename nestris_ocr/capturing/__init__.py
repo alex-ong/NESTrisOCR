@@ -32,10 +32,10 @@ else:
 capture = None
 
 
-def init_capture(source_id, xywh_box):
+def init_capture(source_id, xywh_box, extra_data):
     global capture
 
-    capture = Capture(source_id, xywh_box)
+    capture = Capture(source_id, xywh_box, extra_data)
 
     for i in range(50):
         try:
@@ -43,6 +43,7 @@ def init_capture(source_id, xywh_box):
 
             if image:
                 print("Capture device ready!")
+                config["calibration.source_extra_data"] = capture.extra_data
                 break
 
         except Exception:
@@ -53,4 +54,8 @@ def init_capture(source_id, xywh_box):
         print('Capture device cannot be found with "{}"'.format(source_id))
 
 
-init_capture(config["calibration.source_id"], config["calibration.game_coords"])
+init_capture(
+    config["calibration.source_id"],
+    config["calibration.game_coords"],
+    config["calibration.source_extra_data"],
+)
