@@ -29,7 +29,7 @@ class OpenCVCapture(AbstractCapture):
         self.cv2_image = None
         self.image_ts = None
 
-        self.started = False
+        self.running = False
         self.read_lock = Lock()
         self.start()
 
@@ -88,20 +88,23 @@ class OpenCVCapture(AbstractCapture):
         return image_ts, image
 
     def start(self):
-        if self.started:
+        if self.running:
             print("[!] Threaded video capturing has already been started.")
             return None
-        self.started = True
+        self.running = True
         self.pool = ThreadPool(processes=1)
         self.pool.apply_async(self.update)
 
     def update(self):
-        while self.started:
+        while self.running:
             cv2_retval, cv2_image = self.cap.read()
             with self.read_lock:
                 self.cv2_retval = cv2_retval
                 self.cv2_image = cv2_image
                 self.image_ts = time.time()
+        self.cap.release()
 
     def stop(self):
-        self.started = False
+        self.running = False
+        # self.pool.terminate()
+        # self.pool.join()

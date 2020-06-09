@@ -1,4 +1,3 @@
-import multiprocessing
 import time
 import sys
 
@@ -62,8 +61,6 @@ def main(on_cap, check_network_close):
 
 
 if __name__ == "__main__":
-    multiprocessing.freeze_support()
-
     if len(sys.argv) >= 2 and sys.argv[1] == "--calibrate":
         calibrateLoop()
         sys.exit()
@@ -81,8 +78,10 @@ if __name__ == "__main__":
     result = main(cachedSender.sendResult, client.checkNetworkClose)
     # except KeyboardInterrupt:
     #    pass
-    print("main thread is here")
-    print(result)
+    capture.stop()
+
+    if result:
+        print(result)
 
     # todo: close and kill opencv thread if necessary...
     client.stop()

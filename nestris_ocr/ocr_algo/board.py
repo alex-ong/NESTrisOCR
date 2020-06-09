@@ -4,7 +4,7 @@ import time
 
 try:
     from nestris_ocr.ocr_algo.board_ocr import parseImage2  # if it's built
-except ImportError:
+except (ModuleNotFoundError, ImportError):
     from nestris_ocr.ocr_algo.board2 import parseImage2
 
     print(

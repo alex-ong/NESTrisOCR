@@ -14,3 +14,6 @@ class AbstractCapture(ABC):
     @abstractmethod
     def get_image(self, rgb: bool = False) -> Tuple[float, Image.Image]:
         pass
+
+    def stop(self):
+        pass
