@@ -3,30 +3,45 @@ import time
 
 from nestris_ocr.config import config
 
-capture_method = config["calibration.capture_method"]
-if capture_method == "STATIC":
-    from nestris_ocr.capturing.static import StaticCapture as Capture
-elif capture_method == "OPENCV":
-    from nestris_ocr.capturing.opencv import OpenCVCapture as Capture
-elif capture_method == "FILE":
-    from nestris_ocr.capturing.file import FileCapture as Capture
-elif capture_method == "WINDOW" and platform.system() == "Windows":
-    from nestris_ocr.capturing.win32 import Win32Capture as Capture
-elif capture_method == "WINDOW" and platform.system() == "Darwin":
-    mac_ver = platform.mac_ver()[0]
-    major, minor, patch = mac_ver.split(".")
 
-    if int(major) * 100 + int(minor) > 1014:
-        raise Exception(
-            "Unsupported Mac OS version. "
-            "Window capture is supported up to Mojave (10.14)"
-        )
+def get_capture_class():
+    capture_method = config["calibration.capture_method"]
 
-    from nestris_ocr.capturing.quartz import QuartzCapture as Capture
-elif capture_method == "WINDOW" and platform.system() == "Linux":
-    from nestris_ocr.capturing.linux import LinuxCapture as Capture
-else:
-    raise ImportError("Invalid capture method")
+    if capture_method == "STATIC":
+        from nestris_ocr.capturing.static import StaticCapture
+
+        return StaticCapture
+    elif capture_method == "OPENCV":
+        from nestris_ocr.capturing.opencv import OpenCVCapture
+
+        return OpenCVCapture
+    elif capture_method == "FILE":
+        from nestris_ocr.capturing.file import FileCapture
+
+        return FileCapture
+    elif capture_method == "WINDOW" and platform.system() == "Windows":
+        from nestris_ocr.capturing.win32 import Win32Capture
+
+        return Win32Capture
+    elif capture_method == "WINDOW" and platform.system() == "Darwin":
+        mac_ver = platform.mac_ver()[0]
+        major, minor, patch = mac_ver.split(".")
+
+        if int(major) * 100 + int(minor) > 1014:
+            raise ImportError(
+                "Unsupported Mac OS version. "
+                "Window capture is supported up to Mojave (10.14)"
+            )
+
+        from nestris_ocr.capturing.quartz import QuartzCapture
+
+        return QuartzCapture
+    elif capture_method == "WINDOW" and platform.system() == "Linux":
+        from nestris_ocr.capturing.linux import LinuxCapture
+
+        return LinuxCapture
+    else:
+        raise ImportError("Invalid capture method")
 
 
 capture = None
@@ -35,7 +50,13 @@ capture = None
 def init_capture(source_id, xywh_box, extra_data):
     global capture
 
-    capture = Capture(source_id, xywh_box, extra_data)
+    try:
+        capture_class = get_capture_class()
+    except ImportError as e:
+        print(e)
+        return
+
+    capture = capture_class(source_id, xywh_box, extra_data)
 
     for i in range(50):
         try:
