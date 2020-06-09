@@ -77,8 +77,23 @@ def init_capture(source_id, xywh_box, extra_data):
         capture = NullCapture(source_id, xywh_box, extra_data)
 
 
-init_capture(
-    config["calibration.source_id"],
-    config["calibration.game_coords"],
-    config["calibration.source_extra_data"],
-)
+def reinit_capture():
+    global capture
+    if capture is not None:
+        capture.stop()
+        capture = None
+
+    init_capture(
+        config["calibration.source_id"],
+        config["calibration.game_coords"],
+        config["calibration.source_extra_data"],
+    )
+
+
+# Get the latest reference to capture
+def uncached_capture():
+    global capture
+    return capture
+
+
+reinit_capture()

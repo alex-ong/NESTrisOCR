@@ -23,7 +23,7 @@ from nestris_ocr.calibration.draw_calibration import (
 from nestris_ocr.calibration.other_options import create_window
 from nestris_ocr.calibration.widgets import Button
 from nestris_ocr.calibration.auto_calibrate import auto_calibrate_raw
-from nestris_ocr.capturing import capture
+from nestris_ocr.capturing import uncached_capture, reinit_capture
 from nestris_ocr.config import config
 from nestris_ocr.ocr_algo.digit import finalImageSize, scoreImage0
 from nestris_ocr.ocr_algo.preview2 import PreviewImageSize
@@ -54,8 +54,8 @@ class Calibrator(tk.Frame):
             self,
             (config["calibration.capture_method"], config["calibration.source_id"]),
             (
-                self.gen_set_config_and_redraw("calibration.capture_method"),
-                self.gen_set_config_and_redraw("calibration.source_id"),
+                self.gen_set_reload_capture("calibration.capture_method"),
+                self.gen_set_reload_capture("calibration.source_id"),
             ),
         ).grid(row=0, sticky="nsew")
         StringChooser(
@@ -426,6 +426,14 @@ class Calibrator(tk.Frame):
         func(result)
         self.redrawImages()
 
+    def gen_set_reload_capture(self, key):
+        def sub_function(result):
+            config[key] = result
+            reinit_capture()
+            self.redrawImages()
+
+        return sub_function
+
     def gen_set_config_and_redraw(self, key):
         def set_config_and_redraw(result):
             config[key] = result
@@ -435,7 +443,7 @@ class Calibrator(tk.Frame):
 
     def update_game_coords(self, result):
         config["calibration.game_coords"] = result
-        capture.xywh_box = result
+        uncached_capture().xywh_box = result
         self.redrawImages()
 
     def redrawImages(self, event=None):

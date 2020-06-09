@@ -3,7 +3,7 @@ import numpy as np
 from PIL import Image
 import time
 
-from nestris_ocr.capturing import capture
+from nestris_ocr.capturing import uncached_capture
 
 
 def auto_calibrate_raw(config):
@@ -11,7 +11,7 @@ def auto_calibrate_raw(config):
         (0, 0, 4000, 2000),  # 4k screens fullscreen
         (0, 0, 1500, 1500),
     )  # reasonably sized screens
-
+    capture = uncached_capture()
     for captureArea in captureAreas:
         original_xywh_box = capture.xywh_box
         capture.xywh_box = captureArea
@@ -19,7 +19,7 @@ def auto_calibrate_raw(config):
         # hack, wait for threaded capturing method to populate next frame
         time.sleep(0.5)
 
-        _, img = capture.get_image(rgb=True)
+        _, img = uncached_capture().get_image(rgb=True)
 
         result = auto_calibrate(img)
         if result:

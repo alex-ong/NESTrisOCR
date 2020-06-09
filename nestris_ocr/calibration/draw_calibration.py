@@ -1,6 +1,6 @@
-﻿from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw
 
-from nestris_ocr.capturing import capture
+from nestris_ocr.capturing import uncached_capture
 from nestris_ocr.utils import xywh_to_ltrb
 from nestris_ocr.utils.lib import (
     screenPercToPixels,
@@ -33,7 +33,7 @@ def splitRect(perc, count):
 
 
 def captureArea(coords=None):
-    _, image = capture.get_image(rgb=True)
+    _, image = uncached_capture().get_image(rgb=True)
 
     if not coords:
         return image
@@ -269,7 +269,7 @@ def highlight_calibration_das(img, c, draw):
 # todo, return image or array of images with cropped out sections.
 def draw_calibration(config):
     try:
-        capture.set_source_id(config["calibration.source_id"])
+        uncached_capture().set_source_id(config["calibration.source_id"])
     except AttributeError:
         pass
     except FileNotFoundError:
@@ -278,7 +278,7 @@ def draw_calibration(config):
     img = captureArea()
     if config["calibration.capture_method"] == "FILE":
         for i in range(10):
-            capture.get_image(rgb=True)
+            uncached_capture().get_image(rgb=True)
     highlight_calibration(img, config)
     img = img.resize((512, 448), Image.ANTIALIAS)
     return img
