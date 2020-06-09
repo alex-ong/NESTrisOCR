@@ -3,12 +3,14 @@ import os
 
 block_cipher = None
 
-template_dir = "assets/sprite_templates"
+assets_dir = "nestris_ocr/assets"
+palettes_dir = "nestris_ocr/palettes"
 
 addedPath = os.getcwd() #adds current path to analysis search
-sprite_templates = (template_dir+"/*", template_dir )
-config = ('config.ini', '.')
-added_files = [sprite_templates, config]
+asset_templates = ("nestris_ocr/assets", "nestris_ocr/assets")
+palette_files = ("nestris_ocr/palettes", "nestris_ocr/palettes")
+
+added_files = [asset_templates, palette_files]
 a = Analysis(['main.py'],
              pathex=[addedPath],
              binaries=[],

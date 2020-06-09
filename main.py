@@ -1,5 +1,6 @@
 import time
 import sys
+import multiprocessing
 
 from calibrate import mainLoop as calibrateLoop
 
@@ -61,6 +62,7 @@ def main(on_cap, check_network_close):
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     if len(sys.argv) >= 2 and sys.argv[1] == "--calibrate":
         calibrateLoop()
         sys.exit()
