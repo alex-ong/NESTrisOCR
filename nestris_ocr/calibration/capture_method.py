@@ -45,12 +45,18 @@ class CaptureMethod(tk.Frame):
             "Which capture card?",
             [d[0] for d in devices],
             [d[1] for d in devices],
-            int(default[1]),
+            self.source_id_to_int(default[1]),
             self.capture_device_changed,
         )
 
         self.on_change_source_id = onChangeArray[1]
         self.enable_choose_source_id(display_mode)
+
+    def source_id_to_int(self, string: str) -> int:
+        try:
+            return int(string)
+        except ValueError:
+            return 0
 
     def raw_mode_to_display(self, mode, source_id):
         if mode == "OPENCV":
