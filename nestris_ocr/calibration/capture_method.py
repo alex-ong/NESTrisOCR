@@ -45,7 +45,7 @@ class CaptureMethod(tk.Frame):
             "Which capture card?",
             [d[0] for d in devices],
             [d[1] for d in devices],
-            default[1],
+            int(default[1]),
             self.capture_device_changed,
         )
 
