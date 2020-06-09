@@ -37,14 +37,13 @@ class CaptureMethod(tk.Frame):
             100,  # source ids can be local file or openCV stream URLs
         )
 
-        devices = get_device_list()
-        self.device_mapping = dict(devices)
+        self.device_mapping = get_device_list()
 
         self.auto_source_id = OptionChooser(
             self,
             "Which capture card?",
-            [d[0] for d in devices],
-            [d[1] for d in devices],
+            list(self.device_mapping.keys()),
+            list(self.device_mapping.values()),
             self.source_id_to_int(default[1]),
             self.capture_device_changed,
         )

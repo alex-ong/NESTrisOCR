@@ -19,6 +19,7 @@ def get_device_list_pre():
         try:
             device_list = device.getDeviceList()
             device_list = list(enumerate(device_list))
+            device_list = dict(device_list)
             return device_list
         except:  # noqa  E722
             print("Error using Windows Native device lister")
@@ -30,16 +31,12 @@ def get_device_list_slow():
     device_list = None
 
     if device_list is None:
-        index = 0
-        device_list = []
+        device_list = {}
         for i in range(8):  # maximum 8 webcam support
             cap = cv2.VideoCapture(i)
-            if not cap.read()[0]:
-                break
-            else:
-                device_list.append((index, "Device " + str(i)))
+            if cap.read()[0]:
+                device_list[i] = "Device " + str(i)
             cap.release()
-            index += 1
         return device_list
 
 

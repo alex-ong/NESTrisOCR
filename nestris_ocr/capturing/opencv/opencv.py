@@ -19,12 +19,13 @@ class OpenCVCapture(AbstractCapture):
     def __init__(self, source_id: str, xywh_box: XYWHBox, extra_data: str) -> None:
         super().__init__(source_id, xywh_box, extra_data)
         print("Initializing capture device")
+        source_id = self.clean_source_id()
         if platform.system() == "Windows":
             backend = self.get_backend(source_id)
-            self.cap = cv2.VideoCapture(int(source_id), backend)
+            self.cap = cv2.VideoCapture(source_id, backend)
             # todo: call benchmark_setup and cache result in config?
         else:
-            self.cap = cv2.VideoCapture(int(source_id))
+            self.cap = cv2.VideoCapture(source_id)
         self.cv2_retval = None
         self.cv2_image = None
         self.image_ts = None
@@ -33,25 +34,34 @@ class OpenCVCapture(AbstractCapture):
         self.read_lock = Lock()
         self.start()
 
-    def get_backend(self, source_id) -> int:
+    def clean_source_id(self) -> int:
+        try:
+            return int(self.source_id)
+        except ValueError:
+            return 0
+
+    def get_backend(self, source_id: int) -> int:
         # check cache:
         devices = get_device_list()
         if self.extra_data:
             cached_source_id, device_name, backend = self.extra_data.split("|")
-            if cached_source_id == source_id:
+            if int(cached_source_id) == source_id:
                 try:
-                    if devices[int(source_id)][1] == device_name:
-                        print("Loading", device_name, " with backend:", backend)
+                    if devices[source_id] == device_name:
+                        print("Loading", device_name, "with backend:", backend)
                         return int(backend)
                 except IndexError:
                     pass
 
+        if source_id not in devices:
+            return cv2.CAP_ANY
+
         # lets benchmark, and then store result.
-        device_name = devices[int(source_id)][1]
+        device_name = devices[source_id]
         print("Benchmarking OpenCV backends for:", device_name)
         runtime, backend = self.benchmark_backends(source_id, WINDOWS_BACKENDS)
         print("Fastest backend:", backend, " Startup time: ", runtime)
-        self.extra_data = "|".join([source_id, device_name, str(backend)])
+        self.extra_data = "|".join([str(source_id), device_name, str(backend)])
         return backend
 
     def benchmark_backends(self, source_id, backends):
@@ -106,5 +116,5 @@ class OpenCVCapture(AbstractCapture):
 
     def stop(self):
         self.running = False
-        # self.pool.terminate()
-        # self.pool.join()
+        self.pool.terminate()
+        self.pool.join()
