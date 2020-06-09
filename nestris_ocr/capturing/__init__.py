@@ -2,6 +2,7 @@ import platform
 import time
 
 from nestris_ocr.config import config
+from nestris_ocr.capturing.null import NullCapture
 
 
 def get_capture_class():
@@ -41,7 +42,7 @@ def get_capture_class():
 
         return LinuxCapture
     else:
-        raise ImportError("Invalid capture method")
+        raise ImportError("Invalid capture method: " + capture_method)
 
 
 capture = None
@@ -54,7 +55,7 @@ def init_capture(source_id, xywh_box, extra_data):
         capture_class = get_capture_class()
     except ImportError as e:
         print(e)
-        return
+        capture_class = NullCapture
 
     capture = capture_class(source_id, xywh_box, extra_data)
 
@@ -68,11 +69,12 @@ def init_capture(source_id, xywh_box, extra_data):
                 break
 
         except Exception:
-            print("Capture device not ready. {}...".format(i))
+            print(f"Capture device not ready. {i}")
             time.sleep(0.1)
             continue
     else:
-        print('Capture device cannot be found with "{}"'.format(source_id))
+        print(f'Capture device cannot be found with "{source_id}"')
+        capture = NullCapture(source_id, xywh_box, extra_data)
 
 
 init_capture(
