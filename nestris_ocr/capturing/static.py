@@ -17,3 +17,6 @@ class StaticCapture(AbstractCapture):
 
     def get_image(self, rgb: bool = False) -> Tuple[float, Image.Image]:
         return time.time(), self.source_img.crop(xywh_to_ltrb(self.xywh_box))
+
+    def fast_restart(self) -> bool:
+        return False

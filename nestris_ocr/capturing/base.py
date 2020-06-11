@@ -15,5 +15,14 @@ class AbstractCapture(ABC):
     def get_image(self, rgb: bool = False) -> Tuple[float, Image.Image]:
         pass
 
-    def stop(self):
+    def stop(self) -> bool:
         pass
+
+    @abstractmethod
+    def fast_restart(self):
+        pass
+
+    def fast_reinit(self, source_id, xywh_box, extra_data):
+        self.source_id = source_id
+        self.xywh_box = xywh_box
+        self.extra_data = extra_data

@@ -34,3 +34,6 @@ class FileCapture(AbstractCapture):
         ts = self.cur_frame * self.frame_duration
 
         return ts, image
+
+    def fast_restart(self) -> bool:
+        return False

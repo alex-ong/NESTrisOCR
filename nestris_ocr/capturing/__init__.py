@@ -48,7 +48,7 @@ def get_capture_class():
 capture = None
 
 
-def init_capture(source_id, xywh_box, extra_data):
+def init_capture(source_id, xywh_box, extra_data, fast):
     global capture
 
     try:
@@ -57,7 +57,10 @@ def init_capture(source_id, xywh_box, extra_data):
         print(e)
         capture_class = NullCapture
 
-    capture = capture_class(source_id, xywh_box, extra_data)
+    if fast and isinstance(capture, capture_class):
+        capture.fast_reinit(source_id, xywh_box, extra_data)
+    else:
+        capture = capture_class(source_id, xywh_box, extra_data)
 
     for i in range(50):
         try:
@@ -77,16 +80,19 @@ def init_capture(source_id, xywh_box, extra_data):
         capture = NullCapture(source_id, xywh_box, extra_data)
 
 
+# only opencv needs true re-initting.
 def reinit_capture():
     global capture
+    fast_init = False
     if capture is not None:
         capture.stop()
-        capture = None
+        fast_init = capture.fast_restart()
 
     init_capture(
         config["calibration.source_id"],
         config["calibration.game_coords"],
         config["calibration.source_extra_data"],
+        fast_init,
     )
 
 

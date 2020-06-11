@@ -87,16 +87,3 @@ class Win32UICapture(object):
         except win32ui.error:
             raise
         return None
-
-
-# I believe we no longer need the below items - Alex
-imgCap = Win32UICapture()
-
-
-def ImageCapture(rectangle, hwndTarget):
-    global imgCap
-    return imgCap.ImageCapture(rectangle, hwndTarget)
-
-
-def NextFrame():
-    return True

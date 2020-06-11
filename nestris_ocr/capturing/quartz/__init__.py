@@ -26,3 +26,6 @@ class QuartzCapture(AbstractCapture):
             if window[1].startswith(self.source_id):
                 return window[0]
         return None
+
+    def fast_restart(self) -> bool:
+        return False

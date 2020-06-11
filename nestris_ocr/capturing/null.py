@@ -14,3 +14,6 @@ class NullCapture(AbstractCapture):
         w, h = self.xywh_box[2], self.xywh_box[3]
         im = Image.new("RGB", (w, h))
         return (time.time(), im)
+
+    def fast_restart(self) -> bool:
+        return True

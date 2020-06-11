@@ -118,3 +118,6 @@ class OpenCVCapture(AbstractCapture):
         self.running = False
         self.pool.terminate()
         self.pool.join()
+
+    def fast_restart(self) -> bool:
+        return False
