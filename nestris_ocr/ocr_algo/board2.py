@@ -6,7 +6,11 @@ from math import sqrt
 # we want to eventually compile this numba AOT, so we don't need numba.
 
 
-@njit("uint8[:,:](uint8[:,:,:],uint8[:],uint8[:],uint8[:],uint8[:])")
+@njit(
+    "uint8[:,:](uint8[:,:,:],uint8[:],uint8[:],uint8[:],uint8[:])",
+    nogil=True,
+    cache=True,
+)
 def parseImage2(img, black, white, color1, color2):
 
     # todo: maybe pass this in as a 3d array instead,
