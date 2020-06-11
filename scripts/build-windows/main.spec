@@ -7,7 +7,7 @@ assets_dir = "nestris_ocr/assets"
 palettes_dir = "nestris_ocr/palettes"
 
 addedPath = os.getcwd() #adds current path to analysis search
-asset_templates = ("nestris_ocr/assets", "nestris_ocr/assets")
+asset_templates = ("nestris_ocr/assets/sprite_templates", "nestris_ocr/assets/sprite_templates")
 palette_files = ("nestris_ocr/palettes", "nestris_ocr/palettes")
 
 added_files = [asset_templates, palette_files]
