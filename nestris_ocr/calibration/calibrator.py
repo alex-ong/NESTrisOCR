@@ -1,7 +1,6 @@
 from functools import partial
 import tkinter as tk
 import tkinter.ttk as ttk
-import multiprocessing
 import time
 import sys
 
@@ -119,7 +118,14 @@ class Calibrator(tk.Frame):
         self.setupTab2()
         self.setupTab3()
         self.setupTab4()
+        self.setupTab5()
         self.setPreviewTextVisible()
+
+        self.progress_bar = ttk.Progressbar(
+            self, orient=tk.HORIZONTAL, length=512, mode="determinate"
+        )
+        self.progress_bar["maximum"] = 100
+        self.progress_bar.grid(row=5, columnspan=2, sticky="nsew")
 
         self.redrawImages()
         self.lastUpdate = time.time()
@@ -225,42 +231,6 @@ class Calibrator(tk.Frame):
         )
         self.color2Image.grid(row=1, column=1)
 
-        self.flashChooser = CompactRectChooser(
-            f,
-            "Flash (imagePerc)",
-            config["calibration.pct.flash"],
-            True,
-            self.gen_set_config_and_redraw("calibration.pct.flash"),
-        )
-        self.flashChooser.grid(row=1, columnspan=2)
-
-        self.blackWhiteCapture = tk.Frame(self.fieldCapture)
-        self.blackWhiteCapture.grid(row=2, columnspan=2)
-
-        self.blackWhiteChooser = CompactRectChooser(
-            self.blackWhiteCapture,
-            "Black and White\nSelect an area with both pure white and pure black",
-            config["calibration.pct.black_n_white"],
-            True,
-            self.gen_set_config_and_redraw("calibration.pct.black_n_white"),
-        )
-        self.blackWhiteChooser.grid(row=0, column=0)
-        self.blackWhiteImage = ImageCanvas(
-            self.blackWhiteCapture, blackWhiteImageSize[0], blackWhiteImageSize[1]
-        )
-        self.blackWhiteImage.grid(row=0, column=1)
-
-        self.pieceStatsChooser = CompactRectChooser(
-            f,
-            "pieceStats (imagePerc)",
-            config["calibration.pct.stats"],
-            True,
-            self.gen_set_config_and_redraw("calibration.pct.stats"),
-        )
-        self.pieceStatsChooser.grid(row=3, columnspan=2)
-
-        self.setFieldTextVisible()
-        self.setStatsTextVisible()
         self.tabManager.add(f, text="FieldStats")
 
     def setupTab3(self):
@@ -301,6 +271,46 @@ class Calibrator(tk.Frame):
         self.tabManager.add(f, text="PreviewPiece")
 
     def setupTab4(self):
+        f = tk.Frame(self.tabManager)
+        self.flashChooser = CompactRectChooser(
+            f,
+            "Flash (imagePerc)",
+            config["calibration.pct.flash"],
+            True,
+            self.gen_set_config_and_redraw("calibration.pct.flash"),
+        )
+        self.flashChooser.grid(row=1, columnspan=2)
+
+        self.blackWhiteCapture = tk.Frame(self.fieldCapture)
+        self.blackWhiteCapture.grid(row=2, columnspan=2)
+
+        self.blackWhiteChooser = CompactRectChooser(
+            self.blackWhiteCapture,
+            "Black and White\nSelect an area with both pure white and pure black",
+            config["calibration.pct.black_n_white"],
+            True,
+            self.gen_set_config_and_redraw("calibration.pct.black_n_white"),
+        )
+        self.blackWhiteChooser.grid(row=0, column=0)
+        self.blackWhiteImage = ImageCanvas(
+            self.blackWhiteCapture, blackWhiteImageSize[0], blackWhiteImageSize[1]
+        )
+        self.blackWhiteImage.grid(row=0, column=1)
+
+        self.pieceStatsChooser = CompactRectChooser(
+            f,
+            "pieceStats (imagePerc)",
+            config["calibration.pct.stats"],
+            True,
+            self.gen_set_config_and_redraw("calibration.pct.stats"),
+        )
+        self.pieceStatsChooser.grid(row=3, columnspan=2)
+
+        self.setDynamicBWVisible()
+        self.setStatsTextVisible()
+        self.tabManager.add(f, text="Misc.")
+
+    def setupTab5(self):
         f = tk.Frame(self.tabManager)
 
         self.dasEnabledChooser = BoolChooser(
@@ -378,7 +388,7 @@ class Calibrator(tk.Frame):
         else:
             self.flashChooser.grid_forget()
 
-    def setFieldTextVisible(self):
+    def setDynamicBWVisible(self):
         if self.config["calibration.dynamic_black_n_white"]:
             self.blackWhiteCapture.grid(row=2, columnspan=2)
         else:
@@ -485,8 +495,9 @@ class Calibrator(tk.Frame):
                 (UPSCALE * 2 * i for i in PreviewImageSize)
             )
             self.previewImage.updateImage(preview_img)
-
-        elif self.getActiveTab() == 3:  # DAS Trainer
+        elif self.getActiveTab() == 3:  # misc
+            pass  # no images
+        elif self.getActiveTab() == 4:  # DAS Trainer
             (
                 current_piece_img,
                 current_piece_das_img,
@@ -511,6 +522,7 @@ class Calibrator(tk.Frame):
             self.config["calibration.game_coords"],
             self.config["calibration.pct.lines"],
             3,
+            self.update_progressbar,
         )
         if bestRect is not None:
             self.linesPerc.show(str(item) for item in bestRect)
@@ -523,6 +535,7 @@ class Calibrator(tk.Frame):
             self.config["calibration.game_coords"],
             self.config["calibration.pct.score"],
             6,
+            self.update_progressbar,
         )
         if bestRect is not None:
             self.scorePerc.show(str(item) for item in bestRect)
@@ -535,6 +548,7 @@ class Calibrator(tk.Frame):
             self.config["calibration.game_coords"],
             self.config["calibration.pct.level"],
             2,
+            self.update_progressbar,
         )
         if bestRect is not None:
             self.levelPerc.show(str(item) for item in bestRect)
@@ -547,6 +561,7 @@ class Calibrator(tk.Frame):
             self.config["calibration.game_coords"],
             self.config["calibration.pct.das.current_piece_das"],
             2,
+            self.update_progressbar,
         )
         if bestRect is not None:
             self.levelPerc.show(str(item) for item in bestRect)
@@ -559,6 +574,7 @@ class Calibrator(tk.Frame):
             self.config["calibration.game_coords"],
             self.config["calibration.pct.das.instant_das"],
             2,
+            self.update_progressbar,
         )
         if bestRect is not None:
             self.levelPerc.show(str(item) for item in bestRect)
@@ -574,6 +590,10 @@ class Calibrator(tk.Frame):
         if rect is not None:
             self.winCoords.show(rect)
 
+    def update_progressbar(self, perc):
+        self.progress_bar["value"] = int(perc * 100)
+        self.progress_bar.update()
+
     def update(self):
         if not self.destroying:
             if time.time() - self.lastUpdate > 5.0 and self.noBoard:
@@ -583,7 +603,7 @@ class Calibrator(tk.Frame):
     def otherOptionsClosed(self):
         self.redrawImages()
         self.setStatsTextVisible()
-        self.setFieldTextVisible()
+        self.setDynamicBWVisible()
         self.setFlashVisible()
         self.setPreviewTextVisible()
 
@@ -602,58 +622,43 @@ def pixelPercRect(dim, rectPerc):
     return x1, y1, x2, y2
 
 
-def autoAdjustRectangle(capture_coords, rect, numDigits):
-    # we can only run multi-thread on certain frameworks.
-    if config["calibration.capture_method"] in ["OPENCV", "FILE"]:
-        multi_thread = False
-    else:
-        multi_thread = True
-
-    if multi_thread:
-        p = multiprocessing.Pool()
+def autoAdjustRectangle(capture_coords, rect, numDigits, updateUI):
 
     lowestScore = None
     # lowestOffset = None
     bestRect = None
     pattern = "D" * numDigits
-    left, right = -3, 4
+    left, right = -2, 3
     results = []
     total = (right - left) ** 4
     i = 0
+
+    NES_WIDTH = 256.0
+    NES_HEIGHT = 224.0
+    # adjust width by up to 2px in any direction.
     for x in range(left, right):
         for y in range(left, right):
             for w in range(left, right):
                 for h in range(left, right):
                     newRect = (
-                        rect[0] + x * 0.001,
-                        rect[1] + y * 0.001,
-                        rect[2] + w * 0.001,
-                        rect[3] + h * 0.001,
+                        rect[0] + x * 0.5 / NES_WIDTH,
+                        rect[1] + y * 0.5 / NES_HEIGHT,
+                        rect[2] + w * 0.5 / NES_WIDTH,
+                        rect[3] + h * 0.5 / NES_HEIGHT,
                     )
                     pixRect = mult_rect(capture_coords, newRect)
-                    if multi_thread:
-                        results.append(
-                            p.apply_async(adjustTask, (pixRect, pattern, newRect))
-                        )
-                    else:  # run directly.
-                        results.append(adjustTask(pixRect, pattern, newRect))
-                        progressBar(i, total)
+                    results.append(adjustTask(pixRect, pattern, newRect))
+                    progressBar(i, total)
+                    updateUI(i / float(total))
                     i += 1
 
     for (i, r) in enumerate(results):
-        if multi_thread:
-            result, newRect = r.get()
-        else:
-            result, newRect = r
-        progressBar(i, total)
+        result, newRect = r
+        updateUI(i / float(total))
         if result is not None:
             if lowestScore is None or result < lowestScore:
                 bestRect = newRect
                 lowestScore = result
-
-    if multi_thread:
-        p.close()
-        p.join()
 
     return bestRect
 
