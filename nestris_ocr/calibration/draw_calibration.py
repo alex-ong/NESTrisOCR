@@ -32,8 +32,9 @@ def splitRect(perc, count):
     return result
 
 
-def captureArea(coords=None):
-    _, image = uncached_capture().get_image(rgb=True)
+def captureArea(coords=None, image=None):
+    if image is None:
+        _, image = uncached_capture().get_image(rgb=True)
 
     if not coords:
         return image

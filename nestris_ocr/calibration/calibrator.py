@@ -635,6 +635,7 @@ def autoAdjustRectangle(capture_coords, rect, numDigits, updateUI):
 
     NES_WIDTH = 256.0
     NES_HEIGHT = 224.0
+    stock_img = captureArea(None, None)
     # adjust width by up to 2px in any direction.
     for x in range(left, right):
         for y in range(left, right):
@@ -647,7 +648,7 @@ def autoAdjustRectangle(capture_coords, rect, numDigits, updateUI):
                         rect[3] + h * 0.5 / NES_HEIGHT,
                     )
                     pixRect = mult_rect(capture_coords, newRect)
-                    results.append(adjustTask(pixRect, pattern, newRect))
+                    results.append(adjustTask(pixRect, pattern, newRect, stock_img))
                     progressBar(i, total)
                     updateUI(i / float(total))
                     i += 1
@@ -663,15 +664,11 @@ def autoAdjustRectangle(capture_coords, rect, numDigits, updateUI):
     return bestRect
 
 
-def adjustTask(pixRect, pattern, newRect):
+def adjustTask(pixRect, pattern, newRect, cached_image):
     result = 0
-    for i in range(3):
-        img = captureArea(pixRect)
-        result2 = scoreImage0(img, pattern)
-        if result2 is not None and result is not None:
-            result += result2
-        else:
-            result = None
+    img = captureArea(pixRect, cached_image)
+    result = scoreImage0(img, pattern)
+
     return result, newRect
 
 
