@@ -146,9 +146,9 @@ class Calibrator(tk.Frame):
             True,
             self.gen_set_config_and_redraw("calibration.pct.lines"),
         )
-        self.linesPerc.grid(row=0, column=1)
+        self.linesPerc.grid(row=0, column=1, rowspan=2)
         self.linesImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
-        self.linesImage.grid(row=1, columnspan=2)
+        self.linesImage.grid(row=1, column=0)
 
         canvasSize = [UPSCALE * i for i in finalImageSize(6)]
         Button(
@@ -164,9 +164,9 @@ class Calibrator(tk.Frame):
             True,
             self.gen_set_config_and_redraw("calibration.pct.score"),
         )
-        self.scorePerc.grid(row=2, column=1)
+        self.scorePerc.grid(row=2, column=1, rowspan=2)
         self.scoreImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
-        self.scoreImage.grid(row=3, columnspan=2)
+        self.scoreImage.grid(row=3, column=0)
 
         canvasSize = [UPSCALE * i for i in finalImageSize(2)]
         Button(
@@ -182,9 +182,9 @@ class Calibrator(tk.Frame):
             True,
             self.gen_set_config_and_redraw("calibration.pct.level"),
         )
-        self.levelPerc.grid(row=4, column=1)
+        self.levelPerc.grid(row=4, column=1, rowspan=2)
         self.levelImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
-        self.levelImage.grid(row=5, columnspan=2)
+        self.levelImage.grid(row=5, column=0)
         self.tabManager.add(f, text="NumberOCR")
 
     def setupTab2(self):
@@ -281,7 +281,7 @@ class Calibrator(tk.Frame):
         )
         self.flashChooser.grid(row=1, columnspan=2)
 
-        self.blackWhiteCapture = tk.Frame(self.fieldCapture)
+        self.blackWhiteCapture = tk.Frame(f)
         self.blackWhiteCapture.grid(row=2, columnspan=2)
 
         self.blackWhiteChooser = CompactRectChooser(
@@ -322,6 +322,10 @@ class Calibrator(tk.Frame):
         self.dasEnabledChooser.grid(row=0, columnspan=2)
 
         # Current Piece
+        canvasSize = [UPSCALE * 2 * i for i in CurPieceImageSize]
+        self.dasCurrentPieceImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
+        self.dasCurrentPieceImage.grid(row=1, column=0)
+
         self.dasCurrentPieceChooser = CompactRectChooser(
             f,
             "Current Piece (imagePerc)",
@@ -329,14 +333,9 @@ class Calibrator(tk.Frame):
             True,
             self.gen_set_config_and_redraw("calibration.pct.das.current_piece"),
         )
-        self.dasCurrentPieceChooser.grid(row=1, columnspan=2)
-
-        canvasSize = [UPSCALE * 2 * i for i in CurPieceImageSize]
-        self.dasCurrentPieceImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
-        self.dasCurrentPieceImage.grid(row=2, columnspan=2)
+        self.dasCurrentPieceChooser.grid(row=1, column=1)
 
         # Instant DAS
-
         canvasSize = [UPSCALE * i for i in finalImageSize(2)]
 
         Button(
@@ -344,7 +343,7 @@ class Calibrator(tk.Frame):
             text="Auto Adjust Instant DAS \n Needs CURRENT DAS = 00",
             command=self.autoInstantDas,
             bg="red",
-        ).grid(row=3, column=0)
+        ).grid(row=2, column=0)
         self.instantDasPercChooser = CompactRectChooser(
             f,
             "instantDas (imagePerc)",
@@ -352,18 +351,17 @@ class Calibrator(tk.Frame):
             True,
             self.gen_set_config_and_redraw("calibration.pct.das.instant_das"),
         )
-        self.instantDasPercChooser.grid(row=3, column=1)
+        self.instantDasPercChooser.grid(row=2, column=1, rowspan=2)
         self.instantDasImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
-        self.instantDasImage.grid(row=4, columnspan=2)
+        self.instantDasImage.grid(row=3, column=0)
 
         # Current piece DAS
-
         Button(
             f,
             text="Auto Adjust Current Piece DAS \n Needs START DAS = 00",
             command=self.autoCurrentPieceDas,
             bg="red",
-        ).grid(row=5, column=0)
+        ).grid(row=4, column=0)
 
         self.currentPieceDasPercChooser = CompactRectChooser(
             f,
@@ -372,9 +370,9 @@ class Calibrator(tk.Frame):
             True,
             self.gen_set_config_and_redraw("calibration.pct.das.current_piece_das"),
         )
-        self.currentPieceDasPercChooser.grid(row=5, column=1)
+        self.currentPieceDasPercChooser.grid(row=4, column=1, rowspan=2)
         self.currentPieceDasImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
-        self.currentPieceDasImage.grid(row=6, columnspan=2)
+        self.currentPieceDasImage.grid(row=5, column=0)
 
         self.tabManager.add(f, text="DasTrainer")
 
