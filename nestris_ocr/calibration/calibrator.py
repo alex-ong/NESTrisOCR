@@ -56,6 +56,7 @@ class Calibrator(tk.Frame):
             (
                 self.gen_set_reload_capture("calibration.capture_method"),
                 self.gen_set_reload_capture("calibration.source_id"),
+                partial(config.__setitem__, "calibration.source_id"),
             ),
         ).grid(row=0, sticky="nsew")
         StringChooser(
