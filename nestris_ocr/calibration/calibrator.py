@@ -589,7 +589,7 @@ class Calibrator(tk.Frame):
             self.winCoords.show(rect)
 
     def update_progressbar(self, perc):
-        self.progress_bar["value"] = int(perc * 100)
+        self.progress_bar["value"] = round(perc * 100)
         self.progress_bar.update()
 
     def update(self):
