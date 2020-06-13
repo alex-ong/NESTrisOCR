@@ -1,10 +1,6 @@
-﻿from multiprocessing import cpu_count
-
-
 # default standalone preset. Ideal for capturing
 def preset_standalone(config):
-    # 4 threads; score, lines, level, stats
-    config["performance.num_threads"] = min(cpu_count(), 4)
+    # score, lines, level, stats
     config["stats.enabled"] = True
     config["calibration.capture_preview"] = False
     config["calibration.capture_field"] = False
@@ -21,8 +17,7 @@ def preset_dastrainer_standalone(config):
 
 # default nestris99 preset. ideal for streaming to internet.
 def preset_nestris99(config):
-    # 6 threads; board, score, lines, level, preview
-    config["performance.num_threads"] = min(cpu_count(), 6)
+    # board, score, lines, level, preview
     config["stats.enabled"] = False
     config["calibration.capture_field"] = True
     config["calibration.capture_preview"] = True

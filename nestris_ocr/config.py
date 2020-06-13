@@ -9,7 +9,6 @@ CONFIG_DEFAULTS = {
     "player.name": "",
     "player.twitch_url": "",
 
-    "performance.num_threads": 2,
     "performance.support_hex_score": True,
     "performance.support_hex_level": True,
     "performance.scan_rate": 30,
@@ -62,7 +61,6 @@ CONFIG_DEFAULTS = {
 }
 # fmt: on
 CONFIG_CHOICES = {
-    "performance.num_threads": {1, 2, 3, 4, 5, 6, 7, 8},
     "stats.capture_method": {"FIELD", "TEXT"},
     "calibration.capture_method": {"WINDOW", "OPENCV", "FILE"},
     "calibration.flash_method": {"FIELD", "BACKGROUND", "NONE"},

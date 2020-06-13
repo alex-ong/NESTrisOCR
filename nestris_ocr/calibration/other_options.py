@@ -1,5 +1,4 @@
-﻿import tkinter as tk
-import multiprocessing
+import tkinter as tk
 from nestris_ocr.calibration.option_chooser import OptionChooser
 from nestris_ocr.calibration.bool_chooser import BoolChooser
 from nestris_ocr.calibration.presets import presets
@@ -18,17 +17,6 @@ class OtherOptions(tk.Toplevel):
             self, "Choose preset", items, items, "", self.changePreset
         )
 
-        # multiprocessing
-        items = [i + 1 for i in range(multiprocessing.cpu_count())]
-        itemsStr = [str(item) for item in items]
-        self.mt = OptionChooser(
-            self,
-            "Use multi_thread",
-            items,
-            itemsStr,
-            config["performance.num_threads"],
-            self.changeMultiThread,
-        )
         # hexSupport
         self.hex = BoolChooser(
             self,
@@ -94,7 +82,6 @@ class OtherOptions(tk.Toplevel):
         )
 
         self.presets.pack(fill="both")
-        self.mt.pack(fill="both")
         self.hex.pack(fill="both")
         self.blackWhiteCap.pack(fill="both")
         self.fieldCap.pack(fill="both")
@@ -114,7 +101,6 @@ class OtherOptions(tk.Toplevel):
         self.refreshValues()
 
     def refreshValues(self):
-        self.mt.refresh(self.config["performance.num_threads"])
         self.hex.refresh(self.config["performance.support_hex_score"])
         self.blackWhiteCap.refresh(self.config["calibration.dynamic_black_n_white"])
         self.fieldCap.refresh(self.config["calibration.capture_field"])
@@ -124,9 +110,6 @@ class OtherOptions(tk.Toplevel):
         self.statsMethod.refresh(self.config["stats.capture_method"])
         self.showHideStatsMethod()
         self.showHideColors()
-
-    def changeMultiThread(self, value):
-        self.config["performance.num_threads"] = value
 
     def changeHexSupport(self, value):
         self.config["stats.enabled"] = value
