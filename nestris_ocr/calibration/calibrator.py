@@ -2,7 +2,6 @@ from functools import partial
 import tkinter as tk
 import tkinter.ttk as ttk
 import time
-import sys
 
 from PIL import Image
 from nestris_ocr.calibration.bool_chooser import BoolChooser
@@ -16,19 +15,18 @@ from nestris_ocr.calibration.draw_calibration import (
     capture_preview,
     capture_color1color2,
     capture_blackwhite,
-    captureArea,
 )
 
 from nestris_ocr.calibration.other_options import create_window
 from nestris_ocr.calibration.widgets import Button
 from nestris_ocr.calibration.auto_calibrate import auto_calibrate_raw
+from nestris_ocr.calibration.auto_number import auto_adjust_numrect
 from nestris_ocr.capturing import uncached_capture, reinit_capture
 from nestris_ocr.config import config
-from nestris_ocr.ocr_algo.digit import finalImageSize, scoreImage0
+from nestris_ocr.ocr_algo.digit import finalImageSize
 from nestris_ocr.ocr_algo.preview2 import PreviewImageSize
 from nestris_ocr.ocr_algo.dasTrainerCurPiece import CurPieceImageSize
 from nestris_ocr.calibration.capture_method import CaptureMethod
-from nestris_ocr.utils.lib import mult_rect
 
 UPSCALE = 2
 ENABLE_OTHER_OPTIONS = True
@@ -139,6 +137,7 @@ class Calibrator(tk.Frame):
             command=self.autoLines,
             bg="red",
         ).grid(row=0, column=0)
+
         self.linesPerc = CompactRectChooser(
             f,
             "lines (imagePerc)",
@@ -516,7 +515,7 @@ class Calibrator(tk.Frame):
             self.currentPieceDasImage.updateImage(current_piece_das_img)
 
     def autoLines(self):
-        bestRect = autoAdjustRectangle(
+        bestRect = auto_adjust_numrect(
             self.config["calibration.game_coords"],
             self.config["calibration.pct.lines"],
             3,
@@ -529,7 +528,7 @@ class Calibrator(tk.Frame):
             print("Please have score on screen as 000")
 
     def autoScore(self):
-        bestRect = autoAdjustRectangle(
+        bestRect = auto_adjust_numrect(
             self.config["calibration.game_coords"],
             self.config["calibration.pct.score"],
             6,
@@ -542,7 +541,7 @@ class Calibrator(tk.Frame):
             print("Please have score on screen as 000000")
 
     def autoLevel(self):
-        bestRect = autoAdjustRectangle(
+        bestRect = auto_adjust_numrect(
             self.config["calibration.game_coords"],
             self.config["calibration.pct.level"],
             2,
@@ -555,7 +554,7 @@ class Calibrator(tk.Frame):
             print("Please have score on screen as 00")
 
     def autoCurrentPieceDas(self):
-        bestRect = autoAdjustRectangle(
+        bestRect = auto_adjust_numrect(
             self.config["calibration.game_coords"],
             self.config["calibration.pct.das.current_piece_das"],
             2,
@@ -568,7 +567,7 @@ class Calibrator(tk.Frame):
             print("Please have current piece das on screen as 00")
 
     def autoInstantDas(self):
-        bestRect = autoAdjustRectangle(
+        bestRect = auto_adjust_numrect(
             self.config["calibration.game_coords"],
             self.config["calibration.pct.das.instant_das"],
             2,
@@ -618,67 +617,6 @@ def pixelPercRect(dim, rectPerc):
     x2 = round(x1 + dim[0] * rectPerc[2])
     y2 = round(y1 + dim[1] * rectPerc[3])
     return x1, y1, x2, y2
-
-
-def autoAdjustRectangle(capture_coords, rect, numDigits, updateUI):
-
-    lowestScore = None
-    # lowestOffset = None
-    bestRect = None
-    pattern = "D" * numDigits
-    left, right = -2, 3
-    results = []
-    total = (right - left) ** 4
-    i = 0
-
-    NES_WIDTH = 256.0
-    NES_HEIGHT = 224.0
-    stock_img = captureArea(None, None)
-    # adjust width by up to 2px in any direction.
-    for x in range(left, right):
-        for y in range(left, right):
-            for w in range(left, right):
-                for h in range(left, right):
-                    newRect = (
-                        rect[0] + x * 0.5 / NES_WIDTH,
-                        rect[1] + y * 0.5 / NES_HEIGHT,
-                        rect[2] + w * 0.5 / NES_WIDTH,
-                        rect[3] + h * 0.5 / NES_HEIGHT,
-                    )
-                    pixRect = mult_rect(capture_coords, newRect)
-                    results.append(adjustTask(pixRect, pattern, newRect, stock_img))
-                    progressBar(i, total)
-                    updateUI(i / float(total))
-                    i += 1
-
-    for (i, r) in enumerate(results):
-        result, newRect = r
-        updateUI(i / float(total))
-        if result is not None:
-            if lowestScore is None or result < lowestScore:
-                bestRect = newRect
-                lowestScore = result
-
-    return bestRect
-
-
-def adjustTask(pixRect, pattern, newRect, cached_image):
-    result = 0
-    img = captureArea(pixRect, cached_image)
-    result = scoreImage0(img, pattern)
-
-    return result, newRect
-
-
-def progressBar(value, endvalue, bar_length=20):
-    percent = float(value) / endvalue
-    arrow = "-" * int(round(percent * bar_length) - 1) + ">"
-    spaces = " " * (bar_length - len(arrow))
-
-    sys.stdout.write(
-        "\rPercent: [{0}] {1}%".format(arrow + spaces, int(round(percent * 100)))
-    )
-    sys.stdout.flush()
 
 
 ASSET_ROOT = "nestris_ocr/assets/"
