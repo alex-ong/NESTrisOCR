@@ -3,6 +3,7 @@ from PIL import Image
 from typing import Tuple
 
 from nestris_ocr.types import XYWHBox
+from nestris_ocr.capturing.deinterlacer import deinterlace
 
 
 class AbstractCapture(ABC):
@@ -17,6 +18,11 @@ class AbstractCapture(ABC):
 
     def stop(self) -> bool:
         pass
+
+    # Helper method.
+    # TODO: force all classes to call this by wrapping get_image properly.
+    def deinterlace(self, image):
+        return deinterlace(image)  # call library deinterlace method.
 
     @abstractmethod
     def fast_restart(self):

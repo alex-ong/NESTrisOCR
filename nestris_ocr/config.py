@@ -16,9 +16,12 @@ CONFIG_DEFAULTS = {
     "stats.enabled": False,
     "stats.capture_method": "FIELD",
 
-    "calibration.capture_method": "WINDOW",
-    "calibration.source_id": "OBS",
-    "calibration.source_extra_data" : "",
+    # related to getting the base image for ocr
+    "capture.method": "WINDOW",
+    "capture.source_id": "OBS",
+    "capture.source_extra_data" : "",
+    "capture.deinterlace_method": "DISCARD_BOTTOM",
+    "capture.deinterlace_res": "HALF",
     "calibration.palette": "DEFAULT",
 
     "calibration.flash_method": "BACKGROUND",
@@ -62,8 +65,16 @@ CONFIG_DEFAULTS = {
 # fmt: on
 CONFIG_CHOICES = {
     "stats.capture_method": {"FIELD", "TEXT"},
-    "calibration.capture_method": {"WINDOW", "OPENCV", "FILE"},
+    "capture.method": {"WINDOW", "OPENCV", "FILE"},
     "calibration.flash_method": {"FIELD", "BACKGROUND", "NONE"},
+    "capture.deinterlace_method": {
+        "NONE",
+        "DISCARD_TOP",
+        "DISCARD_BOTTOM",
+        "TOP_FIRST",
+        "BOTTOM_FIRST",
+    },
+    "capture.deinterlace_res": {"FULL", "HALF"},
     "network.protocol": {"LEGACY", "FILE", "AUTOBAHN", "AUTOBAHN_V2"},
 }
 

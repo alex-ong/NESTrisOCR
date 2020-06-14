@@ -1,5 +1,6 @@
-﻿from PIL import Image
+from PIL import Image
 from enum import Enum
+from nestris_ocr.config import config
 
 
 # fastest 60p is HALF+TOP_FIRST or BOTTOM_FIRST.
@@ -7,6 +8,15 @@ from enum import Enum
 class InterlaceRes(Enum):
     FULL = 0
     HALF = 1
+
+    @classmethod
+    def from_string(value):
+        if value == "FULL":
+            return InterlaceRes.FULL
+        elif value == "HALF":
+            return InterlaceRes.HALF
+        else:
+            return InterlaceRes.FULL
 
 
 class InterlaceMode(Enum):
@@ -16,8 +26,25 @@ class InterlaceMode(Enum):
     TOP_FIRST = 4
     BOTTOM_FIRST = 5
 
+    @classmethod
+    def from_string(value):
+        if value == "NONE":
+            return InterlaceMode.NONE
+        elif value == "DISCARD_TOP":
+            return InterlaceMode.DISCARD_TOP
+        elif value == "DISCARD_BOTTOM":
+            return InterlaceMode.DISCARD_BOTTOM
+        elif value == "TOP_FIRST":
+            return InterlaceMode.TOP_FIRST
+        elif value == "BOTTOM_FIRST":
+            return InterlaceMode.BOTTOM_FIRST
+        else:
+            return InterlaceMode.NONE
 
-def deinterlace(img, mode=InterlaceMode.NONE, res=InterlaceRes.FULL):
+
+def deinterlace(img):
+    mode = InterlaceMode.from_string(config["capture.deinterlace_method"])
+    res = InterlaceRes.from_string(config["capture.deinterlace_res"])
     full_size = list(img.size)
     half_size = (img.size[0] // 2, img.size[1] // 2)
 

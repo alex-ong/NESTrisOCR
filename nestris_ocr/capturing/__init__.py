@@ -6,7 +6,7 @@ from nestris_ocr.capturing.null import NullCapture
 
 
 def get_capture_class():
-    capture_method = config["calibration.capture_method"]
+    capture_method = config["capture.method"]
 
     if capture_method == "STATIC":
         from nestris_ocr.capturing.static import StaticCapture
@@ -68,7 +68,7 @@ def init_capture(source_id, xywh_box, extra_data, fast):
 
             if image:
                 print("Capture device ready!")
-                config["calibration.source_extra_data"] = capture.extra_data
+                config["capture.source_extra_data"] = capture.extra_data
                 break
 
         except Exception:
@@ -89,9 +89,9 @@ def reinit_capture():
         fast_init = capture.fast_restart()
 
     init_capture(
-        config["calibration.source_id"],
+        config["capture.source_id"],
         config["calibration.game_coords"],
-        config["calibration.source_extra_data"],
+        config["capture.source_extra_data"],
         fast_init,
     )
 

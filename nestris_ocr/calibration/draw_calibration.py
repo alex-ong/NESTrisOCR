@@ -270,14 +270,14 @@ def highlight_calibration_das(img, c, draw):
 # todo, return image or array of images with cropped out sections.
 def draw_calibration(config):
     try:
-        uncached_capture().set_source_id(config["calibration.source_id"])
+        uncached_capture().set_source_id(config["capture.source_id"])
     except AttributeError:
         pass
     except FileNotFoundError:
         pass
 
     img = captureArea()
-    if config["calibration.capture_method"] == "FILE":
+    if config["capture.method"] == "FILE":
         for i in range(10):
             uncached_capture().get_image(rgb=True)
     highlight_calibration(img, config)
