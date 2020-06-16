@@ -7,6 +7,8 @@ DUMB_OFFSET = 4
 class ImageCanvas(tk.Canvas):
     def __init__(self, root, width, height):
         super().__init__(root, width=width + DUMB_OFFSET, height=height + DUMB_OFFSET)
+        self.width = width
+        self.height = height
         self._getImg = None
         self._img = None
 
