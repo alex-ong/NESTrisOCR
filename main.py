@@ -4,7 +4,7 @@ import multiprocessing
 
 from calibrate import mainLoop as calibrateLoop
 
-from nestris_ocr.capturing import capture
+from nestris_ocr.capturing import uncached_capture
 
 # from nestris_ocr.scan_strat.fastest_strategy import FastestStrategy as Strategy
 
@@ -16,7 +16,10 @@ from nestris_ocr.config import config
 
 RATE = 1.0 / config["performance.scan_rate"]
 
-
+def debug_print(msg):
+    if config["debug.print_packet"]:
+        print(msg)
+        
 def main(on_cap, check_network_close):
     strategy = Strategy()
 
@@ -24,12 +27,10 @@ def main(on_cap, check_network_close):
     # capturing device is having trouble
     while True:
         try:
-            ts, image = capture.get_image(rgb=True)
+            ts, image = uncached_capture().get_image(rgb=True)
 
             if not ts and not image:
-                if config["debug.print_packet"]:
-                    print("clean exit")
-
+                debug_print("Exiting cleanly")
                 break
         except KeyboardInterrupt:
             break
@@ -49,8 +50,7 @@ def main(on_cap, check_network_close):
             strategy_time = time.time() - pre_strategy_ts
             print(f"Strategy processing time: {strategy_time}")
 
-        if config["debug.print_packet"]:
-            print(result)
+        debug_print(result)
 
         on_cap(result, ts)
 
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     result = main(cachedSender.sendResult, client.checkNetworkClose)
     # except KeyboardInterrupt:
     #    pass
-    capture.stop()
+    uncached_capture().stop()
 
     if result:
         print(result)
