@@ -1,5 +1,6 @@
 from functools import partial
 import tkinter as tk
+import tkinter.messagebox as messagebox
 import tkinter.ttk as ttk
 import time
 
@@ -63,7 +64,7 @@ class SimpleCalibrator(tk.Frame):
         autoCalibrate = Button(
             self,
             text="Press this button when you're in game on \nLevel 00 with SCORE 000000 and LINES 000",
-            command=self.autoDetectField,
+            command=self.full_auto_calibrate,
             bg="red",
         )
         autoCalibrate.grid(row=2, columnspan=2)
@@ -119,7 +120,6 @@ class SimpleCalibrator(tk.Frame):
     def update_graphics(self):
         # update raw board
         board = self.getNewBoardImage()
-        print(board is None)
         if board is None:
             self.noBoard = True
             return
@@ -145,10 +145,14 @@ class SimpleCalibrator(tk.Frame):
             self.update_progressbar,
         )
         if bestRect is not None:
-            self.linesPerc.show(str(item) for item in bestRect)
             self.config["calibration.pct.lines"] = bestRect
+            self.redrawImages()
         else:
-            print("Please have score on screen as 000")
+            self.show_error(
+                "Failed to calibrate Lines\n" + "Please have lines on screen as 000"
+            )
+
+        return bestRect
 
     def autoScore(self):
         bestRect = auto_adjust_numrect(
@@ -158,10 +162,14 @@ class SimpleCalibrator(tk.Frame):
             self.update_progressbar,
         )
         if bestRect is not None:
-            self.scorePerc.show(str(item) for item in bestRect)
             self.config["calibration.pct.score"] = bestRect
+            self.redrawImages()
         else:
-            print("Please have score on screen as 000000")
+            self.show_error(
+                "Failed to calibrate score\n" + "Please have score on screen as 000000"
+            )
+
+        return bestRect
 
     def autoLevel(self):
         bestRect = auto_adjust_numrect(
@@ -171,22 +179,59 @@ class SimpleCalibrator(tk.Frame):
             self.update_progressbar,
         )
         if bestRect is not None:
-            self.levelPerc.show(str(item) for item in bestRect)
             self.config["calibration.pct.level"] = bestRect
+            self.redrawImages()
         else:
-            print("Please have score on screen as 00")
+            self.show_error(
+                "Failed to calibrate level\n" + "Please have level on screen as 00"
+            )
+        return bestRect
 
     def getNewBoardImage(self):
         return draw_calibration(self.config)
 
-    def autoDetectField(self):
+    def full_auto_calibrate(self):
         rect = auto_calibrate_raw(self.config)
-        if rect is not None:
-            self.update_game_coords(rect)
+        if rect is None:
+            self.show_error(
+                "Could not find your game field. \n" + "Try again or use advanced mode"
+            )
+            return
+
+        self.update_game_coords(rect)
+        # calibrate numbers
+        num_funcs = (self.autoLines,)  # self.autoScore,self.autoLevel)
+        tasks = [partial(self.autoNumber, func) for func in num_funcs]
+        for task in tasks:
+            if task() is None:
+                return
+
+        self.show_success()
+
+    # autocalibrate a region 3 times.
+    def autoNumber(self, func):
+        rect = None
+        for i in range(3):
+            new_rect = func()
+            if new_rect == rect:
+                break
+            else:
+                rect = new_rect
+
+        return rect
 
     def update_progressbar(self, perc):
         self.progress_bar["value"] = round(perc * 100)
         self.progress_bar.update()
+
+    def show_error(self, msg):
+        messagebox.showerror("Error", msg)
+
+    def show_success(self):
+        messagebox.showinfo(
+            "Calibrated successfully",
+            "It's all done and auto-saved.\n" + "Have a play around then close the app",
+        )
 
     def update(self):
         if not self.destroying:
