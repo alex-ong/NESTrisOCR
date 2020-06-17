@@ -30,7 +30,6 @@ class FieldView(ImageCanvas):
 
 
 def convertStringField(strfield):
-    print("converting")
     field = np.zeros((200,), dtype=np.uint8)
     for index, item in enumerate(strfield):
         field[index] = int(item)
