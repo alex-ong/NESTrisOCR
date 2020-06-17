@@ -7,7 +7,11 @@ from nestris_ocr.ocr_algo.digit import scoreImage0
 
 def track_best_result(lowestScore, bestRect, result):
     newScore, newRect = result
-    if lowestScore is None or (newScore is not None and newScore < lowestScore):
+
+    if newScore is None:
+        return lowestScore, bestRect
+
+    if lowestScore is None or newScore < lowestScore:
         return newScore, newRect
     return lowestScore, bestRect
 
@@ -45,6 +49,7 @@ def auto_adjust_numrect(capture_coords, rect, numDigits, updateUI):
                     i += 1
                     print_progress(i, total)
                     updateUI(i / float(total))
+
                     lowestScore, bestRect = track_best_result(
                         lowestScore, bestRect, result
                     )
