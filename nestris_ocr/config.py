@@ -36,7 +36,7 @@ CONFIG_DEFAULTS = {
     "calibration.pct.flash": [0.749, 0.370, 0.07, 0.012],
 
     # if capture_field, 2 primary colors will be needed
-    "calibration.capture_field": False,
+    "calibration.capture_field": True,
     "calibration.pct.field": [0.376, 0.175, 0.311, 0.72],
 
     "calibration.dynamic_colors": True,
