@@ -149,7 +149,7 @@ class SimpleCalibrator(tk.Frame):
             self.redrawImages()
         else:
             self.show_error(
-                "Failed to calibrate Lines\n" + "Please have lines on screen as 000"
+                "Failed to calibrate Lines\nTry again; or use advanced mode"
             )
 
         return bestRect
@@ -166,7 +166,7 @@ class SimpleCalibrator(tk.Frame):
             self.redrawImages()
         else:
             self.show_error(
-                "Failed to calibrate score\n" + "Please have score on screen as 000000"
+                "Failed to calibrate score\nTry again; or use advanced mode"
             )
 
         return bestRect
@@ -183,7 +183,7 @@ class SimpleCalibrator(tk.Frame):
             self.redrawImages()
         else:
             self.show_error(
-                "Failed to calibrate level\n" + "Please have level on screen as 00"
+                "Failed to calibrate level\nTry again; or use advanced mode"
             )
         return bestRect
 
@@ -194,7 +194,7 @@ class SimpleCalibrator(tk.Frame):
         rect = auto_calibrate_raw(self.config)
         if rect is None:
             self.show_error(
-                "Could not find your game field. \n" + "Try again or use advanced mode"
+                "Could not find your game field.\nTry again; or use advanced mode"
             )
             return
 

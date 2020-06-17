@@ -109,7 +109,7 @@ def scoreImage0(img, digitPattern):
 
     for (i, pattern) in enumerate(digitPattern):
         result = getDigit(img, pattern, i * (BLOCK_SIZE * IMAGE_MULT), 0, False)
-        if result[0] != "0":
+        if result[0] == "null":
             return None
         else:
             score.append(result[1])
