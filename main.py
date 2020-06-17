@@ -16,10 +16,12 @@ from nestris_ocr.config import config
 
 RATE = 1.0 / config["performance.scan_rate"]
 
+
 def debug_print(msg):
     if config["debug.print_packet"]:
         print(msg)
-        
+
+
 def main(on_cap, check_network_close):
     strategy = Strategy()
 

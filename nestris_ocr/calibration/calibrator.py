@@ -17,16 +17,19 @@ from nestris_ocr.calibration.draw_calibration import (
     capture_blackwhite,
 )
 
-from nestris_ocr.calibration.other_options import create_window
-from nestris_ocr.calibration.widgets import Button
+
 from nestris_ocr.calibration.auto_calibrate import auto_calibrate_raw
 from nestris_ocr.calibration.auto_number import auto_adjust_numrect
+from nestris_ocr.calibration.capture_method import CaptureMethod
+from nestris_ocr.calibration.other_options import create_window
+from nestris_ocr.calibration.state_vis import StateVisualizer
+from nestris_ocr.calibration.widgets import Button
 from nestris_ocr.capturing import uncached_capture, reinit_capture
 from nestris_ocr.config import config
+from nestris_ocr.ocr_algo.dasTrainerCurPiece import CurPieceImageSize
 from nestris_ocr.ocr_algo.digit import finalImageSize
 from nestris_ocr.ocr_algo.preview2 import PreviewImageSize
-from nestris_ocr.ocr_algo.dasTrainerCurPiece import CurPieceImageSize
-from nestris_ocr.calibration.capture_method import CaptureMethod
+from nestris_ocr.scan_strat.naive_strategy import NaiveStrategy as Strategy
 
 UPSCALE = 2
 ENABLE_OTHER_OPTIONS = True
@@ -47,6 +50,7 @@ class Calibrator(tk.Frame):
         self.root = root
         self.destroying = False
         root.config(background="black")
+        self.strategy = Strategy()
         CaptureMethod(
             self,
             (config["capture.method"], config["capture.source_id"]),
@@ -102,15 +106,12 @@ class Calibrator(tk.Frame):
             row=1, column=1, sticky="nsew", rowspan=3,
         )
 
-        border = tk.Frame(self)
-        border.grid(row=4, column=0, sticky="nsew")
-        border.config(relief=tk.FLAT, bd=5, background="orange")
-        self.boardImage = ImageCanvas(border, 512, 224 * 2)
-        self.boardImage.pack()
-
-        self.tabManager = ttk.Notebook(self)
-        self.tabManager.grid(row=4, column=1, sticky="nsew")
-        self.tabManager.bind("<<NotebookTabChanged>>", self.redrawImages)
+        # webcam output
+        self.setupPlaybackTabs()
+        self.playbackTabs.grid(row=4, column=0, sticky="nsew")
+        self.calibrationTabs = ttk.Notebook(self)
+        self.calibrationTabs.grid(row=4, column=1, sticky="nsew")
+        self.calibrationTabs.bind("<<NotebookTabChanged>>", self.redrawImages)
 
         self.setupTab1()
         self.setupTab2()
@@ -128,8 +129,27 @@ class Calibrator(tk.Frame):
         self.redrawImages()
         self.lastUpdate = time.time()
 
+    def setupPlaybackTabs(self):
+        self.playbackTabs = ttk.Notebook(self)
+
+        # capture device output
+        f = tk.Frame(self.playbackTabs)
+        border = tk.Frame(f)
+        border.grid(row=4, column=0, sticky="nsew")
+        border.config(relief=tk.FLAT, bd=5, background="orange")
+        self.boardImage = ImageCanvas(border, 512, 224 * 2)
+        self.boardImage.pack()
+
+        self.playbackTabs.add(f, text="Capture Device")
+
+        # game output
+        f = tk.Frame(self.playbackTabs)
+        self.stateVisualizer = StateVisualizer(f)
+        self.stateVisualizer.pack()
+        self.playbackTabs.add(f, text="OCR Output")
+
     def setupTab1(self):
-        f = tk.Frame(self.tabManager)
+        f = tk.Frame(self.calibrationTabs)
         canvasSize = [UPSCALE * i for i in finalImageSize(3)]
         Button(
             f,
@@ -184,10 +204,10 @@ class Calibrator(tk.Frame):
         self.levelPerc.grid(row=4, column=1, rowspan=2)
         self.levelImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
         self.levelImage.grid(row=5, column=0)
-        self.tabManager.add(f, text="NumberOCR")
+        self.calibrationTabs.add(f, text="NumberOCR")
 
     def setupTab2(self):
-        f = tk.Frame(self.tabManager)
+        f = tk.Frame(self.calibrationTabs)
 
         self.fieldCapture = tk.Frame(f)
         self.fieldCapture.grid(row=0, columnspan=2)
@@ -230,10 +250,10 @@ class Calibrator(tk.Frame):
         )
         self.color2Image.grid(row=1, column=1)
 
-        self.tabManager.add(f, text="FieldStats")
+        self.calibrationTabs.add(f, text="FieldStats")
 
     def setupTab3(self):
-        f = tk.Frame(self.tabManager)
+        f = tk.Frame(self.calibrationTabs)
         self.previewPiece = CompactRectChooser(
             f,
             "Next Piece (imagePerc)",
@@ -267,10 +287,10 @@ class Calibrator(tk.Frame):
         )
         self.wsamplePreviewLabel.grid()
 
-        self.tabManager.add(f, text="PreviewPiece")
+        self.calibrationTabs.add(f, text="PreviewPiece")
 
     def setupTab4(self):
-        f = tk.Frame(self.tabManager)
+        f = tk.Frame(self.calibrationTabs)
         self.flashChooser = CompactRectChooser(
             f,
             "Flash (imagePerc)",
@@ -307,10 +327,10 @@ class Calibrator(tk.Frame):
 
         self.setDynamicBWVisible()
         self.setStatsTextVisible()
-        self.tabManager.add(f, text="Misc.")
+        self.calibrationTabs.add(f, text="Misc.")
 
     def setupTab5(self):
-        f = tk.Frame(self.tabManager)
+        f = tk.Frame(self.calibrationTabs)
 
         self.dasEnabledChooser = BoolChooser(
             f,
@@ -373,7 +393,7 @@ class Calibrator(tk.Frame):
         self.currentPieceDasImage = ImageCanvas(f, canvasSize[0], canvasSize[1])
         self.currentPieceDasImage.grid(row=5, column=0)
 
-        self.tabManager.add(f, text="DasTrainer")
+        self.calibrationTabs.add(f, text="DasTrainer")
 
     def setFlashVisible(self):
         show = False
@@ -427,8 +447,11 @@ class Calibrator(tk.Frame):
             self.samplePreviewImage.grid_forget()
             self.samplePreviewLabel.grid_forget()
 
-    def getActiveTab(self):
-        return self.tabManager.index(self.tabManager.select())
+    def getCalibrationTab(self):
+        return self.calibrationTabs.index(self.calibrationTabs.select())
+
+    def getPlaybackTab(self):
+        return self.playbackTabs.index(self.playbackTabs.select())
 
     def updateRedraw(self, func, result):
         func(result)
@@ -454,18 +477,9 @@ class Calibrator(tk.Frame):
         uncached_capture().xywh_box = result
         self.redrawImages()
 
-    def redrawImages(self, event=None):
-        self.lastUpdate = time.time()
-        board = self.getNewBoardImage()
-        if board is None:
-            self.noBoard = True
-            return
-        else:
-            self.noBoard = False
-
-        self.boardImage.updateImage(board)
-
-        if self.getActiveTab() == 0:  # text
+    def updateActiveCalibrationTab(self):
+        activeTab = self.getCalibrationTab()
+        if activeTab == 0:  # text
             score_img, lines_img, level_img = capture_split_digits(self.config)
             score_img = score_img.resize((UPSCALE * i for i in finalImageSize(6)))
             lines_img = lines_img.resize((UPSCALE * i for i in finalImageSize(3)))
@@ -474,7 +488,7 @@ class Calibrator(tk.Frame):
             self.scoreImage.updateImage(score_img)
             self.levelImage.updateImage(level_img)
 
-        elif self.getActiveTab() == 1:  # field
+        elif activeTab == 1:  # field
             color1Img, color2Img = capture_color1color2(self.config)
             color1Img = color1Img.resize(colorsImageSize)
             self.color1Image.updateImage(color1Img)
@@ -486,15 +500,15 @@ class Calibrator(tk.Frame):
             blackWhiteImg = blackWhiteImg.resize(blackWhiteImageSize)
             self.blackWhiteImage.updateImage(blackWhiteImg)
 
-        elif self.getActiveTab() == 2:  # preview
+        elif activeTab == 2:  # preview
             preview_img = capture_preview(self.config)
             preview_img = preview_img.resize(
                 (UPSCALE * 2 * i for i in PreviewImageSize)
             )
             self.previewImage.updateImage(preview_img)
-        elif self.getActiveTab() == 3:  # misc
+        elif activeTab == 3:  # misc
             pass  # no images
-        elif self.getActiveTab() == 4:  # DAS Trainer
+        elif activeTab == 4:  # DAS Trainer
             (
                 current_piece_img,
                 current_piece_das_img,
@@ -513,6 +527,27 @@ class Calibrator(tk.Frame):
             self.instantDasImage.updateImage(instant_das_img)
             self.dasCurrentPieceImage.updateImage(current_piece_img)
             self.currentPieceDasImage.updateImage(current_piece_das_img)
+
+    def updateActivePlaybackTab(self):
+        activeTab = self.getPlaybackTab()
+        if activeTab == 0:
+            board = self.getNewBoardImage()
+            if board is None:
+                self.noBoard = True
+                return
+            else:
+                self.noBoard = False
+            self.boardImage.updateImage(board)
+        elif activeTab == 1:
+            ts, image = uncached_capture().get_image(rgb=True)
+            self.strategy.update(ts, image)
+            data = self.strategy.to_dict()
+            self.stateVisualizer.updateValues(data)
+
+    def redrawImages(self, event=None):
+        self.lastUpdate = time.time()
+        self.updateActiveCalibrationTab()
+        self.updateActivePlaybackTab()
 
     def autoLines(self):
         bestRect = auto_adjust_numrect(
