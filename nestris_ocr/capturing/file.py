@@ -8,8 +8,8 @@ from nestris_ocr.types import XYWHBox
 
 
 class FileCapture(AbstractCapture):
-    def __init__(self, source_id: str, xywh_box: XYWHBox) -> None:
-        super().__init__(source_id, xywh_box)
+    def __init__(self, source_id: str, xywh_box: XYWHBox, extra_data: str) -> None:
+        super().__init__(source_id, xywh_box, extra_data)
 
         self.cap = cv2.VideoCapture(source_id)
         if not self.cap.isOpened():
