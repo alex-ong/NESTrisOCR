@@ -144,8 +144,10 @@ class Calibrator(tk.Frame):
 
         # game output
         f = tk.Frame(self.playbackTabs)
+        self.boardImage2 = ImageCanvas(f, 240, 224)
+        self.boardImage2.grid(row=0, column=0, sticky="E")
         self.stateVisualizer = StateVisualizer(f)
-        self.stateVisualizer.pack()
+        self.stateVisualizer.grid(row=0, column=1, sticky="W")
         self.playbackTabs.add(f, text="OCR Output")
 
     def setupTab1(self):
@@ -532,14 +534,10 @@ class Calibrator(tk.Frame):
         activeTab = self.getPlaybackTab()
         if activeTab == 0:
             board = self.getNewBoardImage()
-            if board is None:
-                self.noBoard = True
-                return
-            else:
-                self.noBoard = False
             self.boardImage.updateImage(board)
         elif activeTab == 1:
             ts, image = uncached_capture().get_image(rgb=True)
+            self.boardImage2.updateImage(image.resize((240, 224)))
             self.strategy.update(ts, image)
             data = self.strategy.to_dict()
             self.stateVisualizer.updateValues(data)
@@ -628,7 +626,7 @@ class Calibrator(tk.Frame):
 
     def update(self):
         if not self.destroying:
-            if time.time() - self.lastUpdate > 5.0 and self.noBoard:
+            if time.time() - self.lastUpdate > 1.0:
                 self.redrawImages()
             super().update()
 
