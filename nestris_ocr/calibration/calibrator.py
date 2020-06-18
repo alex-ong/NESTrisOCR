@@ -1,5 +1,6 @@
 from functools import partial
 import tkinter as tk
+import tkinter.messagebox as messagebox
 import tkinter.ttk as ttk
 import time
 
@@ -458,6 +459,7 @@ class Calibrator(tk.Frame):
 
     def updateRedraw(self, func, result):
         func(result)
+        refresh_window_areas()
         self.redrawImages()
 
     def gen_set_reload_capture(self, key):
@@ -465,6 +467,7 @@ class Calibrator(tk.Frame):
             config[key] = result
             reinit_capture()
             self.strategy = Strategy()
+            refresh_window_areas()
             self.redrawImages()
 
         return sub_function
@@ -472,6 +475,7 @@ class Calibrator(tk.Frame):
     def gen_set_config_and_redraw(self, key):
         def set_config_and_redraw(result):
             config[key] = result
+            refresh_window_areas()
             self.redrawImages()
 
         return set_config_and_redraw
@@ -479,6 +483,7 @@ class Calibrator(tk.Frame):
     def update_game_coords(self, result):
         config["calibration.game_coords"] = result
         uncached_capture().xywh_box = result
+        refresh_window_areas()
         self.redrawImages()
 
     def updateActiveCalibrationTab(self):
@@ -550,70 +555,40 @@ class Calibrator(tk.Frame):
         self.updateActiveCalibrationTab()
         self.updateActivePlaybackTab()
 
-    def autoLines(self):
+    def autoNumber(self, name, num_digits):
         bestRect = auto_adjust_numrect(
             self.config["calibration.game_coords"],
-            self.config["calibration.pct.lines"],
-            3,
+            self.config["calibration.pct." + name],
+            num_digits,
             self.update_progressbar,
         )
         if bestRect is not None:
-            self.linesPerc.show(str(item) for item in bestRect)
-            self.config["calibration.pct.lines"] = bestRect
+            self.config["calibration.pct." + name] = bestRect
+            refresh_window_areas()
+            self.redrawImages()
         else:
-            print("Please have score on screen as 000")
+            self.show_error(
+                f"Failed to calibrate {name}\nTry again; or use advanced mode"
+            )
+        return bestRect
+
+    def show_error(self, msg):
+        messagebox.showerror("Error", msg)
+
+    def autoLines(self):
+        return self.autoNumber("lines", 3)
 
     def autoScore(self):
-        bestRect = auto_adjust_numrect(
-            self.config["calibration.game_coords"],
-            self.config["calibration.pct.score"],
-            6,
-            self.update_progressbar,
-        )
-        if bestRect is not None:
-            self.scorePerc.show(str(item) for item in bestRect)
-            self.config["calibration.pct.score"] = bestRect
-        else:
-            print("Please have score on screen as 000000")
+        return self.autoNumber("score", 6)
 
     def autoLevel(self):
-        bestRect = auto_adjust_numrect(
-            self.config["calibration.game_coords"],
-            self.config["calibration.pct.level"],
-            2,
-            self.update_progressbar,
-        )
-        if bestRect is not None:
-            self.levelPerc.show(str(item) for item in bestRect)
-            self.config["calibration.pct.level"] = bestRect
-        else:
-            print("Please have score on screen as 00")
+        return self.autoNumber("level", 2)
 
     def autoCurrentPieceDas(self):
-        bestRect = auto_adjust_numrect(
-            self.config["calibration.game_coords"],
-            self.config["calibration.pct.das.current_piece_das"],
-            2,
-            self.update_progressbar,
-        )
-        if bestRect is not None:
-            self.levelPerc.show(str(item) for item in bestRect)
-            self.config["calibration.pct.das.current_piece_das"] = bestRect
-        else:
-            print("Please have current piece das on screen as 00")
+        return self.autoNumber("das.current_piece_das", 2)
 
     def autoInstantDas(self):
-        bestRect = auto_adjust_numrect(
-            self.config["calibration.game_coords"],
-            self.config["calibration.pct.das.instant_das"],
-            2,
-            self.update_progressbar,
-        )
-        if bestRect is not None:
-            self.levelPerc.show(str(item) for item in bestRect)
-            self.config["calibration.pct.das.instant_das"] = bestRect
-        else:
-            print("Please have instant das on screen as 00")
+        return self.autoNumber("das.instant_das", 2)
 
     def getNewBoardImage(self):
         return draw_calibration(self.config)
