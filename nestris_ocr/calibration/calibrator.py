@@ -29,6 +29,7 @@ from nestris_ocr.config import config
 from nestris_ocr.ocr_algo.dasTrainerCurPiece import CurPieceImageSize
 from nestris_ocr.ocr_algo.digit import finalImageSize
 from nestris_ocr.ocr_algo.preview2 import PreviewImageSize
+from nestris_ocr.scan_strat.scan_helpers import refresh_window_areas
 from nestris_ocr.scan_strat.naive_strategy import NaiveStrategy as Strategy
 
 UPSCALE = 2
@@ -463,6 +464,7 @@ class Calibrator(tk.Frame):
         def sub_function(result):
             config[key] = result
             reinit_capture()
+            self.strategy = Strategy()
             self.redrawImages()
 
         return sub_function
@@ -544,6 +546,7 @@ class Calibrator(tk.Frame):
 
     def redrawImages(self, event=None):
         self.lastUpdate = time.time()
+        refresh_window_areas()
         self.updateActiveCalibrationTab()
         self.updateActivePlaybackTab()
 

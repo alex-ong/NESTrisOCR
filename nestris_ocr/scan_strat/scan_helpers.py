@@ -1,4 +1,4 @@
-﻿from PIL import Image
+from PIL import Image
 from math import ceil, floor
 from nestris_ocr.config import config
 from nestris_ocr.ocr_algo.digit import scoreImage as processDigits
@@ -67,6 +67,11 @@ def get_window_areas():
 
 
 WINDOW_AREAS = get_window_areas()
+
+
+def refresh_window_areas():
+    global WINDOW_AREAS
+    WINDOW_AREAS = get_window_areas()
 
 
 def mask_pattern(source, mask):

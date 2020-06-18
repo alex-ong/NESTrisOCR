@@ -21,6 +21,8 @@ from nestris_ocr.capturing import uncached_capture, reinit_capture
 from nestris_ocr.config import config
 
 from nestris_ocr.scan_strat.naive_strategy import NaiveStrategy as Strategy
+from nestris_ocr.scan_strat.scan_helpers import refresh_window_areas
+
 
 UPSCALE = 2
 ENABLE_OTHER_OPTIONS = True
@@ -93,10 +95,6 @@ class SimpleCalibrator(tk.Frame):
         self.redrawImages()
         self.lastUpdate = time.time()
 
-    def updateRedraw(self, func, result):
-        func(result)
-        self.redrawImages()
-
     def gen_set_reload_capture(self, key):
         def sub_function(result):
             config[key] = result
@@ -105,26 +103,15 @@ class SimpleCalibrator(tk.Frame):
 
         return sub_function
 
-    def gen_set_config_and_redraw(self, key):
-        def set_config_and_redraw(result):
-            config[key] = result
-            self.redrawImages()
-
-        return set_config_and_redraw
-
     def update_game_coords(self, result):
         config["calibration.game_coords"] = result
+        refresh_window_areas()
         uncached_capture().xywh_box = result
         self.redrawImages()
 
     def update_graphics(self):
         # update raw board
         board = self.getNewBoardImage()
-        if board is None:
-            self.noBoard = True
-            return
-        else:
-            self.noBoard = False
         self.boardImage.updateImage(board)
 
         # update stateVis
@@ -146,6 +133,7 @@ class SimpleCalibrator(tk.Frame):
         )
         if bestRect is not None:
             self.config["calibration.pct.lines"] = bestRect
+            refresh_window_areas()
             self.redrawImages()
         else:
             self.show_error(
@@ -163,6 +151,7 @@ class SimpleCalibrator(tk.Frame):
         )
         if bestRect is not None:
             self.config["calibration.pct.score"] = bestRect
+            refresh_window_areas()
             self.redrawImages()
         else:
             self.show_error(
@@ -180,6 +169,7 @@ class SimpleCalibrator(tk.Frame):
         )
         if bestRect is not None:
             self.config["calibration.pct.level"] = bestRect
+            refresh_window_areas()
             self.redrawImages()
         else:
             self.show_error(
@@ -200,7 +190,7 @@ class SimpleCalibrator(tk.Frame):
 
         self.update_game_coords(rect)
         # calibrate numbers
-        num_funcs = (self.autoLines,)  # self.autoScore,self.autoLevel)
+        num_funcs = (self.autoLines, self.autoScore, self.autoLevel)
         tasks = [partial(self.autoNumber, func) for func in num_funcs]
         for task in tasks:
             if task() is None:
