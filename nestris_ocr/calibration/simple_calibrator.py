@@ -124,58 +124,31 @@ class SimpleCalibrator(tk.Frame):
         self.lastUpdate = time.time()
         self.update_graphics()
 
-    def autoLines(self):
+    def autoNumber(self, name, num_digits):
         bestRect = auto_adjust_numrect(
             self.config["calibration.game_coords"],
-            self.config["calibration.pct.lines"],
-            3,
+            self.config["calibration.pct." + name],
+            num_digits,
             self.update_progressbar,
         )
         if bestRect is not None:
-            self.config["calibration.pct.lines"] = bestRect
+            self.config["calibration.pct." + name] = bestRect
             refresh_window_areas()
             self.redrawImages()
         else:
             self.show_error(
-                "Failed to calibrate Lines\nTry again; or use advanced mode"
+                f"Failed to calibrate {name}\nTry again; or use advanced mode"
             )
-
         return bestRect
+
+    def autoLines(self):
+        return self.autoNumber("lines", 3)
 
     def autoScore(self):
-        bestRect = auto_adjust_numrect(
-            self.config["calibration.game_coords"],
-            self.config["calibration.pct.score"],
-            6,
-            self.update_progressbar,
-        )
-        if bestRect is not None:
-            self.config["calibration.pct.score"] = bestRect
-            refresh_window_areas()
-            self.redrawImages()
-        else:
-            self.show_error(
-                "Failed to calibrate score\nTry again; or use advanced mode"
-            )
-
-        return bestRect
+        return self.autoNumber("score", 6)
 
     def autoLevel(self):
-        bestRect = auto_adjust_numrect(
-            self.config["calibration.game_coords"],
-            self.config["calibration.pct.level"],
-            2,
-            self.update_progressbar,
-        )
-        if bestRect is not None:
-            self.config["calibration.pct.level"] = bestRect
-            refresh_window_areas()
-            self.redrawImages()
-        else:
-            self.show_error(
-                "Failed to calibrate level\nTry again; or use advanced mode"
-            )
-        return bestRect
+        return self.autoNumber("level", 2)
 
     def getNewBoardImage(self):
         return draw_calibration(self.config)
@@ -191,7 +164,7 @@ class SimpleCalibrator(tk.Frame):
         self.update_game_coords(rect)
         # calibrate numbers
         num_funcs = (self.autoLines, self.autoScore, self.autoLevel)
-        tasks = [partial(self.autoNumber, func) for func in num_funcs]
+        tasks = [partial(self.triple_calibrate, func) for func in num_funcs]
         for task in tasks:
             if task() is None:
                 return
@@ -199,7 +172,7 @@ class SimpleCalibrator(tk.Frame):
         self.show_success()
 
     # autocalibrate a region 3 times.
-    def autoNumber(self, func):
+    def triple_calibrate(self, func):
         rect = None
         for i in range(3):
             new_rect = func()
