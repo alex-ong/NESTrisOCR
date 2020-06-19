@@ -10,7 +10,7 @@ class InterlaceRes(Enum):
     HALF = 1
 
     @classmethod
-    def from_string(value):
+    def from_string(cls, value):
         if value == "FULL":
             return InterlaceRes.FULL
         elif value == "HALF":
@@ -27,7 +27,7 @@ class InterlaceMode(Enum):
     BOTTOM_FIRST = 5
 
     @classmethod
-    def from_string(value):
+    def from_string(cls, value):
         if value == "NONE":
             return InterlaceMode.NONE
         elif value == "DISCARD_TOP":
@@ -43,6 +43,7 @@ class InterlaceMode(Enum):
 
 
 def deinterlace(img):
+
     mode = InterlaceMode.from_string(config["capture.deinterlace_method"])
     res = InterlaceRes.from_string(config["capture.deinterlace_res"])
     full_size = list(img.size)

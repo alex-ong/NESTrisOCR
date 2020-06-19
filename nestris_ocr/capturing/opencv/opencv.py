@@ -1,7 +1,9 @@
 import cv2
+from collections import deque
 from multiprocessing import Lock
 from multiprocessing.pool import ThreadPool
 
+import numpy as np
 from PIL import Image
 import time
 import platform
@@ -29,7 +31,6 @@ class OpenCVCapture(AbstractCapture):
         self.cv2_retval = None
         self.cv2_image = None
         self.image_ts = None
-
         self.running = False
         self.read_lock = Lock()
         self.start()
@@ -82,18 +83,24 @@ class OpenCVCapture(AbstractCapture):
         times.sort(key=lambda x: x[0])
         return times[0]
 
+    def pil_bgr_to_rgb(self, bgr_image):
+        bgr_image_array = np.asarray(bgr_image)
+        B, G, R = bgr_image_array.T
+        rgb_image_array = np.array((R, G, B)).T
+        return Image.fromarray(rgb_image_array, mode="RGB")
+
     def get_image(self, rgb: bool = False) -> Tuple[float, Image.Image]:
         if not self.cv2_retval:
             raise Exception("Faulty capturing device")
 
         with self.read_lock:
-            cv2_image = self.cv2_image.copy()
+            pil_image = self.cv2_image.copy()
             image_ts = self.image_ts
 
         if rgb:
-            cv2_image = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB)
+            pil_image = self.pil_bgr_to_rgb(pil_image)
 
-        image = Image.fromarray(cv2_image).crop(xywh_to_ltrb(self.xywh_box))
+        image = pil_image.crop(xywh_to_ltrb(self.xywh_box))
 
         return image_ts, image
 
@@ -105,14 +112,39 @@ class OpenCVCapture(AbstractCapture):
         self.pool = ThreadPool(processes=1)
         self.pool.apply_async(self.update)
 
+    def calculate_avg_frametime(self, frame_times, start_frame_ts):
+        if start_frame_ts is not None:
+            t = time.time() - start_frame_ts
+            frame_times.append(t)
+            return sum(frame_times) / len(frame_times)
+        return None
+
     def update(self):
+        frame_times = deque([], 10)
+        start_frame_ts = None
         while self.running:
+
             cv2_retval, cv2_image = self.cap.read()
-            with self.read_lock:
-                self.cv2_retval = cv2_retval
-                self.cv2_image = cv2_image
-                self.image_ts = time.time()
+            avg_ft = self.calculate_avg_frametime(frame_times, start_frame_ts)
+            start_frame_ts = time.time()
+
+            # deinterlace
+            pil_image = Image.fromarray(cv2_image)
+            img1, img2 = self.deinterlace(pil_image)
+
+            self.inject_image(cv2_retval, img1, time.time())
+
+            if avg_ft is not None:
+                time.sleep(avg_ft - 0.001)
+                self.inject_image(cv2_retval, img1, time.time())
+
         self.cap.release()
+
+    def inject_image(self, cv2_retval, image, timestamp):
+        with self.read_lock:
+            self.cv2_retval = cv2_retval
+            self.cv2_image = image
+            self.image_ts = timestamp
 
     def stop(self):
         self.running = False
