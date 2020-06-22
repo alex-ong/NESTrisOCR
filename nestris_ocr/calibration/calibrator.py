@@ -53,6 +53,8 @@ class Calibrator(tk.Frame):
         self.destroying = False
         root.config(background="black")
         self.strategy = Strategy()
+        self.exit_program = True
+        self.exit_calibrator = False
         CaptureMethod(
             self,
             (config["capture.method"], config["capture.source_id"]),
@@ -617,7 +619,10 @@ class Calibrator(tk.Frame):
 
     def on_exit(self):
         self.destroying = True
-        self.root.destroy()
+        self.exit_calibrator = True
+        if self.root is not None:
+            self.root.destroy()
+            self.root = None
 
 
 # sources: PixelDimensions (w,h), RectPerc(x,y,w,h)

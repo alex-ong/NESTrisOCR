@@ -42,6 +42,8 @@ class SimpleCalibrator(tk.Frame):
         self.pack()
         self.root = root
         self.destroying = False
+        self.exit_program = True  # exit program when we close.
+        self.exit_calibrator = False  # set to true to kill from outside
         root.config(background="black")
         self.strategy = Strategy()
         CaptureMethod(
@@ -53,6 +55,7 @@ class SimpleCalibrator(tk.Frame):
                 partial(config.__setitem__, "capture.source_id"),
             ),
         ).grid(row=0, sticky="nsew")
+
         StringChooser(
             self,
             "player name",
@@ -61,8 +64,12 @@ class SimpleCalibrator(tk.Frame):
             20,
         ).grid(row=1, sticky="nsew")
 
-        # auto calibrate
+        # advanced mode
+        Button(self, text="Change to ADVANCED mode", command=self.advanced_mode).grid(
+            row=0, column=1, rowspan=2, sticky="nsew"
+        )
 
+        # auto calibrate
         autoCalibrate = Button(
             self,
             text="Press this button when you're in game on \nLevel 00 with SCORE 000000 and LINES 000",
@@ -108,6 +115,11 @@ class SimpleCalibrator(tk.Frame):
         refresh_window_areas()
         uncached_capture().xywh_box = result
         self.redrawImages()
+
+    def advanced_mode(self):
+        config["calibrator.ui"] = "ADVANCED"
+        self.exit_program = False
+        self.exit_calibrator = True
 
     def update_graphics(self):
         # update raw board
@@ -203,7 +215,10 @@ class SimpleCalibrator(tk.Frame):
 
     def on_exit(self):
         self.destroying = True
-        self.root.destroy()
+        self.exit_calibrator = True
+        if self.root is not None:
+            self.root.destroy()
+            self.root = None
 
 
 # sources: PixelDimensions (w,h), RectPerc(x,y,w,h)

@@ -9,6 +9,8 @@ CONFIG_DEFAULTS = {
     "player.name": "",
     "player.twitch_url": "",
 
+    "calibrator.ui": "SIMPLE",
+
     "performance.support_hex_score": True,
     "performance.support_hex_level": True,
     "performance.scan_rate": 30,
@@ -64,6 +66,7 @@ CONFIG_DEFAULTS = {
 }
 # fmt: on
 CONFIG_CHOICES = {
+    "calibrator.ui": {"SIMPLE", "ADVANCED"},
     "stats.capture_method": {"FIELD", "TEXT"},
     "capture.method": {"WINDOW", "OPENCV", "FILE"},
     "calibration.flash_method": {"FIELD", "BACKGROUND", "NONE"},
