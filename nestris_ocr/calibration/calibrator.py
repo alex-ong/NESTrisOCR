@@ -79,7 +79,9 @@ class Calibrator(tk.Frame):
                     root, self.config, self.otherOptionsClosed
                 ),
             ).grid(row=0, column=1)
-
+        Button(self, text="Switch to SIMPLE Mode", command=self.simple_mode).grid(
+            row=1, column=1
+        )
         # window coords
         f = tk.Frame(self)
         r = RectChooser(
@@ -107,7 +109,7 @@ class Calibrator(tk.Frame):
 
         # refresh
         Button(self, text="Refresh Image", command=self.redrawImages, bg="blue").grid(
-            row=1, column=1, sticky="nsew", rowspan=3,
+            row=2, column=1, sticky="nsew", rowspan=2,
         )
 
         # webcam output
@@ -132,6 +134,11 @@ class Calibrator(tk.Frame):
 
         self.redrawImages()
         self.lastUpdate = time.time()
+
+    def simple_mode(self):
+        config["calibrator.ui"] = "SIMPLE"
+        self.exit_program = False
+        self.exit_calibrator = True
 
     def setupPlaybackTabs(self):
         self.playbackTabs = ttk.Notebook(self)
