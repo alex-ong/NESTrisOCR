@@ -79,7 +79,7 @@ def sub_image_np(img, res, field):
 # de-interlaces an open-cv formatted image as fast as possible
 def deinterlace_np(img):
     mode, res = get_mode_res()
-    print(img.shape)
+
     if mode == InterlaceMode.NONE:
         img = sub_image_np(img, res, Field.BOTH)
         return img, None
@@ -90,7 +90,7 @@ def deinterlace_np(img):
     if mode != InterlaceMode.DISCARD_TOP:
         top = sub_image_np(img, res, Field.TOP)
     if mode != InterlaceMode.DISCARD_BOTTOM:
-        bottom = sub_image_np(img, res, Field.TOP)
+        bottom = sub_image_np(img, res, Field.BOTTOM)
 
     if mode == InterlaceMode.DISCARD_TOP:
         return bottom, None
