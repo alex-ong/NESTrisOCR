@@ -98,10 +98,10 @@ class OpenCVCapture(AbstractCapture):
             image_ts = self.image_ts
 
         if rgb:
+
             cv2_image = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB)
 
         image = Image.fromarray(cv2_image).crop(xywh_to_ltrb(self.xywh_box))
-
         return image_ts, image
 
     def start(self):
@@ -134,7 +134,8 @@ class OpenCVCapture(AbstractCapture):
             self.inject_image(cv2_retval, img1, time.time())
 
             if avg_ft is not None and img2 is not None:
-                time.sleep(avg_ft - 0.001)
+                deinterlaced_ft = avg_ft / 2.0
+                time.sleep(deinterlaced_ft - 0.002)  # sleep a bit less than we need.
                 self.inject_image(cv2_retval, img2, time.time())
 
         self.cap.release()
