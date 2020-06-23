@@ -25,15 +25,17 @@ def auto_adjust_numrect(capture_coords, rect, numDigits, updateUI):
     NES_WIDTH = 256.0
     NES_HEIGHT = 224.0
     NES_SUB_PIXELS = 4  # how accurate are we?
+    NES_FULL_PIXELS = 3  # how far do we search?
     SUB_PIXEL_PERC = 1.0 / NES_SUB_PIXELS
-    left = (-1 // NES_SUB_PIXELS) * 2
+    left = (-1 // NES_SUB_PIXELS) * NES_FULL_PIXELS
     right = -left + 1
     total = (right - left) ** 4
 
     stock_img = captureArea(None, None)
     lowestScore = None
     bestRect = None
-    # adjust width by up to 1px in any direction.
+    # adjust rect by up to NES_FULL_PIXELS in any direction,
+    # accurate to NES_SUB_PIXELS
     for x in range(left, right):
         for y in range(left, right):
             for w in range(left, right):

@@ -23,7 +23,7 @@ CONFIG_DEFAULTS = {
     "capture.source_id": "OBS",
     "capture.source_extra_data" : "",
     "capture.deinterlace_method": "DISCARD_BOTTOM",
-    "capture.deinterlace_res": "HALF",
+    "capture.deinterlace_res": "FULL",
     "calibration.palette": "DEFAULT",
 
     "calibration.flash_method": "NONE",
@@ -31,9 +31,9 @@ CONFIG_DEFAULTS = {
     "calibration.flash_threshold": 150,
 
     "calibration.game_coords": [0, 0, 1500, 1500],
-    "calibration.pct.score": [0.75, 0.247, 0.184, 0.034],
-    "calibration.pct.lines": [0.594, 0.069, 0.092, 0.035],
-    "calibration.pct.level": [0.813, 0.713, 0.062, 0.035],
+    "calibration.pct.score": [0.751, 0.252, 0.185, 0.030],
+    "calibration.pct.lines": [0.595, 0.074, 0.088, 0.030],
+    "calibration.pct.level": [0.814, 0.717, 0.057, 0.030],
     "calibration.pct.stats": [0.187, 0.392, 0.091, 0.459],
     "calibration.pct.flash": [0.749, 0.370, 0.07, 0.012],
 
