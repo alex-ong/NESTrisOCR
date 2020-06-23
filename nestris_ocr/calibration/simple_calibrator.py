@@ -101,6 +101,7 @@ class SimpleCalibrator(tk.Frame):
         self.noBoard = True
         self.redrawImages()
         self.lastUpdate = time.time()
+        reinit_capture()
 
     def gen_set_reload_capture(self, key):
         def sub_function(result):

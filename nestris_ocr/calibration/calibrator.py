@@ -134,6 +134,7 @@ class Calibrator(tk.Frame):
 
         self.redrawImages()
         self.lastUpdate = time.time()
+        reinit_capture()
 
     def simple_mode(self):
         config["calibrator.ui"] = "SIMPLE"
