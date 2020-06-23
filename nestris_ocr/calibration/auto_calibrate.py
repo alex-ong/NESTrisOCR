@@ -4,14 +4,28 @@ from PIL import Image
 import time
 
 from nestris_ocr.capturing import uncached_capture
+from nestris_ocr.capturing.deinterlacer import InterlaceMode, InterlaceRes, get_mode_res
+
+
+def need_interlace_resize(interlace_settings):
+    i_mode, i_res = interlace_settings
+    return i_res == InterlaceRes.FULL and i_mode != InterlaceMode.NONE
+
+
+def fix_interlace_resize(rect):
+    x, y, w, h = rect
+    return (x, y // 2, w, h // 2)
 
 
 def auto_calibrate_raw(config):
     captureAreas = (
         (0, 0, 4000, 2000),  # 4k screens fullscreen
-        (0, 0, 1500, 1500),
-    )  # reasonably sized screens
+        (0, 0, 1500, 1500),  # reasonably sized screens
+    )
     capture = uncached_capture()
+    interlace_settings = get_mode_res()
+    need_i_resize = need_interlace_resize(interlace_settings)
+    result = None
     for captureArea in captureAreas:
         original_xywh_box = capture.xywh_box
         capture.xywh_box = captureArea
@@ -21,19 +35,25 @@ def auto_calibrate_raw(config):
 
         _, img = uncached_capture().get_image(rgb=True)
 
+        # fix image due to interlacing.
+        if need_i_resize:
+            img = img.resize((img.size[0], img.size[1] * 2))
+
         result = auto_calibrate(img)
         if result:
-            capture.xywh_box = original_xywh_box
-            return result
+            break
 
         # try enlargening captured image; that helps sometimes.
         img = img.resize((img.size[0] * 2, img.size[1] * 2))
+
         result = auto_calibrate(img)
         if result:
             x, y, w, h = result
             result = (x // 2, y // 2, w // 2, h // 2)
-            capture.xywh_box = original_xywh_box
-            return result
+            break
+
+    if need_i_resize:
+        result = fix_interlace_resize(result)
 
     capture.xywh_box = original_xywh_box
     return result
@@ -77,7 +97,6 @@ def auto_calibrate(img):
     dst = cv2.perspectiveTransform(pts, transform)
     x, y, w, h = pts_to_params(dst)
     if h < 50 or w < 50 or not is_rect(dst):
-        print("unable to find tetris board")
         return None
     return x, y, w, h
 
