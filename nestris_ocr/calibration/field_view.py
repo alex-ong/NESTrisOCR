@@ -25,7 +25,7 @@ class FieldView(ImageCanvas):
         image = lut[field]
         # TODO: check out lut.take which might be faster
         image = Image.fromarray(image, "RGB")
-        image = image.resize((self.width, self.height))
+        image = image.resize((self.width, self.height), Image.NEAREST)
         self.updateImage(image)
 
 
