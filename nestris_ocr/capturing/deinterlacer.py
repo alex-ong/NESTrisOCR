@@ -19,6 +19,12 @@ class InterlaceRes(Enum):
             return InterlaceRes.FULL
 
 
+class Field(Enum):
+    TOP = 0
+    BOTTOM = 1
+    BOTH = 2
+
+
 class InterlaceMode(Enum):
     NONE = 1
     DISCARD_TOP = 2
@@ -42,10 +48,65 @@ class InterlaceMode(Enum):
             return InterlaceMode.NONE
 
 
-def deinterlace(img):
-
+def get_mode_res():
     mode = InterlaceMode.from_string(config["capture.deinterlace_method"])
     res = InterlaceRes.from_string(config["capture.deinterlace_res"])
+    return mode, res
+
+
+# Note that the arrays returned use np magic, so no memcpy
+# occurs. When a PIL.Image is generated from them, only then
+# is memory re-arranged. E.g. TOP_FIELD would just
+# make all iterators for the returned "array" reference the
+# original array but skip every other field.
+def sub_image_np(img, res, field):
+    if res == InterlaceRes.FULL:
+        if field == Field.TOP:
+            return img[::2, :, :]
+        elif field == Field.BOTTOM:
+            return img[1::2, :, :]
+        elif field == Field.BOTH:
+            return img[:, :, :]
+    elif res == InterlaceRes.HALF:
+        if field == Field.TOP:
+            return img[::2, ::2, :]
+        elif field == Field.BOTTOM:
+            return img[1::2, ::2, :]
+        elif field == Field.BOTH:
+            return img[::2, ::2, :]
+
+
+# de-interlaces an open-cv formatted image as fast as possible
+def deinterlace_np(img):
+    mode, res = get_mode_res()
+    print(img.shape)
+    if mode == InterlaceMode.NONE:
+        img = sub_image_np(img, res, Field.BOTH)
+        return img, None
+
+    # x, y, rgb
+    top = None
+    bottom = None
+    if mode != InterlaceMode.DISCARD_TOP:
+        top = sub_image_np(img, res, Field.TOP)
+    if mode != InterlaceMode.DISCARD_BOTTOM:
+        bottom = sub_image_np(img, res, Field.TOP)
+
+    if mode == InterlaceMode.DISCARD_TOP:
+        return bottom, None
+    elif mode == InterlaceMode.DISCARD_BOTTOM:
+        return top, None
+    elif mode == InterlaceMode.TOP_FIRST:
+        return top, bottom
+    elif mode == InterlaceMode.BOTTOM_FIRST:
+        return bottom, top
+
+
+# de-interlaces a PIL.Image
+def deinterlace(img):
+
+    mode, res = get_mode_res()
+
     full_size = list(img.size)
     half_size = (img.size[0] // 2, img.size[1] // 2)
 

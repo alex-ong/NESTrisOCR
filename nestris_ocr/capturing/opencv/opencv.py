@@ -94,13 +94,13 @@ class OpenCVCapture(AbstractCapture):
             raise Exception("Faulty capturing device")
 
         with self.read_lock:
-            pil_image = self.cv2_image.copy()
+            cv2_image = self.cv2_image.copy()
             image_ts = self.image_ts
 
         if rgb:
-            pil_image = self.pil_bgr_to_rgb(pil_image)
+            cv2_image = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB)
 
-        image = pil_image.crop(xywh_to_ltrb(self.xywh_box))
+        image = Image.fromarray(cv2_image).crop(xywh_to_ltrb(self.xywh_box))
 
         return image_ts, image
 
@@ -129,14 +129,13 @@ class OpenCVCapture(AbstractCapture):
             start_frame_ts = time.time()
 
             # deinterlace
-            pil_image = Image.fromarray(cv2_image)
-            img1, img2 = self.deinterlace(pil_image)
+            img1, img2 = self.deinterlace_np(cv2_image)
 
             self.inject_image(cv2_retval, img1, time.time())
 
-            if avg_ft is not None:
+            if avg_ft is not None and img2 is not None:
                 time.sleep(avg_ft - 0.001)
-                self.inject_image(cv2_retval, img1, time.time())
+                self.inject_image(cv2_retval, img2, time.time())
 
         self.cap.release()
 
