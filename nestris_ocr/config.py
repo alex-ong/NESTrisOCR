@@ -1,3 +1,4 @@
+import argparse
 from cached_property import threaded_cached_property
 from collections import OrderedDict
 import json
@@ -136,4 +137,11 @@ class Config:
         return spawn_subimage(self["calibration.pct.field"])
 
 
-config = Config("config.json")
+# Should probably be in main.py and calibrate.py
+# But works fine here to extract just one arg
+parser = argparse.ArgumentParser()
+parser.add_argument("--config", default="config.json")
+args = parser.parse_args()
+config_filename = args.config
+
+config = Config(config_filename)
