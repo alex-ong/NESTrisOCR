@@ -56,7 +56,7 @@ class LinuxUICapture(object):
         if x + w > geom.width:
             w = geom.width - x
         if y + h > geom.height:
-            h = geom.height - h
+            h = geom.height - y
         return (x, y, w, h)
 
 
