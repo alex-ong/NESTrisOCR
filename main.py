@@ -13,6 +13,7 @@ from nestris_ocr.network.network_client import NetClient
 
 from nestris_ocr.network.cached_sender import CachedSender
 from nestris_ocr.config import config
+from nestris_ocr.utils.program_args import args
 
 RATE = 1.0 / config["performance.scan_rate"]
 
@@ -65,7 +66,8 @@ def main(on_cap, check_network_close):
 
 if __name__ == "__main__":
     multiprocessing.freeze_support()
-    if len(sys.argv) >= 2 and sys.argv[1] == "--calibrate":
+
+    if args.calibrate:
         calibrateLoop()
         sys.exit()
 
@@ -77,11 +79,11 @@ if __name__ == "__main__":
     )
 
     result = None
-    # try:
-    print("Starting main loop")
-    result = main(cachedSender.sendResult, client.checkNetworkClose)
-    # except KeyboardInterrupt:
-    #    pass
+    try:
+        print("Starting main loop")
+        result = main(cachedSender.sendResult, client.checkNetworkClose)
+    except KeyboardInterrupt:
+        pass
     uncached_capture().stop()
 
     if result:
