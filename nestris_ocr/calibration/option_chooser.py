@@ -7,6 +7,10 @@ class OptionChooser(tk.Frame):
         tk.Label(self, text=name).pack(side=tk.LEFT, fill="both")
         self.stringVar = tk.StringVar()
 
+        if len(itemsStr) == 0:
+            self.stringVar.set("No valid options")
+            self.noItems = True
+            return
         try:
             index = itemsRaw.index(default)
         except ValueError:
@@ -14,6 +18,7 @@ class OptionChooser(tk.Frame):
 
         self.stringVar.set(itemsStr[index])
         self.itemIndex = index
+        self.noItems = False
 
         # https://stackoverflow.com/questions/209840/convert-two-lists-into-a-dictionary
         self.mapping = dict(zip(itemsStr, itemsRaw))
@@ -27,8 +32,9 @@ class OptionChooser(tk.Frame):
         self.optionMenu.pack(side=tk.RIGHT, fill="both")
 
     def valChanged(self, i):
-        rawItem = self.mapping[self.stringVar.get()]
-        self.onChange(rawItem)
+        if not self.noItems:
+            rawItem = self.mapping[self.stringVar.get()]
+            self.onChange(rawItem)
 
     def refresh(self, value):
         self.stringVar.set(value)
