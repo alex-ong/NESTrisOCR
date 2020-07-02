@@ -28,3 +28,9 @@ zip-folder dist -f NESTrisOCR-%1 -o NESTrisOCR-%1.zip
 rem Come back to this directory.
 cd scripts/build-windows
 
+rem Now do the changelog:
+powershell git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1) > last-tag.txt
+cd ../..
+gitchangelog > changelog.txt
+cd scripts/build-windows
+
