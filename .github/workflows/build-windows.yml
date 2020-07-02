@@ -11,12 +11,15 @@ jobs:
 
     runs-on: windows-latest    
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout Code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # This is important for the Git history
     - name: Set up Python 3.7
       uses: actions/setup-python@v1
       with:
         python-version: 3.7    
-        architecture: 'x86' #we dont support x64
+        architecture: 'x86' # we dont support x64
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
