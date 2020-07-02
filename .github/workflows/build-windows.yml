@@ -1,10 +1,11 @@
 name: PyInstaller-windows
 
-on: push
-  branches:
-    - master #only on master branch
-  tags:
-    - 202* #any tag in the form 2020mmdd
+on: 
+  push:
+    branches:
+    - 'master' #only on master branch
+    tags:
+    - '202*' #any tag in the form 2020mmdd
         
 
 jobs:
