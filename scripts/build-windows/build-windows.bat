@@ -2,8 +2,6 @@ echo Building to %1.zip
 
 rem We have committed the built numba plugins, so we shouldn't need to rebuild. Uncomment these lines to rebuild
 rem You'll need MSVC 14.0 to build, as well as numba.
-where pip
-type requirements.txt
 pip install -r requirements.txt
 
 rem first, build the numba plugins
