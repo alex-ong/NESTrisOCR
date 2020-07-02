@@ -12,3 +12,4 @@ tkmacosx; sys_platform == "darwin"
 setuptools==44.0.0
 pyinstaller==3.6
 zip-files
+gitchangelog
