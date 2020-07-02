@@ -3,9 +3,6 @@ import os
 
 block_cipher = None
 
-assets_dir = "nestris_ocr/assets"
-palettes_dir = "nestris_ocr/palettes"
-
 addedPath = os.getcwd() #adds current path to analysis search
 asset_templates = ("nestris_ocr/assets/sprite_templates", "nestris_ocr/assets/sprite_templates")
 palette_files = ("nestris_ocr/palettes", "nestris_ocr/palettes")
@@ -23,8 +20,10 @@ a = Analysis(['main.py'],
              win_private_assemblies=False,
              cipher=block_cipher,
              noarchive=False)
+             
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
+
 exe = EXE(pyz,
           a.scripts,
           [],

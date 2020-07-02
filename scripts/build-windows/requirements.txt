@@ -1,0 +1,14 @@
+autobahn[twisted]
+cached-property
+numba
+https://download.lfd.uci.edu/pythonlibs/w3jqiv8s/numpy-1.18.5+vanilla-cp37-cp37m-win32.whl; sys_platform == "win32"
+opencv-python-headless
+pillow
+pre-commit
+pyobjc; sys_platform == "darwin"
+pypiwin32; sys_platform == "win32"
+simpleaudio
+tkmacosx; sys_platform == "darwin"
+setuptools==44.0.0
+pyinstaller==3.6
+zip-files
