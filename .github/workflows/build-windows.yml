@@ -9,10 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: windows-latest
-    defaults:
-      run:
-        working-directory: scripts/build-windows
+    runs-on: windows-latest    
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.7
@@ -24,8 +21,9 @@ jobs:
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       shell: bash        
     - name: Install dependencies
-      run: |
-        call build-windows.bat ${{ steps.get_version.outputs.VERSION }}
+      working-directory: scripts/build-windows
+      run: |      
+        call .\build-windows.bat ${{ steps.get_version.outputs.VERSION }}
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
