@@ -23,7 +23,8 @@ jobs:
     - name: Install dependencies
       working-directory: scripts/build-windows
       run: |      
-        call .\build-windows.bat ${{ steps.get_version.outputs.VERSION }}
+        build-windows.bat ${{ steps.get_version.outputs.VERSION }}
+      shell: cmd
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
