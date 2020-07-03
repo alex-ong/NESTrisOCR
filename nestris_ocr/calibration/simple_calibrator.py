@@ -69,19 +69,28 @@ class SimpleCalibrator(tk.Frame):
             row=0, column=1, rowspan=2, sticky="nsew"
         )
 
-        # auto calibrate
+        # calibration status + button
+        f = tk.Frame(self)
+        border = tk.Frame(f)
+        border.pack()
+        border.config(relief=tk.FLAT, bd=5, background="orange")
+
+        self.status_label = tk.Label(border, text="test message")
+        self.status_label.pack(side=tk.LEFT)
+
         autoCalibrate = Button(
-            self,
-            text="Press this button when you're in game on \nLevel 00 with SCORE 000000 and LINES 000",
+            border,
+            text="Press this button when you're in game on \nLEVEL 00 with SCORE 000000 and LINES 000",
             command=self.full_auto_calibrate,
             bg="red",
         )
-        autoCalibrate.grid(row=2, columnspan=2)
+        autoCalibrate.pack(side=tk.RIGHT)
+        f.grid(row=2, sticky="nsew")
 
         # webcam output
         f = tk.Frame(self)
         border = tk.Frame(f)
-        border.grid(row=4, column=0, sticky="nsew")
+        border.grid(sticky="nsew")
         border.config(relief=tk.FLAT, bd=5, background="orange")
         self.boardImage = ImageCanvas(border, 512, 224 * 2)
         self.boardImage.pack()
@@ -167,6 +176,8 @@ class SimpleCalibrator(tk.Frame):
         return draw_calibration(self.config)
 
     def full_auto_calibrate(self):
+        self.status_label.configure(text="Attempting to match game to stencil...")
+        self.update()
         rect = auto_calibrate_raw(self.config)
         if rect is None:
             self.show_error(
@@ -177,8 +188,11 @@ class SimpleCalibrator(tk.Frame):
         self.update_game_coords(rect)
         # calibrate numbers
         num_funcs = (self.autoLines, self.autoScore, self.autoLevel)
+        name_funcs = ("LINES", "SCORE", "LEVEL")
         tasks = [partial(self.triple_calibrate, func) for func in num_funcs]
-        for task in tasks:
+        tasks = zip(name_funcs, tasks)
+        for task_name, task in tasks:
+            self.status_label.configure(text=f"Attempting to fine tune {task_name}")
             if task() is None:
                 return
 
