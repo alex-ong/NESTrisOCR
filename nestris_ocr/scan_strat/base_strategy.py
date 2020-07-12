@@ -57,7 +57,7 @@ class BaseStrategy(object):
         result["lines"] = dict_zfill(self.lines, 3)
         result["score"] = dict_zfill(self.score, 6)
         result["level"] = dict_zfill(self.level, 2)
-        result["field"] = self.field.serialize() if self.field else None
+        result["field"] = self.field
         result["preview"] = self.preview
         result["gameid"] = self.gameid
         result.update(self.piece_stats.toDict())

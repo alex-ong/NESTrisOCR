@@ -1,3 +1,4 @@
+import numpy as np
 from nestris_ocr.config import config  # TODO: remove this dependency.
 from nestris_ocr.network.byte_stuffer import prePackField
 
@@ -14,8 +15,14 @@ class FieldState(object):  # noqa: E302
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return False
-            # return self.__dict__ == other.__dict__
+            result = np.array_equal(self.data, other.data)
+            return result
+
+        return False
+
+    # In Python3, don't implement __ne__
+    # def __ne__(self, other):
+    #   ...
 
     def piece_spawned(self, other):
         return False
@@ -31,9 +38,13 @@ class FieldState(object):  # noqa: E302
             result = prePackField(result)
             result = result.tobytes()
         else:
-            result2 = []
-            for y in range(20):
-                temp = "".join(str(result[y, x]) for x in range(10))
-                result2.append(temp)
-            result = "".join(str(r) for r in result2)
+            return self.simple_string()
         return result
+
+    def simple_string(self):
+        one_d = self.data.flatten()
+        result = "".join(str(r) for r in one_d)
+        return result
+
+    def __str__(self):
+        return self.simple_string()

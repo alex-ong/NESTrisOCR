@@ -26,13 +26,23 @@ class CachedSender(object):
             # print(self.lastMessage,"\n",message)
             self.lastMessage = message.copy()
             message["time"] = timeStamp
+
+            message = prePackMessage(message, self.protocol)
+
             if self.printPacket:
                 print(message)
+
             packed, binary = packMessage(message, self.protocol)
 
             self.client.sendMessage(packed, binary)
 
             self.lastSend = time.time()
+
+
+def prePackMessage(dictionary, protocol):
+    if dictionary["field"]:
+        dictionary["field"] = dictionary["field"].serialize()
+    return dictionary
 
 
 def packMessage(dictionary, protocol):
@@ -45,6 +55,7 @@ def packMessage(dictionary, protocol):
 def sameMessage(dict1, dict2):
     if dict1 is None:
         return False
+
     for key in dict1.keys():
         if key in dict2:
             if dict1[key] != dict2[key]:

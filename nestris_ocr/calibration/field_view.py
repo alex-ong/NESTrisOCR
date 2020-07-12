@@ -1,9 +1,11 @@
-from nestris_ocr.colors import Colors
-from nestris_ocr.calibration.image_canvas import ImageCanvas
 import tkinter as tk
 import numpy as np
 from PIL import Image
+
+from nestris_ocr.colors import Colors
+from nestris_ocr.calibration.image_canvas import ImageCanvas
 from nestris_ocr.utils.lib import tryGetInt
+from nestris_ocr.ocr_state.field_state import FieldState
 
 
 class FieldView(ImageCanvas):
@@ -18,8 +20,7 @@ class FieldView(ImageCanvas):
         if success and level != self.current_level:
             self.color_table.setLevel(level)
 
-        if isinstance(field, str):  # convert back to numpy array...
-            field = convertStringField(field)
+        field = convert_field(field)
 
         lut = np.array(self.color_table.colors)
         image = lut[field]
@@ -29,6 +30,21 @@ class FieldView(ImageCanvas):
         self.updateImage(image)
 
 
+# convert from string or fieldstate to numpy array.
+def convert_field(field):
+    if isinstance(field, str):  # convert back to numpy array...
+        field = convertStringField(field)
+
+    if isinstance(field, FieldState):
+        field = field.data
+
+    if not isinstance(field, np.ndarray):
+        raise TypeError("Cannot convert field to correct type: " + str(type(field)))
+
+    return field
+
+
+# convert string field to numpy array.
 def convertStringField(strfield):
     field = np.zeros((200,), dtype=np.uint8)
     for index, item in enumerate(strfield):
