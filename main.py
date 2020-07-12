@@ -1,4 +1,3 @@
-import time
 import sys
 import multiprocessing
 
@@ -13,6 +12,7 @@ from nestris_ocr.network.network_client import NetClient
 from nestris_ocr.network.cached_sender import CachedSender
 from nestris_ocr.config import config
 from nestris_ocr.utils.program_args import args
+import nestris_ocr.utils.time as time
 
 RATE = 1.0 / config["performance.scan_rate"]
 

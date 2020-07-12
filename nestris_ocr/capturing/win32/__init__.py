@@ -1,4 +1,4 @@
-import time
+import nestris_ocr.utils.time as time
 from PIL import Image
 from typing import Tuple
 

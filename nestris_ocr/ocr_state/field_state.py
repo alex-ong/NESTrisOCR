@@ -30,8 +30,6 @@ class FieldState(object):  # noqa: E302
     def line_clear_animation(self, other):
         return False
 
-    # todo: where does this belong?
-    # in the net code?
     def serialize(self):
         result = self.data
         if config["network.protocol"] in ["AUTOBAHN_V2", "AUTOBAHN_SERVER"]:

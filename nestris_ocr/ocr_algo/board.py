@@ -1,6 +1,6 @@
 from PIL import Image
 import numpy as np
-import time
+
 
 try:
     from nestris_ocr.ocr_algo.board_ocr import parseImage2  # if it's built
@@ -22,6 +22,7 @@ def parseImage(img, colors):
 if __name__ == "__main__":
     # run this from root directory as "python -m nestris_ocr.ocr_algo.board"
     from nestris_ocr.colors import Colors
+    import nestris_ocr.utils.time as time
 
     img = Image.open("nestris_ocr/assets/test/board_lvl7.png")
 

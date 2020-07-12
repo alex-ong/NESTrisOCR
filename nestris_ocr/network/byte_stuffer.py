@@ -260,7 +260,7 @@ if __name__ == "__main__":
     # temp = {"playername": "²fluffy", "score": "008055", "lines": "015", "level": "01", "preview": "L", "time": 118.7786123752594}
     stuffed = stuffDictionary(temp)
     print(stuffed)
-    import time
+    import nestris_ocr.utils.time as time
 
     t = time.time()
     for i in range(10000):

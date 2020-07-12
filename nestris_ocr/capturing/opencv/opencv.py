@@ -5,7 +5,7 @@ from multiprocessing.pool import ThreadPool
 
 import numpy as np
 from PIL import Image
-import time
+
 import platform
 from typing import Tuple
 
@@ -13,6 +13,7 @@ from nestris_ocr.capturing.base import AbstractCapture
 from nestris_ocr.utils import xywh_to_ltrb
 from nestris_ocr.types import XYWHBox
 from nestris_ocr.capturing.opencv.list_devices import get_device_list
+import nestris_ocr.utils.time as time
 
 WINDOWS_BACKENDS = [cv2.CAP_DSHOW, cv2.CAP_MSMF, cv2.CAP_VFW]
 

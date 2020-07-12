@@ -139,7 +139,7 @@ setupData()
 
 def testFastOCR():
     setupData()
-    import time
+    import nestris_ocr.utils.time as time
 
     t = time.time()
 

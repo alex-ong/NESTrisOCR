@@ -1,12 +1,12 @@
 import socket
 import struct
-import time
+
 import sys
 import queue  # threadsafe
 
 
 import nestris_ocr.network.stoppable_thread as StoppableThread
-
+import nestris_ocr.utils.time as time
 
 HOST, PORT = "localhost", 9999
 data = " ".join(sys.argv[1:])

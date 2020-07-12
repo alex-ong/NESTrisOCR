@@ -2,7 +2,6 @@ from functools import partial
 import tkinter as tk
 import tkinter.messagebox as messagebox
 import tkinter.ttk as ttk
-import time
 
 from PIL import Image
 
@@ -22,7 +21,7 @@ from nestris_ocr.config import config
 
 from nestris_ocr.scan_strat.naive_strategy import NaiveStrategy as Strategy
 from nestris_ocr.scan_strat.scan_helpers import refresh_window_areas
-
+import nestris_ocr.utils.time as time
 
 UPSCALE = 2
 ENABLE_OTHER_OPTIONS = True

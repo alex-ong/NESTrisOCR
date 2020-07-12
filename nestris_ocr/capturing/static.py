@@ -1,10 +1,11 @@
 from PIL import Image
-import time
+
 from typing import Tuple
 
 from nestris_ocr.capturing.base import AbstractCapture
 from nestris_ocr.utils import xywh_to_ltrb
 from nestris_ocr.types import XYWHBox
+import nestris_ocr.utils.time as time
 
 
 class StaticCapture(AbstractCapture):

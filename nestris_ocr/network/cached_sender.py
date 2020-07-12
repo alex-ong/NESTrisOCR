@@ -1,5 +1,5 @@
 import json
-import time
+import nestris_ocr.utils.time as time
 from nestris_ocr.network.byte_stuffer import stuffDictionary
 
 # sends json messages across network

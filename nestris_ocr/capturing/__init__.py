@@ -1,8 +1,9 @@
 import platform
-import time
+
 
 from nestris_ocr.config import config
 from nestris_ocr.capturing.null import NullCapture
+import nestris_ocr.utils.time as time
 
 
 def get_capture_class():

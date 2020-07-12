@@ -2,7 +2,7 @@ from nestris_ocr.capturing.base import AbstractCapture
 from nestris_ocr.types import XYWHBox
 from typing import Tuple
 from PIL import Image
-import time
+import nestris_ocr.utils.time as time
 
 
 # Null capture class; always returns black frames.

@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from PIL import Image
-import time
+import nestris_ocr.utils.time as time
 
 from nestris_ocr.capturing import uncached_capture
 from nestris_ocr.capturing.deinterlacer import InterlaceMode, InterlaceRes, get_mode_res

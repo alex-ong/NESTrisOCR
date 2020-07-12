@@ -2,7 +2,7 @@ from functools import partial
 import tkinter as tk
 import tkinter.messagebox as messagebox
 import tkinter.ttk as ttk
-import time
+
 
 from PIL import Image
 from nestris_ocr.calibration.bool_chooser import BoolChooser
@@ -32,6 +32,7 @@ from nestris_ocr.ocr_algo.digit import finalImageSize
 from nestris_ocr.ocr_algo.preview2 import PreviewImageSize
 from nestris_ocr.scan_strat.scan_helpers import refresh_window_areas
 from nestris_ocr.scan_strat.naive_strategy import NaiveStrategy as Strategy
+import nestris_ocr.utils.time as time
 
 UPSCALE = 2
 ENABLE_OTHER_OPTIONS = True

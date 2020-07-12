@@ -1,4 +1,3 @@
-import time
 from PIL import Image
 from typing import Tuple
 
@@ -6,6 +5,7 @@ from nestris_ocr.capturing.base import AbstractCapture
 from nestris_ocr.capturing.quartz.quartz import QuartzCapture as Quartz
 from nestris_ocr.capturing.quartz.quartz_mgr import WindowMgr
 from nestris_ocr.types import XYWHBox
+import nestris_ocr.utils.time as time
 
 
 class QuartzCapture(AbstractCapture):

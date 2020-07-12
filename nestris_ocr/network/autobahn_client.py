@@ -29,7 +29,7 @@ from twisted.internet import reactor
 from autobahn.twisted.websocket import WebSocketClientProtocol, WebSocketClientFactory
 
 import threading
-import time
+import nestris_ocr.utils.time as time
 import json
 import simpleaudio as sa
 
