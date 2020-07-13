@@ -10,6 +10,7 @@ def init_args():
     parser.add_argument(
         "--calibrate", help="Run calibrator rather than scanner", action="store_true"
     )
+    parser.add_argument("--defaultconfig", default=None)
     args = parser.parse_args()
 
 

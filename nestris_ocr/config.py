@@ -5,6 +5,7 @@ import json
 from nestris_ocr.utils.sub_image import spawn_subimage
 from nestris_ocr.utils.program_args import args
 
+
 # fmt: off
 CONFIG_DEFAULTS = {
     "player.name": "",
@@ -91,9 +92,22 @@ class Config:
             with open(path, "r") as file:
                 self.data = json.load(file, object_pairs_hook=OrderedDict)
         except Exception:
-            # override with default on non-existent file or parsing error
-            self.data = OrderedDict(CONFIG_DEFAULTS)
+            self.data = self.load_defaultconfig()
             self.save()
+
+    def load_defaultconfig(self):
+        result = None
+        if args.defaultconfig is not None:
+            try:
+                with open(args.defaultconfig, "r") as file:
+                    result = json.load(file, object_pairs_hook=OrderedDict)
+            except Exception:
+                result = None
+
+        if result is None:
+            result = OrderedDict(CONFIG_DEFAULTS)
+
+        return result
 
     def __getitem__(self, key):
         if key not in CONFIG_DEFAULTS:
