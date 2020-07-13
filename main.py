@@ -24,6 +24,7 @@ def main(on_cap, check_network_close):
     # capturing device is having trouble
     while True:
         try:
+            read_ts = time.time()
             ts, image = uncached_capture().get_image(rgb=True)
 
             if not ts and not image:
@@ -34,14 +35,14 @@ def main(on_cap, check_network_close):
             time.sleep(RATE)
             continue
 
-        frame_end_ts = ts + RATE
+        frame_end_ts = (ts or read_ts) + RATE
         pre_strategy_ts = time.time()
 
         strategy.update(ts, image)
         result = strategy.to_dict()
 
         if config["debug.print_benchmark"]:
-            elapsed_time = time.time() - ts
+            elapsed_time = time.time() - (ts or read_ts)
             print(f"Elapsed time since capture: {elapsed_time}")
             strategy_time = time.time() - pre_strategy_ts
             print(f"Strategy processing time: {strategy_time}")
