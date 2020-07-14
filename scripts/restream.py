@@ -18,11 +18,11 @@ PLAYER_SETTINGS = [
 ]
 
 
-def setupPlayer(twitchName, playerNum):
-    localStreamPort, ocrDestPort = PLAYER_SETTINGS[playerNum - 1]
+def setup_player(twitch_name, player_num):
+    local_stream_port, ocr_dest_port = PLAYER_SETTINGS[player_num - 1]
 
-    twitchUrl = "twitch.tv/{}".format(twitchName)
-    localUrl = "http://localhost:{}".format(localStreamPort)
+    twitch_url = "twitch.tv/{}".format(twitch_name)
+    local_url = "http://localhost:{}".format(local_stream_port)
 
     fps = -1
 
@@ -42,11 +42,11 @@ def setupPlayer(twitchName, playerNum):
     Popen(
         [
             "streamlink",
-            twitchUrl,
+            twitch_url,
             ",".join(resolutions),
             "--player",
             "vlc --intf dummy --sout '#standard{access=http,mux=mkv,dst=localhost:"
-            + str(localStreamPort)
+            + str(local_stream_port)
             + "}'",
         ]
     )
@@ -55,13 +55,13 @@ def setupPlayer(twitchName, playerNum):
 
     # ==================================
     # 2. read stream details with ffmpeg
-    p = Popen(["ffmpeg", "-i", localUrl], stdout=PIPE, stderr=PIPE)
+    p = Popen(["ffmpeg", "-i", local_url], stdout=PIPE, stderr=PIPE)
 
     stdout, stderr = p.communicate()
 
-    fpsRegex = re.compile(", (?P<fps>[0-9.]+) tbr,")
+    fps_re = re.compile(", (?P<fps>[0-9.]+) tbr,")
 
-    m = fpsRegex.search(str(stderr))
+    m = fps_re.search(str(stderr))
 
     try:
         fps = int(m.group("fps"))
@@ -70,9 +70,9 @@ def setupPlayer(twitchName, playerNum):
 
     print("Found fps", fps)
 
-    sizeRegex = re.compile(", (?P<width>\\d+)x(?P<height>\\d+)(,| \\[SAR)")
+    size_re = re.compile(", (?P<width>\\d+)x(?P<height>\\d+)(,| \\[SAR)")
 
-    m = sizeRegex.search(str(stderr))
+    m = size_re.search(str(stderr))
 
     width = int(m.group("width"))
     height = int(m.group("height"))
@@ -82,14 +82,14 @@ def setupPlayer(twitchName, playerNum):
     # ==================================
     # 3. write player config file from template
 
-    playerConfigFile = "config.competition.p{}.json".format(playerNum)
+    player_config_file = "config.competition.p{}.json".format(player_num)
 
-    os.remove(playerConfigFile)
+    os.remove(player_config_file)
 
-    config = Config(playerConfigFile, auto_save=False, default_config=TEMPLATE_FILE)
+    config = Config(player_config_file, auto_save=False, default_config=TEMPLATE_FILE)
 
-    config["player.name"] = twitchName
-    config["player.twitch_url"] = twitchUrl
+    config["player.name"] = twitch_name
+    config["player.twitch_url"] = twitch_url
     config["performance.scan_rate"] = fps
     config["calibration.game_coords"] = [
         0,
@@ -97,20 +97,20 @@ def setupPlayer(twitchName, playerNum):
         round(width * CAP_RATIOS[0]),
         round(height * CAP_RATIOS[1]),
     ]
-    config["network.port"] = ocrDestPort
-    config["capture.source_id"] = localUrl
+    config["network.port"] = ocr_dest_port
+    config["capture.source_id"] = local_url
 
     config.save()
 
     # ==================================
     # 4. Run calibrator on player stream
-    p = Popen(["python3", "calibrate.py", "--config", playerConfigFile])
+    p = Popen(["python3", "calibrate.py", "--config", player_config_file])
     p.wait()
 
     # ==================================
     # 5. Run NESTrisOCR
-    Popen(["python3", "main.py", "--config", playerConfigFile])
+    Popen(["python3", "main.py", "--config", player_config_file])
 
 
 if __name__ == "__main__":
-    setupPlayer(sys.argv[1], int(sys.argv[2]))
+    setup_player(sys.argv[1], int(sys.argv[2]))
