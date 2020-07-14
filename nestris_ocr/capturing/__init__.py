@@ -17,6 +17,10 @@ def get_capture_class():
         from nestris_ocr.capturing.opencv import OpenCVCapture
 
         return OpenCVCapture
+    elif capture_method == "STREAM":
+        from nestris_ocr.capturing.stream import StreamCapture
+
+        return StreamCapture
     elif capture_method == "FILE":
         from nestris_ocr.capturing.file import FileCapture
 
