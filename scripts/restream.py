@@ -8,13 +8,6 @@ with open("scripts/config.stream.template.json", "r") as content_file:
     config_base_file = content_file.read()
 
 
-RESOLUTIONS = {
-    "1080": [1920, 1080],
-    "720": [1280, 720],
-    "480": [852, 480],
-    "360": [640, 360],
-}
-
 CAP_RATIOS = [1233 / 1920, 1]  # based on the stencil dimensions for 1080p
 
 # entries as [VLC_BRODCAST_PORT, OCR_SEND_PORT]
@@ -72,11 +65,12 @@ def setupPlayer(twitchName, playerNum):
 
     print("Found fps", fps)
 
-    size_re = re.compile(", \\d+x(?P<size_key>(360|480|720|1080))(,| \\[SAR)")
+    size_re = re.compile(", (?P<width>\\d+)x(?P<height>\\d+)(,| \\[SAR)")
 
     m = size_re.search(str(stderr))
 
-    width, height = RESOLUTIONS[m.group("size_key")]
+    width = int(m.group("width"))
+    height = int(m.group("height"))
 
     print("Found size", width, height)
 
