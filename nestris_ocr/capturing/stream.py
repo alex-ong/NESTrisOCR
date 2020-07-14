@@ -35,7 +35,6 @@ class StreamCapture(AbstractCapture):
             cv2_image = self.frame_buffer.popleft()
 
         if rgb:
-            # can we do this in the thread pool?
             cv2_image = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB)
 
         image = Image.fromarray(cv2_image).crop(xywh_to_ltrb(self.xywh_box))
