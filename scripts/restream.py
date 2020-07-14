@@ -24,11 +24,11 @@ PLAYER_SETTINGS = [
 ]
 
 
-def setupPlayer(twitch_name, player_num):
-    local_stream_port, ocr_dest_port = PLAYER_SETTINGS[player_num - 1]
+def setupPlayer(twitchName, playerNum):
+    local_stream_port, ocr_dest_port = PLAYER_SETTINGS[playerNum - 1]
 
-    twitch_url = "twitch.tv/{}".format(twitch_name)
-    local_url = "http://localhost:{}".format(local_stream_port)
+    twitchUrl = "twitch.tv/{}".format(twitchName)
+    localUrl = "http://localhost:{}".format(local_stream_port)
 
     fps = -1
 
@@ -46,7 +46,7 @@ def setupPlayer(twitch_name, player_num):
     Popen(
         [
             "streamlink",
-            twitch_url,
+            twitchUrl,
             ",".join(resolutions),
             "--player",
             "vlc --intf dummy --sout '#standard{access=http,mux=mkv,dst=localhost:"
@@ -57,7 +57,7 @@ def setupPlayer(twitch_name, player_num):
 
     time.sleep(10)
 
-    p = Popen(["ffmpeg", "-i", local_url], stdout=PIPE, stderr=PIPE)
+    p = Popen(["ffmpeg", "-i", localUrl], stdout=PIPE, stderr=PIPE)
 
     stdout, stderr = p.communicate()
 
@@ -82,17 +82,17 @@ def setupPlayer(twitch_name, player_num):
 
     # Update player config file
     player_config = (
-        config_base_file.replace("USER_NAME", twitch_name)
-        .replace("TWITCH_NAME", twitch_name)
-        .replace("TWITCH_URL", twitch_url)
-        .replace("STREAM_URL", local_url)
+        config_base_file.replace("USER_NAME", twitchName)
+        .replace("twitchName", twitchName)
+        .replace("twitchUrl", twitchUrl)
+        .replace("STREAM_URL", localUrl)
         .replace("PORT", str(ocr_dest_port))
         .replace("SCAN_RATE", str(fps))
         .replace("CAP_WIDTH", str(round(width * CAP_RATIOS[0])))
         .replace("CAP_HEIGHT", str(round(height * CAP_RATIOS[1])))
     )  # TODO read from ffmpeg instead
 
-    player_config_filename = "config.competition.p{}.json".format(player_num)
+    player_config_filename = "config.competition.p{}.json".format(playerNum)
 
     with open(player_config_filename, "w") as content_file:
         content_file.write(player_config)
