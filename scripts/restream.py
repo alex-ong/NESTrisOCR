@@ -4,7 +4,7 @@ from subprocess import Popen, PIPE
 import time
 import re
 
-with open("config.stream.template.json", "r") as content_file:
+with open("scripts/config.stream.template.json", "r") as content_file:
     config_base_file = content_file.read()
 
 
