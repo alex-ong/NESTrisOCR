@@ -17,6 +17,7 @@ RESOLUTIONS = {
 
 CAP_RATIOS = [1233 / 1920, 1]  # based on the stencil dimensions for 1080p
 
+# entries as [VLC_BRODCAST_PORT, OCR_SEND_PORT]
 PLAYER_SETTINGS = [
     [8081, 4001],
     [8082, 4002],
