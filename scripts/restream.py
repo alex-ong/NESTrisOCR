@@ -1,8 +1,10 @@
 import sys
+import os
 from subprocess import Popen, PIPE
 import time
 import re
-import json
+
+from nestris_ocr.config_class import Config
 
 
 TEMPLATE_FILE = "scripts/config.stream.template.json"
@@ -32,6 +34,7 @@ def setupPlayer(twitchName, playerNum):
         "480p60",
         "1080p",
         "1080p60",
+        "360p60",
     ]
 
     # ==================================
@@ -79,13 +82,11 @@ def setupPlayer(twitchName, playerNum):
     # ==================================
     # 3. write player config file from template
 
-    # Not using the Config class because it requires CLI args
-    # which are too much for this tiny script
-
     playerConfigFile = "config.competition.p{}.json".format(playerNum)
 
-    with open(TEMPLATE_FILE) as jsonFile:
-        config = json.load(jsonFile)
+    os.remove(playerConfigFile)
+
+    config = Config(playerConfigFile, auto_save=False, default_config=TEMPLATE_FILE)
 
     config["player.name"] = twitchName
     config["player.twitch_url"] = twitchUrl
@@ -99,8 +100,7 @@ def setupPlayer(twitchName, playerNum):
     config["network.port"] = ocrDestPort
     config["capture.source_id"] = localUrl
 
-    with open(playerConfigFile, "w") as jsonFile:
-        json.dump(config, jsonFile)
+    config.save()
 
     # ==================================
     # 4. Run calibrator on player stream
