@@ -4,7 +4,7 @@
   "calibrator.ui": "ADVANCED",
   "performance.support_hex_score": false,
   "performance.support_hex_level": false,
-  "performance.scan_rate": SCAN_RATE,
+  "performance.scan_rate": 30,
   "stats.enabled": false,
   "stats.capture_method": "FIELD",
   "capture.method": "STREAM",
@@ -18,8 +18,8 @@
   "calibration.game_coords": [
     0,
     0,
-    CAP_WIDTH,
-    CAP_HEIGHT
+    1,
+    1
   ],
   "calibration.pct.score": [
     0.752,
@@ -106,7 +106,7 @@
     0.034
   ],
   "network.host": "127.0.0.1",
-  "network.port": PORT,
+  "network.port": 4444,
   "network.protocol": "LEGACY",
   "debug.print_packet": false,
   "debug.print_benchmark": false
