@@ -14,6 +14,8 @@ except (ModuleNotFoundError, ImportError):
 
 # expecting all 4 colors as np.array(dtype=np.uint8)
 def parseImage(img, colors):
+    img = img.resize((80, 160))
+    img.save("test.png")
     img = np.array(img, dtype=np.uint8)
 
     return parseImage2(img, colors.black, colors.white, colors.color1, colors.color2)

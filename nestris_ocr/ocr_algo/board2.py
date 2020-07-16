@@ -15,7 +15,10 @@ def parseImage2(img, black, white, color1, color2):
 
     # todo: maybe pass this in as a 3d array instead,
     # as numba hates python arrays
-    colors = [black, white, color1, color2]
+    # colors = [black, white, color1, color2]
+    colors_noblack = [white, color1, color2]
+    colors_noblack_remap = [1, 2, 3]
+    colors_bw = [black, white]
 
     spanx = img.shape[1] / 10
     spany = img.shape[0] / 20
@@ -26,6 +29,32 @@ def parseImage2(img, black, white, color1, color2):
         for y in range(20):
             xidx = round(spanx * (x + 0.5))
             yidx = round(spany * (y + 0.5))
+
+            pixr = 0
+            pixg = 0
+            pixb = 0
+
+            has_white_shine = False
+
+            for i in range(xidx - 3, xidx):
+                for j in range(yidx - 3, yidx):
+                    lowest_dist = (256 * 256) * 3
+                    closest = -1
+                    pixr, pixg, pixb = img[j, i]
+
+                    for c, color in enumerate(colors_bw):
+                        r = color[0] - pixr
+                        g = color[1] - pixg
+                        b = color[2] - pixb
+
+                        dist = r * r + g * g + b * b
+                        if dist < lowest_dist:
+                            lowest_dist = dist
+                            closest = c
+
+                    if closest == 1:  # white
+                        has_white_shine = True
+                        break
 
             pixr = 0
             pixg = 0
@@ -47,16 +76,22 @@ def parseImage2(img, black, white, color1, color2):
             closest = 0
             lowest_dist = (256 * 256) * 3
 
-            for i, color in enumerate(colors):
-                r = color[0] - pixr
-                g = color[1] - pixg
-                b = color[2] - pixb
+            if has_white_shine:
+                available_colors = colors_noblack
+                for i, color in enumerate(available_colors):
+                    r = color[0] - pixr
+                    g = color[1] - pixg
+                    b = color[2] - pixb
 
-                dist = r * r + g * g + b * b
+                    dist = r * r + g * g + b * b
 
-                if dist < lowest_dist:
-                    lowest_dist = dist
-                    closest = i
+                    if dist < lowest_dist:
+                        lowest_dist = dist
+                        closest = i
+
+                closest = colors_noblack_remap[closest]
+            else:
+                closest = 0  # black
 
             result[y, x] = closest
 
