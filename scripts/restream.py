@@ -1,6 +1,6 @@
-import sys
 import os
 from subprocess import Popen, PIPE
+import argparse
 import time
 import re
 
@@ -18,11 +18,11 @@ PLAYER_SETTINGS = [
 ]
 
 
-def setup_player(twitch_name, player_num):
-    local_stream_port, ocr_dest_port = PLAYER_SETTINGS[player_num - 1]
+def setup_player(twitch_name, player_num, local_vlc=True):
+    print("Setting up player", twitch_name, player_num, local_vlc)
 
+    local_stream_port, ocr_dest_port = PLAYER_SETTINGS[player_num - 1]
     twitch_url = "twitch.tv/{}".format(twitch_name)
-    local_url = "http://localhost:{}".format(local_stream_port)
 
     fps = -1
 
@@ -39,23 +39,47 @@ def setup_player(twitch_name, player_num):
 
     # ==================================
     # 1. run local restreamer over http
-    Popen(
-        [
-            "streamlink",
-            twitch_url,
-            ",".join(resolutions),
-            "--player",
-            "vlc --intf dummy --sout '#standard{access=http,mux=mkv,dst=localhost:"
-            + str(local_stream_port)
-            + "}'",
-        ]
-    )
 
-    time.sleep(10)
+    if local_vlc:
+        source_url = "http://localhost:{}".format(local_stream_port)
+
+        Popen(
+            [
+                "streamlink",
+                twitch_url,
+                ",".join(resolutions),
+                "--hds-live-edge",
+                "1",
+                "--hls-live-edge",
+                "1",
+                "--player",
+                "vlc --intf dummy --sout '#standard{access=http,mux=mkv,dst=localhost:"
+                + str(local_stream_port)
+                + "}'",
+            ]
+        )
+
+        time.sleep(10)
+
+    else:
+        p = Popen(
+            ["streamlink", twitch_url, ",".join(resolutions), "--stream-url"],
+            stdout=PIPE,
+            stderr=PIPE,
+        )
+
+        stdout, stderr = p.communicate()
+
+        source_url = stdout.decode("UTF-8").strip()
+
+        if not source_url:
+            raise Exception("No Stream found")
+
+        print("Twitch UR found", source_url)
 
     # ==================================
     # 2. read stream details with ffmpeg
-    p = Popen(["ffmpeg", "-i", local_url], stdout=PIPE, stderr=PIPE)
+    p = Popen(["ffmpeg", "-i", source_url], stdout=PIPE, stderr=PIPE)
 
     stdout, stderr = p.communicate()
 
@@ -98,7 +122,7 @@ def setup_player(twitch_name, player_num):
         round(height * CAP_RATIOS[1]),
     ]
     config["network.port"] = ocr_dest_port
-    config["capture.source_id"] = local_url
+    config["capture.source_id"] = source_url
 
     config.save()
 
@@ -113,4 +137,15 @@ def setup_player(twitch_name, player_num):
 
 
 if __name__ == "__main__":
-    setup_player(sys.argv[1], int(sys.argv[2]))
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--novlc",
+        default=False,
+        action="store_true",
+        help="Don't run a local VLC server from the twitch stream",
+    )
+    parser.add_argument("twitch_name")
+    parser.add_argument("player_num", type=int)
+    args = parser.parse_args()
+
+    setup_player(args.twitch_name, args.player_num, local_vlc=(not args.novlc))
