@@ -2,23 +2,38 @@ import numpy as np
 from numba import njit
 from math import sqrt
 
-# atm this takes 12 millseconds to complete, with jit it takes <1ms.
+# atm this takes 12 milliseconds to complete, with jit it takes <1ms.
 # we want to eventually compile this numba AOT, so we don't need numba.
 
 
 @njit(
-    "uint8[:,:](uint8[:,:,:],uint8[:],uint8[:],uint8[:],uint8[:])",
-    nogil=True,
-    cache=True,
+    "uint8(float64,float64,float64,uint8[:,:])", nogil=True, cache=True,
 )
-def parseImage2(img, black, white, color1, color2):
+def match_color(pixr, pixg, pixb, colors):
+    closest = 0
+    lowest_dist = (256 * 256) * 3
+    for i, color in enumerate(colors):
+        r = color[0] - pixr
+        g = color[1] - pixg
+        b = color[2] - pixb
+
+        dist = r * r + g * g + b * b
+
+        if dist < lowest_dist:
+            lowest_dist = dist
+            closest = i
+
+    return closest
+
+
+@njit(
+    "uint8[:,:](uint8[:,:,:],uint8[:,:],uint8[:,:])", nogil=True, cache=True,
+)
+def shine_parse(img, colors_bw, colors_noblack):
 
     # todo: maybe pass this in as a 3d array instead,
     # as numba hates python arrays
-    # colors = [black, white, color1, color2]
-    colors_noblack = [white, color1, color2]
     colors_noblack_remap = [1, 2, 3]
-    colors_bw = [black, white]
 
     spanx = img.shape[1] / 10
     spany = img.shape[0] / 20
@@ -34,27 +49,64 @@ def parseImage2(img, black, white, color1, color2):
             pixg = 0
             pixb = 0
 
+            # check for white shine first.
             has_white_shine = False
-
             for i in range(xidx - 3, xidx):
                 for j in range(yidx - 3, yidx):
-                    lowest_dist = (256 * 256) * 3
-                    closest = -1
                     pixr, pixg, pixb = img[j, i]
-
-                    for c, color in enumerate(colors_bw):
-                        r = color[0] - pixr
-                        g = color[1] - pixg
-                        b = color[2] - pixb
-
-                        dist = r * r + g * g + b * b
-                        if dist < lowest_dist:
-                            lowest_dist = dist
-                            closest = c
-
+                    closest = match_color(pixr, pixg, pixb, colors_bw)
                     if closest == 1:  # white
                         has_white_shine = True
                         break
+                if has_white_shine:
+                    break
+
+            if not has_white_shine:
+                result[y, x] = 0  # black
+                continue
+
+            # match block using ao9 to non-black.
+            pixr = 0
+            pixg = 0
+            pixb = 0
+
+            # grab 9 pixels in a 3x3 square
+            # and compute average
+            for i in range(xidx - 1, xidx + 2):
+                for j in range(yidx - 1, yidx + 2):
+                    tmp = img[j, i]
+                    pixr += tmp[0] * tmp[0]
+                    pixg += tmp[1] * tmp[1]
+                    pixb += tmp[2] * tmp[2]
+
+            pixr = sqrt(pixr / 9)
+            pixg = sqrt(pixg / 9)
+            pixb = sqrt(pixb / 9)
+
+            closest = match_color(pixr, pixg, pixb, colors_noblack)
+            closest = colors_noblack_remap[closest]
+            result[y, x] = closest
+
+    return result
+
+
+@njit(
+    "uint8[:,:](uint8[:,:,:],uint8[:,:])", nogil=True, cache=True,
+)
+def ao9_parse(img, colors):
+
+    # todo: maybe pass this in as a 3d array instead,
+    # as numba hates python arrays
+
+    spanx = img.shape[1] / 10
+    spany = img.shape[0] / 20
+
+    result = np.zeros((20, 10), dtype=np.uint8)
+
+    for x in range(10):
+        for y in range(20):
+            xidx = round(spanx * (x + 0.5))
+            yidx = round(spany * (y + 0.5))
 
             pixr = 0
             pixg = 0
@@ -74,25 +126,17 @@ def parseImage2(img, black, white, color1, color2):
             pixb = sqrt(pixb / 9)
 
             closest = 0
-            lowest_dist = (256 * 256) * 3
-
-            if has_white_shine:
-                available_colors = colors_noblack
-                for i, color in enumerate(available_colors):
-                    r = color[0] - pixr
-                    g = color[1] - pixg
-                    b = color[2] - pixb
-
-                    dist = r * r + g * g + b * b
-
-                    if dist < lowest_dist:
-                        lowest_dist = dist
-                        closest = i
-
-                closest = colors_noblack_remap[closest]
-            else:
-                closest = 0  # black
+            closest = match_color(pixr, pixg, pixb, colors)
 
             result[y, x] = closest
 
     return result
+
+
+@njit("uint32(uint8[:], uint8[:])", nogil=True, cache=True)
+def color_dist(color1, color2):
+    # we have to do it seperately since np.subtract will be uint8
+    r = color1[0] - color2[0]
+    g = color1[1] - color2[1]
+    b = color1[2] - color2[2]
+    return r * r + g * g + b * b

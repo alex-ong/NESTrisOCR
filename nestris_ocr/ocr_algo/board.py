@@ -3,22 +3,40 @@ import numpy as np
 
 
 try:
-    from nestris_ocr.ocr_algo.board_ocr import parseImage2  # if it's built
+    from nestris_ocr.ocr_algo.board_ocr import ao9_parse, shine_parse, color_dist
 except (ModuleNotFoundError, ImportError):
-    from nestris_ocr.ocr_algo.board2 import parseImage2
+    from nestris_ocr.ocr_algo.board2 import ao9_parse, shine_parse, color_dist
 
     print(
-        "Warning, loaded parseImage2 from llvmlite: please run buildBoardOCR2 to build a compiled version"
+        "Warning, loaded parseImage2 from llvmlite: please run build_fastboard to build a compiled version"
     )
 
+# when color difference between black and color1/color2 is under this threshold,
+# use Shine detection as well as ao9
+SHINE_THRESHOLD = 2000
 
 # expecting all 4 colors as np.array(dtype=np.uint8)
+
+
 def parseImage(img, colors):
-    img = img.resize((80, 160))
-    img.save("test.png")
+    dist1 = color_dist(colors.black, colors.color1)
+    dist2 = color_dist(colors.black, colors.color2)
+
+    if dist1 < SHINE_THRESHOLD or dist2 < SHINE_THRESHOLD:
+        img = img.resize((80, 160))
+        img = np.array(img, dtype=np.uint8)
+
+        bw = np.stack([colors.black, colors.white])
+        no_b = np.stack([colors.white, colors.color1, colors.color2])
+        result = shine_parse(img, bw, no_b)
+
+        return result
+
     img = np.array(img, dtype=np.uint8)
 
-    return parseImage2(img, colors.black, colors.white, colors.color1, colors.color2)
+    return ao9_parse(
+        img, np.stack([colors.black, colors.white, colors.color1, colors.color2])
+    )
 
 
 if __name__ == "__main__":
