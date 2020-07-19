@@ -3,16 +3,16 @@ import struct
 import random
 
 try:
-    # todo: rename to native_bytestuffer
     from nestris_ocr.network.native_fieldpacker import prePackField
 
-    # print ("loaded compiled prePackField")
 except ImportError:
     from nestris_ocr.network.field_packer import prePackField
 
-    print(
-        "Warning: loaded non-compiled prePackField, please run buildByteStuffer2.py to make a compiled version"
-    )
+    # Run build_native_field_packer.py to create an AOT version.
+    # the llvmlite version is actually faster.
+    # See scripts/build-windows/readme.md for more details.
+    print("dev: Using prePackField via llvmlite")
+
 
 # this function converts a python dict to bytes for a small packet
 # to transfer across the network

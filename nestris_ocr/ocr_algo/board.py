@@ -7,9 +7,9 @@ try:
 except (ModuleNotFoundError, ImportError):
     from nestris_ocr.ocr_algo.board2 import ao9_parse, shine_parse, color_dist
 
-    print(
-        "Warning, loaded parseImage2 from llvmlite: please run build_fastboard to build a compiled version"
-    )
+    print("dev: Using board_ocr via llvmlite")
+    # Run build_fastboard.py to create an AOT version.
+    # the llvmlite version is actually faster.
 
 # when color difference between black and color1/color2 is under this threshold,
 # use Shine detection as well as ao9
