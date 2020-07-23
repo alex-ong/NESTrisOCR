@@ -1,6 +1,6 @@
 autobahn[twisted]
 cached-property
-numba
+numba>=0.50.0
 numpy
 opencv-python
 pillow
