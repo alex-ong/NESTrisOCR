@@ -7,7 +7,6 @@ pillow
 pre-commit
 pyobjc; sys_platform == "darwin"
 pypiwin32; sys_platform == "win32"
-simpleaudio
 tkmacosx; sys_platform == "darwin"
 setuptools==44.0.0
 pyinstaller==3.6

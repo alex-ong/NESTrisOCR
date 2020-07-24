@@ -31,21 +31,6 @@ from autobahn.twisted.websocket import WebSocketClientProtocol, WebSocketClientF
 import threading
 import nestris_ocr.utils.time as time
 import json
-import simpleaudio as sa
-
-
-def safeLoadAudio(path):
-    try:
-        result = sa.WaveObject.from_wave_file(path)
-        return result
-    except FileNotFoundError:
-        pass
-    return None
-
-
-TWENTY_FIVE_COUNTDOWN = safeLoadAudio("nestris_ocr/assets/wav/25.wav")
-THREE_COUNTDOWN = safeLoadAudio("nestris_ocr/assets/wav/3.wav")
-TEN_COUNTDOWN = safeLoadAudio("nestris_ocr/assets/wav/10.wav")
 
 
 def CreateClient(target, port):
@@ -79,19 +64,7 @@ class MyClientProtocol(WebSocketClientProtocol):
             print("Binary message received: {0} bytes".format(len(payload)))
         else:
             payload = payload.decode("utf8")
-            if payload.startswith("{"):
-                message = json.loads(payload)
-                if "start_game" in message:
-                    if message["start_game"] == 25 and TEN_COUNTDOWN is not None:
-                        TWENTY_FIVE_COUNTDOWN.play()
-                    elif message["start_game"] == 10 and TEN_COUNTDOWN is not None:
-                        TEN_COUNTDOWN.play()
-                    elif message["start_game"] == 3 and THREE_COUNTDOWN is not None:
-                        THREE_COUNTDOWN.play()
-                if "kick" in message:
-                    self.initiateKick(message["kick"])
-            else:
-                print("Text message received: {0}".format(payload))
+            print("Text message received: {0}".format(payload))
 
     def initiateKick(self, reason):
         MyClientFactory.kickMessage = reason
