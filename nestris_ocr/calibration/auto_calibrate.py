@@ -52,7 +52,7 @@ def auto_calibrate_raw(config):
             result = (x // 2, y // 2, w // 2, h // 2)
             break
 
-    if need_i_resize:
+    if need_i_resize and result is not None:
         result = fix_interlace_resize(result)
 
     capture.xywh_box = original_xywh_box
