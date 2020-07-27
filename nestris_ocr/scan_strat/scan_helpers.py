@@ -11,13 +11,18 @@ from nestris_ocr.utils.lib import mult_rect
 
 
 PATTERNS = {
-    "score": "ADDDDD",
+    "score": "DDDDDD",
     "lines": "DDD",
-    "level": "AA",
+    "level": "TD",
     "stats": "DDD",
     "das": "BD",
 }
 
+if config["performance.support_hex_score"]:
+    PATTERNS["score"] = "ADDDDD"
+
+if config["performance.support_hex_level"]:
+    PATTERNS["level"] = "AA"
 
 # A few notes
 # We always support scores past maxout
