@@ -61,7 +61,19 @@ class PieceStatAccumulator(object):
     # used for naive implementation
     def rewrite(self, pieces):
         self.lock.acquire()
-        self.T, self.J, self.Z, self.O, self.S, self.L, self.I = pieces  # noqa: E741
+        if isinstance(pieces, dict):
+            for [piece, value] in pieces.items():
+                setattr(self, piece, value)
+        else:
+            (
+                self.T,
+                self.J,
+                self.Z,
+                self.O,
+                self.S,
+                self.L,
+                self.I,
+            ) = pieces  # noqa: E741
         self.lock.release()
 
     # returns if a new piece spawned

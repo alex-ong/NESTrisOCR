@@ -14,6 +14,7 @@ from nestris_ocr.scan_strat.scan_helpers import (
     scan_das_current_piece,
     scan_das_current_piece_das,
     scan_das_instant_das,
+    scan_stats_text,
 )
 
 # from FullStateOptimizer.Transition import TRANSITION
@@ -142,6 +143,5 @@ class NaiveStrategy(BaseStrategy):
         self.instant_das = scan_das_instant_das(img, "OO")
 
     def scan_stats_text(self, img):
-        pass
-        # pieces = scan_stats_text(img)
-        # self.piece_stats.rewrite(pieces)
+        pieces = scan_stats_text(img)
+        self.piece_stats.rewrite(pieces)
