@@ -14,7 +14,7 @@ PATTERNS = {
     "score": "DDDDDD",
     "lines": "DDD",
     "level": "TD",
-    "stats": "DDD",
+    "stats": "TDD",
     "das": "BD",
 }
 
