@@ -6,15 +6,15 @@ from nestris_ocr.ocr_algo.board import parseImage as processBoard
 from nestris_ocr.ocr_algo.preview2 import parseImage as processPreview
 from nestris_ocr.ocr_algo.dasTrainerCurPiece import parseImage as processCurrentPiece
 from nestris_ocr.ocr_algo.piece_stats_spawn import parseImage as processSpawn
+from nestris_ocr.ocr_algo.piece_stats_text import generate_stats
 from nestris_ocr.utils import xywh_to_ltrb
 from nestris_ocr.utils.lib import mult_rect
-
 
 PATTERNS = {
     "score": "DDDDDD",
     "lines": "DDD",
     "level": "TD",
-    "stats": "DDD",
+    "stats": "TDD",
     "das": "BD",
 }
 
@@ -37,7 +37,6 @@ def get_window_areas():
         "field": config["calibration.pct.field"],
         "black_n_white": config["calibration.pct.black_n_white"],
         "stats2": config.stats2_percentages,
-        "stats": config["calibration.pct.stats"],
         "preview": config["calibration.pct.preview"],
         "flash": config["calibration.pct.flash"],
         # das trainer
@@ -49,6 +48,16 @@ def get_window_areas():
     base_map = {
         key: xywh_to_ltrb(mult_rect(config["calibration.game_coords"], value))
         for key, value in mapping.items()
+    }
+
+    # stats are handled in a special manner
+    base_map["stats"] = {
+        piece: xywh_to_ltrb(coords)
+        for (piece, coords) in generate_stats(
+            config["calibration.game_coords"],
+            config["calibration.pct.stats"],
+            config["calibration.pct.score"][3],
+        ).items()
     }
 
     # calibration of the color blocks include the edges (black),
@@ -167,8 +176,15 @@ def scan_spawn(full_image, colors):
     return processSpawn(sub_image, colors)
 
 
-def scan_stats_text(full_image):
-    raise NotImplementedError
+def scan_stats_text(full_image, digit_mask="OOO"):
+    pattern = mask_pattern(PATTERNS["stats"], digit_mask)
+    res = {}
+
+    for [piece, area] in WINDOW_AREAS["stats"].items():
+        sub_image = get_sub_image(full_image, area)
+        res[piece] = processDigits(sub_image, pattern, red=True)
+
+    return res
 
 
 def scan_preview(full_image, colors):
