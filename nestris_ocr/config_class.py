@@ -13,7 +13,7 @@ CONFIG_DEFAULTS = {
 
     "performance.support_hex_score": True,
     "performance.support_hex_level": True,
-    "performance.scan_rate": 30,
+    "performance.scan_rate": 30.0,
 
     "stats.enabled": False,
     "stats.capture_method": "FIELD",
@@ -126,7 +126,7 @@ class Config:
         default = CONFIG_DEFAULTS[key]
         if (
             isinstance(default, int) and not isinstance(value, int)
-            or isinstance(default, float) and not isinstance(value, float)
+            or isinstance(default, float) and (not isinstance(value, float) and not isinstance(value, int))
             or isinstance(default, str) and not isinstance(value, str)
             or isinstance(default, list) and not (isinstance(value, list) or isinstance(value, tuple))
         ):

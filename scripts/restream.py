@@ -7,7 +7,7 @@ import re
 from nestris_ocr.config_class import Config
 
 
-TEMPLATE_FILE = "scripts/config.stream.template.json"
+TEMPLATE_FILE = "scripts/restream_configs/_template.json"
 
 CAP_RATIOS = [1233 / 1920, 1]  # based on the stencil dimensions for 1080p
 
@@ -106,11 +106,13 @@ def setup_player(twitch_name, player_num, local_vlc=True):
     # ==================================
     # 3. write player config file from template
 
-    player_config_file = "config.competition.p{}.json".format(player_num)
+    player_config_file = "scripts/restream_configs/{}.json".format(twitch_name)
 
-    os.remove(player_config_file)
+    template = (
+        player_config_file if os.path.isfile(player_config_file) else TEMPLATE_FILE
+    )
 
-    config = Config(player_config_file, auto_save=False, default_config=TEMPLATE_FILE)
+    config = Config(player_config_file, auto_save=False, default_config=template)
 
     config["player.name"] = twitch_name
     config["player.twitch_url"] = twitch_url
