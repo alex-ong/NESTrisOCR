@@ -48,6 +48,11 @@ Note: running the local VLC server on windows doesn't seem to work very well (fo
 python -m scripts.restream --novlc PLAYER_1_TWITCH_USER_NAME 1
 ```
 
+When restreaming, best if you can arrange with the source streamers for the following:
+* 480p and above (although works resasonnably well even at 360p)
+* Good internet
+* For console capture, apply de-interlacing (without it, field OCR is a little wonky)
+
 
 
 # Compute Color Palette
