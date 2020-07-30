@@ -5,8 +5,8 @@
   "performance.support_hex_score": false,
   "performance.support_hex_level": false,
   "performance.scan_rate": 30,
-  "stats.enabled": false,
-  "stats.capture_method": "FIELD",
+  "stats.enabled": true,
+  "stats.capture_method": "TEXT",
   "capture.method": "STREAM",
   "capture.source_id": "STREAM_URL",
   "capture.source_extra_data": "",
@@ -108,6 +108,6 @@
   "network.host": "127.0.0.1",
   "network.port": 4444,
   "network.protocol": "LEGACY",
-  "debug.print_packet": false,
+  "debug.print_packet": true,
   "debug.print_benchmark": false
 }
