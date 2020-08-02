@@ -106,25 +106,32 @@ def setup_player(twitch_name, player_num, local_vlc=True):
     # ==================================
     # 3. write player config file from template
 
+    has_existing_config = False
     player_config_file = "scripts/restream_configs/{}.json".format(twitch_name)
 
-    template = (
-        player_config_file if os.path.isfile(player_config_file) else TEMPLATE_FILE
-    )
+    if os.path.isfile(player_config_file):
+        template = player_config_file
+        has_existing_config = True
+    else:
+        template = TEMPLATE_FILE
 
     config = Config(player_config_file, auto_save=False, default_config=template)
 
     config["player.name"] = twitch_name
     config["player.twitch_url"] = twitch_url
     config["performance.scan_rate"] = fps
-    config["calibration.game_coords"] = [
-        0,
-        0,
-        round(width * CAP_RATIOS[0]),
-        round(height * CAP_RATIOS[1]),
-    ]
     config["network.port"] = ocr_dest_port
     config["capture.source_id"] = source_url
+
+    if not has_existing_config:
+        # set overall crop to follow stencil
+        # dont modified existing configs however, to store config for non-stencil streams too
+        config["calibration.game_coords"] = [
+            0,
+            0,
+            round(width * CAP_RATIOS[0]),
+            round(height * CAP_RATIOS[1]),
+        ]
 
     config.save()
 
