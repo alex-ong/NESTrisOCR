@@ -14,6 +14,7 @@ CONFIG_DEFAULTS = {
     "performance.support_hex_score": True,
     "performance.support_hex_level": True,
     "performance.scan_rate": 30.0,
+    "performance.scan_strat": "NAIVE",
 
     "stats.enabled": False,
     "stats.capture_method": "FIELD",
@@ -68,6 +69,7 @@ CONFIG_DEFAULTS = {
 CONFIG_CHOICES = {
     "calibrator.ui": {"SIMPLE", "ADVANCED"},
     "stats.capture_method": {"FIELD", "TEXT"},
+    "performance.scan_strat": {"NAIVE", "FASTEST", "N99"},
     "capture.method": {"WINDOW", "OPENCV", "FILE"},
     "calibration.flash_method": {"FIELD", "BACKGROUND", "NONE"},
     "capture.deinterlace_method": {
