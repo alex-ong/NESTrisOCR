@@ -57,10 +57,13 @@ class BaseStrategy(object):
         result["lines"] = dict_zfill(self.lines, 3)
         result["score"] = dict_zfill(self.score, 6)
         result["level"] = dict_zfill(self.level, 2)
-        result["field"] = self.field
-        result["preview"] = self.preview
+        if config["calibration.capture_field"]:
+            result["field"] = self.field
+        if config["calibration.capture_preview"]:
+            result["preview"] = self.preview
         result["gameid"] = self.gameid
-        result.update(self.piece_stats.toDict())
+        if config["stats.enabled"]:
+            result.update(self.piece_stats.toDict())
         return result
 
     def update(self, timestamp, frame):

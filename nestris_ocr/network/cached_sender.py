@@ -40,7 +40,7 @@ class CachedSender(object):
 
 
 def prePackMessage(dictionary, protocol):
-    if dictionary["field"]:
+    if "field" in dictionary:
         dictionary["field"] = dictionary["field"].serialize()
     return dictionary
 
