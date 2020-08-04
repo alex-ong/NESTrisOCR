@@ -17,7 +17,7 @@ except ImportError:
 # this function converts a python dict to bytes for a small packet
 # to transfer across the network
 
-# 11 + 21 + 200 +1 + 10
+# 11 + 21 + 50 +1 + 10
 
 SCORE = 0  # needs to support 0-F * 6 and null
 LINES = 1  # needs to support 0-9 * 3 and null
