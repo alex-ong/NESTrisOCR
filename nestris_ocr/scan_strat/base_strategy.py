@@ -64,6 +64,10 @@ class BaseStrategy(object):
         result["gameid"] = self.gameid
         if config["stats.enabled"]:
             result.update(self.piece_stats.toDict())
+        if config["calibration.capture_das"]:
+            result["cur_piece"] = self.cur_piece
+            result["cur_piece_das"] = self.cur_piece_das
+            result["instant_das"] = self.instant_das
         return result
 
     def update(self, timestamp, frame):

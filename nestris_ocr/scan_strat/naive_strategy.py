@@ -66,12 +66,6 @@ class NaiveStrategy(BaseStrategy):
 
     def to_dict(self):
         result = super(NaiveStrategy, self).to_dict()
-
-        if config["calibration.capture_das"]:
-            result["cur_piece"] = self.cur_piece
-            result["cur_piece_das"] = self.cur_piece_das
-            result["instant_das"] = self.instant_das
-
         return result
 
     # Naive strategy does not care about gamestate
