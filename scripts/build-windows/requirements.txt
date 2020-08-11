@@ -5,6 +5,7 @@ https://download.lfd.uci.edu/pythonlibs/w3jqiv8s/numpy-1.18.5+vanilla-cp37-cp37m
 opencv-python-headless
 pillow
 pre-commit
+websockets
 pyobjc; sys_platform == "darwin"
 pypiwin32; sys_platform == "win32"
 tkmacosx; sys_platform == "darwin"

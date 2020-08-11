@@ -48,7 +48,7 @@ def prePackMessage(dictionary, protocol):
 def packMessage(dictionary, protocol):
     if protocol in ["LEGACY", "AUTOBAHN", "FILE"]:
         return json.dumps(dictionary), False
-    elif protocol in ["AUTOBAHN_V2", "AUTOBAHN_SERVER"]:
+    elif protocol in ["AUTOBAHN_V2", "AUTOBAHN_SERVER", "WEBSOCKET_SERVER"]:
         return bytes(stuffDictionary(dictionary)), True
 
 

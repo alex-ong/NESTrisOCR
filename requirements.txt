@@ -5,6 +5,7 @@ numpy
 opencv-python
 pillow
 pre-commit
+websockets
 pyobjc; sys_platform == "darwin"
 pypiwin32; sys_platform == "win32"
 tkmacosx; sys_platform == "darwin"

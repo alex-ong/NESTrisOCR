@@ -32,7 +32,11 @@ class FieldState(object):  # noqa: E302
 
     def serialize(self):
         result = self.data
-        if config["network.protocol"] in ["AUTOBAHN_V2", "AUTOBAHN_SERVER"]:
+        if config["network.protocol"] in [
+            "AUTOBAHN_V2",
+            "AUTOBAHN_SERVER",
+            "WEBSOCKET_SERVER",
+        ]:
             result = prePackField(result)
             result = result.tobytes()
         else:
