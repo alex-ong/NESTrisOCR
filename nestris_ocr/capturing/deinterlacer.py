@@ -51,6 +51,10 @@ class InterlaceMode(Enum):
 def get_mode_res():
     mode = InterlaceMode.from_string(config["capture.deinterlace_method"])
     res = InterlaceRes.from_string(config["capture.deinterlace_res"])
+    # hack: we should do some business logic elsewhere to disable de-interlacing
+    # on devices that don't support it?
+    if config["capture.method"] != "OPENCV":
+        mode = InterlaceMode.NONE
     return mode, res
 
 

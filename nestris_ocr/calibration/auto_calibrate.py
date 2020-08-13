@@ -18,9 +18,10 @@ def fix_interlace_resize(rect):
 
 
 def auto_calibrate_raw(config):
+    # todo: ask the capture method for screen size, and capture full screen.
     captureAreas = (
-        (0, 0, 4000, 2000),  # 4k screens fullscreen
-        (0, 0, 1500, 1500),  # reasonably sized screens
+        (0, 0, 2000, 1000),  # 4k screens fullscreen
+        (0, 0, 1000, 1000),  # reasonably sized screens
     )
     capture = uncached_capture()
     interlace_settings = get_mode_res()
