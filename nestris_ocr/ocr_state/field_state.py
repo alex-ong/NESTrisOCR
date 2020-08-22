@@ -9,10 +9,6 @@ class FieldState(object):  # noqa: E302
     def __init__(self, data):
         self.data = data
 
-    # returns block count for field below row 18
-    def blockCountAdjusted(self):
-        return 0
-
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             result = np.array_equal(self.data, other.data)
@@ -25,9 +21,6 @@ class FieldState(object):  # noqa: E302
     #   ...
 
     def piece_spawned(self, other):
-        return False
-
-    def line_clear_animation(self, other):
         return False
 
     def serialize(self):

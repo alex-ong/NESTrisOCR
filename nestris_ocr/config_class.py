@@ -58,6 +58,8 @@ CONFIG_DEFAULTS = {
     "calibration.pct.das.current_piece_das": [0.216, 0.211, 0.061, 0.034],
     "calibration.pct.das.instant_das": [0.154, 0.134, 0.061, 0.034],
 
+    "calibration.capture_line_clear": False,
+
     "network.host": "127.0.0.1",
     "network.port": 3338,
     "network.protocol": "LEGACY",

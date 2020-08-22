@@ -1,6 +1,7 @@
 from nestris_ocr.scan_strat.base_strategy import BaseStrategy, GameState
 from nestris_ocr.ocr_state.field_state import FieldState
 from nestris_ocr.config import config
+from nestris_ocr.ocr_algo.line_clear import LineClearDetection
 
 from nestris_ocr.scan_strat.scan_helpers import (
     scan_black_n_white,
@@ -28,6 +29,11 @@ class NaiveStrategy(BaseStrategy):
         self.tasks = self.setup_tasks()
         self.interpolate = config["calibration.color_interpolation"]
 
+    def on_newgame(self):
+        super().on_newgame()
+        if config["calibration.capture_line_clear"]:
+            self.line_clear_detect.reset()
+
     # sets up the tasks that we will be doing naively.
     def setup_tasks(self):
         tasks = []
@@ -47,6 +53,8 @@ class NaiveStrategy(BaseStrategy):
                 tasks.append(self.lookup_colors)
 
             tasks.append(self.scan_field)
+            if config["calibration.capture_line_clear"]:
+                self.line_clear_detect = LineClearDetection()
 
         if config["calibration.capture_preview"]:
             tasks.append(self.scan_preview)
@@ -119,6 +127,8 @@ class NaiveStrategy(BaseStrategy):
     def scan_field(self, img):
         result = scan_field(img, self.colors)
         self.field = FieldState(result)
+        if config["calibration.capture_line_clear"]:
+            self.line_clear_anim = self.line_clear_detect.process(self.field.data)
 
     def scan_preview(self, img):
         self.preview = scan_preview(img, self.colors)

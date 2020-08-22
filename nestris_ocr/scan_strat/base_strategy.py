@@ -37,7 +37,7 @@ class BaseStrategy(object):
         self.cur_piece_das = None
         self.instant_das = None
         self.current_time = 0
-
+        self.line_clear_anim = None
         self.colors = Colors()
 
         # initialize palette
@@ -68,6 +68,9 @@ class BaseStrategy(object):
             result["cur_piece"] = self.cur_piece
             result["cur_piece_das"] = self.cur_piece_das
             result["instant_das"] = self.instant_das
+        if config["calibration.capture_line_clear"]:
+            result["line_clear_anim"] = self.line_clear_anim
+
         return result
 
     def update(self, timestamp, frame):
