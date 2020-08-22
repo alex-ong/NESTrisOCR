@@ -98,13 +98,18 @@ def test_clear():
     double = gen_test_clear([15, 16])
     triple = gen_test_clear([16, 17, 18])
     tetris = gen_test_clear([16, 17, 18, 19])
+
     return [single, double, triple, tetris]
 
 
 if __name__ == "__main__":
-    print(PATTERNS)
     lcd = LineClearDetection()
     sequences = test_clear()
+    import time
+
+    a = time.time()
     for seq in sequences:
         for frame in seq:
-            print(lcd.process(frame))
+            lcd.process(frame)
+    time_taken = time.time() - a
+    print(f"{time_taken} for 96 frames \nor {time_taken/96.0} per frame")
