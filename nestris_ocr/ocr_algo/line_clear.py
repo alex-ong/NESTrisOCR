@@ -54,7 +54,7 @@ class LineClearDetection:
         # end of function, setup "prev"
         self.prev_line_states = line_states
         self.prev_block_count = block_count
-        anim_state = 6
+        anim_state = NO_MATCH
         if len(self.lines_cleared) > 0:
             anim_state = self.prev_line_states[self.lines_cleared[0]]
         return self.lines_cleared, anim_state
