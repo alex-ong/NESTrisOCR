@@ -69,7 +69,7 @@ class BaseStrategy(object):
             result["cur_piece_das"] = self.cur_piece_das
             result["instant_das"] = self.instant_das
         if config["calibration.capture_line_clear"]:
-            result["line_clear_anim"] = self.line_clear_anim
+            result["line_clear"] = self.line_clear_anim
 
         return result
 
