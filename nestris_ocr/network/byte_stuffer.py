@@ -27,7 +27,8 @@ FIELD = 4  # needs to support 0-4 * 200 cells. 4 bits * 200 = 100 bytes
 PREVIEW = 5  # needs to support 7 types + null, so can fit into a byte
 TIME = 6  # 4 byte floating point.
 GAMEID = 7  # 1 byte.
-PLAYERNAME = 8  # ascii only; 10 chars?
+LINECLEAR = 8  # 4 byte.
+PLAYERNAME = 15  # ascii only; 10 chars?
 
 
 SCORE_OFFSET = 3
@@ -37,6 +38,7 @@ STATS_OFFSET = LINES_OFFSET * 7
 FIELD_OFFSET = 50
 PREVIEW_OFFSET = 1
 TIME_OFFSET = 4
+LINECLEAR_OFFSET = 4  # 20 bits then 4 bits for animstate
 GAMEID_OFFSET = 1
 
 stats_order = "TJZOSLI"
@@ -83,6 +85,8 @@ def calculateMask(startdict):
         result += 1 << TIME
     if "gameid" in startdict:
         result += 1 << GAMEID
+    if "line_clear" in startdict:
+        result += 1 << LINECLEAR
     if "playername" in startdict:
         result += 1 << PLAYERNAME
 
@@ -116,6 +120,8 @@ def stuffDictionary(input):
         result.extend(packTime(input["time"]))
     if INFO_MASK & (1 << GAMEID):
         result.extend(packGameID(input["gameid"]))
+    if INFO_MASK & (1 << LINECLEAR):
+        result.extend(packLineClear(input["line_clear"]))
     if INFO_MASK & (1 << PLAYERNAME):
         result.extend(packPlayer(input["playername"]))
 
@@ -220,6 +226,18 @@ def packTime(timefloat):
 def packGameID(gameid):
     gameid = int(gameid) % 0x100
     return struct.pack(">B", gameid)
+
+
+# 3 byte: 20 bits for which lines being cleared, then 4 bits for status
+def packLineClear(status):
+    rows, state = status
+    bits = 0
+    for row in rows:
+        bits += 1 << row
+    statebits = f"{state:03b}"
+    for i, value in enumerate(statebits):
+        bits += 1 << 20 + i * int(value)
+    return bits.to_bytes(3, "big", signed=False)
 
 
 # one byte per item
