@@ -1,4 +1,4 @@
-# default standalone preset. Ideal for capturing
+# default standalone preset. Ideal for capturing stats only
 def preset_standalone(config):
     # score, lines, level, stats
     config["stats.enabled"] = True
@@ -15,15 +15,16 @@ def preset_dastrainer_standalone(config):
     pass
 
 
-# default nestris99 preset. ideal for streaming to internet.
+# default nestris99 preset. ideal for connecting to n99 client
 def preset_nestris99(config):
     # board, score, lines, level, preview
     config["stats.enabled"] = False
     config["calibration.capture_field"] = True
     config["calibration.capture_preview"] = True
-    config["network.host"] = "ec2-13-237-232-112.ap-southeast-2.compute.amazonaws.com"
+    config["calibraiton.capture_line_clear"] = True
+    config["network.host"] = "localhost"
     config["network.port"] = 3338
-    config["network.protocol"] = "AUTOBAHN_V2"
+    config["network.protocol"] = "WEBSOCKET_SERVER"
 
 
 def preset_none(config):
