@@ -83,5 +83,6 @@ class Connection(threading.Thread):
                 await asyncio.sleep(0.016)
                 continue
             await asyncio.gather(
-                *[ws.send(item) for ws in self.websockets], return_exceptions=False,
+                *[ws.send(item) for ws in self.websockets],
+                return_exceptions=False,
             )

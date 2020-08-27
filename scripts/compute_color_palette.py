@@ -18,7 +18,11 @@ def getAverageColor(pixels):
 def getColors(level, field):
     img = Image.open(field)
 
-    res_img = Image.new("RGBA", (img.width, img.height), (0, 0, 0, 255),)
+    res_img = Image.new(
+        "RGBA",
+        (img.width, img.height),
+        (0, 0, 0, 255),
+    )
 
     res_img.paste(img.convert("RGBA"), (img.width * 0, 0))
 

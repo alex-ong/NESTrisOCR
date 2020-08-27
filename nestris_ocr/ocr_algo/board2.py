@@ -7,7 +7,9 @@ from math import sqrt
 
 
 @njit(
-    "uint8(float64,float64,float64,uint8[:,:])", nogil=True, cache=True,
+    "uint8(float64,float64,float64,uint8[:,:])",
+    nogil=True,
+    cache=True,
 )
 def match_color(pixr, pixg, pixb, colors):
     closest = 0
@@ -27,7 +29,9 @@ def match_color(pixr, pixg, pixb, colors):
 
 
 @njit(
-    "uint8[:,:](uint8[:,:,:],uint8[:,:],uint8[:,:])", nogil=True, cache=True,
+    "uint8[:,:](uint8[:,:,:],uint8[:,:],uint8[:,:])",
+    nogil=True,
+    cache=True,
 )
 def shine_parse(img, colors_bw, colors_noblack):
 
@@ -91,7 +95,9 @@ def shine_parse(img, colors_bw, colors_noblack):
 
 
 @njit(
-    "uint8[:,:](uint8[:,:,:],uint8[:,:])", nogil=True, cache=True,
+    "uint8[:,:](uint8[:,:,:],uint8[:,:])",
+    nogil=True,
+    cache=True,
 )
 def ao9_parse(img, colors):
 

@@ -110,7 +110,10 @@ class Calibrator(tk.Frame):
 
         # refresh
         Button(self, text="Refresh Image", command=self.redrawImages, bg="blue").grid(
-            row=2, column=1, sticky="nsew", rowspan=2,
+            row=2,
+            column=1,
+            sticky="nsew",
+            rowspan=2,
         )
 
         # webcam output
