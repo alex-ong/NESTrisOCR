@@ -38,7 +38,7 @@ STATS_OFFSET = LINES_OFFSET * 7
 FIELD_OFFSET = 50
 PREVIEW_OFFSET = 1
 TIME_OFFSET = 4
-LINECLEAR_OFFSET = 4  # 20 bits then 4 bits for animstate
+LINECLEAR_OFFSET = 3  # 20 bits then 4 bits for animstate
 GAMEID_OFFSET = 1
 
 stats_order = "TJZOSLI"
@@ -235,8 +235,11 @@ def packLineClear(status):
     for row in rows:
         bits += 1 << row
     statebits = f"{state:03b}"
+
     for i, value in enumerate(statebits):
-        bits += 1 << 20 + i * int(value)
+        if value == "1":
+            bits += 1 << (20 + i)
+
     return bits.to_bytes(3, "big", signed=False)
 
 
