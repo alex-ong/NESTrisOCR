@@ -261,7 +261,24 @@ def packPlayer(player):
     return PLAYER_NAME
 
 
+def convert_replay(filename, output):
+    output = open(output, "wb")
+    with open(filename, "r") as f:
+        for line in f:
+            if not line.startswith("{"):
+                continue
+            line = line.replace("'", '"').replace("None", "null")
+            byte_data = stuffDictionary(json.loads(line))
+            output.write(byte_data)
+    output.close()
+
+
 if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) >= 3:
+        convert_replay(sys.argv[1], sys.argv[2])
+        sys.exit()
     import numpy as np
 
     temp = {
