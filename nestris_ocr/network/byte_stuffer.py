@@ -267,7 +267,12 @@ def convert_replay(filename, output):
         for line in f:
             if not line.startswith("{"):
                 continue
-            line = line.replace("'", '"').replace("None", "null")
+            line = (
+                line.replace("'", '"')
+                .replace("None", "null")
+                .replace("(", "[")
+                .replace(")", "]")
+            )
             byte_data = stuffDictionary(json.loads(line))
             output.write(byte_data)
     output.close()
