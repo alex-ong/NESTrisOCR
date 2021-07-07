@@ -26,6 +26,7 @@ from nestris_ocr.scan_strat.scan_helpers import (
 class NaiveStrategy(BaseStrategy):
     def __init__(self, *args):
         super(NaiveStrategy, self).__init__(*args)
+        self.gamestate = GameState.IN_GAME  # allows starting OCR mid-game
         self.tasks = self.setup_tasks()
         self.interpolate = config["calibration.color_interpolation"]
 
@@ -83,7 +84,7 @@ class NaiveStrategy(BaseStrategy):
 
         if self.lines and self.score and self.level:
             self.gamestate = GameState.IN_GAME
-            if self.lines == "000" and self.score == "000000":
+            if (self.lines == "000" or self.lines == "025") and self.score == "000000":
                 return True
 
         return False

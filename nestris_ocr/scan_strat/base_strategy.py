@@ -30,7 +30,7 @@ class BaseStrategy(object):
         self.start_level = None
         self.field = None
         self.preview = None
-        self.gameid = 0
+        self.gameid = 1
         self.piece_stats = PieceStatAccumulator()
         self.gamestate = GameState.MENU
         self.cur_piece = None
