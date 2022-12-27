@@ -9,7 +9,7 @@ websockets
 pyobjc; sys_platform == "darwin"
 pypiwin32; sys_platform == "win32"
 tkmacosx; sys_platform == "darwin"
-setuptools==44.0.0
+setuptools==65.5.1
 pyinstaller==3.6
 zip-files
 gitchangelog
