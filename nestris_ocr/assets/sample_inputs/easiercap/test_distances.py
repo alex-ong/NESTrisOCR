@@ -20,7 +20,7 @@ def crop(source):
 
 
 def getColorExisting(colImg):
-    return colImg.resize((1, 1), Image.ANTIALIAS).getpixel((0, 0))
+    return colImg.resize((1, 1), Image.LANCZOS).getpixel((0, 0))
 
 
 def getColorCropBlurNearest(colImg):
@@ -28,7 +28,7 @@ def getColorCropBlurNearest(colImg):
 
 
 def getColorCropAntialias(colImg):
-    return crop(colImg).resize((1, 1), Image.ANTIALIAS).getpixel((0, 0))
+    return crop(colImg).resize((1, 1), Image.LANCZOS).getpixel((0, 0))
 
 
 def getColorCropBox(colImg):

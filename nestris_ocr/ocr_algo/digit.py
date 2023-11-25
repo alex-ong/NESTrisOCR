@@ -37,7 +37,7 @@ def setupColour(prefix, outputDict, digitList):
         img = img.convert("L")
         if IMAGE_MULT != 1:
             img = img.resize(
-                (SCALED_IMAGE_SIZE, SCALED_IMAGE_SIZE), PIL.Image.ANTIALIAS
+                (SCALED_IMAGE_SIZE, SCALED_IMAGE_SIZE), PIL.Image.LANCZOS
             )
 
         img = img.getdata()
@@ -89,7 +89,7 @@ def contrastImg(img):
 
 def convertImg(img, count, show):
     img = contrastImg(img)
-    img = img.resize(finalImageSize(count), PIL.Image.ANTIALIAS)
+    img = img.resize(finalImageSize(count), PIL.Image.LANCZOS)
 
     if show:
         img.show()

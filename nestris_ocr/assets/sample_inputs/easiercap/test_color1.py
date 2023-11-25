@@ -43,13 +43,13 @@ def runFor(level, color, iterations=1):
 
     start = time.time()
     for i in range(iterations):
-        color = original_img.resize((1, 1), Image.ANTIALIAS).getpixel((0, 0))
+        color = original_img.resize((1, 1), Image.LANCZOS).getpixel((0, 0))
 
     elapsed = time.time() - start
     print("antialias", elapsed, elapsed / iterations)
     print("antialias", color)
 
-    tmp = original_img.resize((1, 1), Image.ANTIALIAS).resize(
+    tmp = original_img.resize((1, 1), Image.LANCZOS).resize(
         (big_size, big_size), Image.NEAREST
     )
     result_image.paste(tmp, (span * 3, result_y))
@@ -127,13 +127,13 @@ def runFor(level, color, iterations=1):
 
     start = time.time()
     for i in range(iterations):
-        color = cropped.resize((1, 1), Image.ANTIALIAS).getpixel((0, 0))
+        color = cropped.resize((1, 1), Image.LANCZOS).getpixel((0, 0))
 
     elapsed = time.time() - start
     print("cropped,antilias", elapsed, elapsed / iterations)
     print("cropped,antilias", color)
 
-    tmp = cropped.resize((1, 1), Image.ANTIALIAS).resize(
+    tmp = cropped.resize((1, 1), Image.LANCZOS).resize(
         (big_size, big_size), Image.NEAREST
     )
     result_image.paste(tmp, (span * 3, result_y + row_idx * span))
