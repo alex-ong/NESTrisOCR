@@ -10,7 +10,7 @@ pyobjc; sys_platform == "darwin"
 pypiwin32; sys_platform == "win32"
 tkmacosx; sys_platform == "darwin"
 setuptools==44.0.0
-pyinstaller==3.6
+pyinstaller==5.13.1
 zip-files
 gitchangelog
 pystache
