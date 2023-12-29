@@ -281,5 +281,5 @@ def draw_calibration(config):
         for i in range(10):
             uncached_capture().get_image(rgb=True)
     highlight_calibration(img, config)
-    img = img.resize((512, 448), Image.ANTIALIAS)
+    img = img.resize((512, 448), Image.LANCZOS)
     return img
