@@ -108,7 +108,6 @@ def deinterlace_np(img):
 
 # de-interlaces a PIL.Image
 def deinterlace(img):
-
     mode, res = get_mode_res()
 
     full_size = list(img.size)

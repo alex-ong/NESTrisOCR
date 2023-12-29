@@ -35,7 +35,6 @@ class NumberChooser(tk.Frame):
         ).grid(row=1, column=3, sticky="nsew")
 
     def changeValueText(self):
-
         success, value = self.checker(self.value.get())
         if success:
             self.OnChange(value)

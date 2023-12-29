@@ -98,7 +98,7 @@ class Connection(threading.Thread):
             print(
                 "Warning, starting up autobahn_server with target not equal to localhost"
             )
-        self.url = u"ws://" + target + ":" + str(port)
+        self.url = "ws://" + target + ":" + str(port)
         self.protocol = OCRServer
         self.running = False
 
@@ -132,14 +132,13 @@ class Connection(threading.Thread):
 
 
 if __name__ == "__main__":
-
     import sys
 
     from twisted.python import log
 
     log.startLogging(sys.stdout)
 
-    factory = WebSocketServerFactory(u"ws://127.0.0.1:3338")
+    factory = WebSocketServerFactory("ws://127.0.0.1:3338")
     factory.protocol = MyServerProtocol
 
     reactor.listenTCP(3338, factory)

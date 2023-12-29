@@ -36,9 +36,7 @@ def setupColour(prefix, outputDict, digitList):
 
         img = img.convert("L")
         if IMAGE_MULT != 1:
-            img = img.resize(
-                (SCALED_IMAGE_SIZE, SCALED_IMAGE_SIZE), PIL.Image.LANCZOS
-            )
+            img = img.resize((SCALED_IMAGE_SIZE, SCALED_IMAGE_SIZE), PIL.Image.LANCZOS)
 
         img = img.getdata()
         img = np.asarray(img)
@@ -107,7 +105,7 @@ def scoreImage0(img, digitPattern):
     count = len(digitPattern)
     img = convertImg(img, count, False)
 
-    for (i, pattern) in enumerate(digitPattern):
+    for i, pattern in enumerate(digitPattern):
         result = getDigit(img, pattern, i * (BLOCK_SIZE * IMAGE_MULT), 0, False)
         if result[0] == "null":
             return None
@@ -121,7 +119,7 @@ def scoreImage(img, digitPattern, show=False, red=False):
     count = len(digitPattern)
     img = convertImg(img, count, show)
     label = ""
-    for (i, pattern) in enumerate(digitPattern):
+    for i, pattern in enumerate(digitPattern):
         if pattern == "X":
             result = "X"
         else:

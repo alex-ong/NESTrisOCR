@@ -99,7 +99,6 @@ class OpenCVCapture(AbstractCapture):
             image_ts = self.image_ts
 
         if rgb:
-
             cv2_image = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB)
 
         image = Image.fromarray(cv2_image).crop(xywh_to_ltrb(self.xywh_box))
@@ -124,7 +123,6 @@ class OpenCVCapture(AbstractCapture):
         frame_times = deque([], 10)
         start_frame_ts = None
         while self.running:
-
             cv2_retval, cv2_image = self.cap.read()
             avg_ft = self.calculate_avg_frametime(frame_times, start_frame_ts)
             start_frame_ts = time.time()

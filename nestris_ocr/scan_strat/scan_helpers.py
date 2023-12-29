@@ -149,7 +149,6 @@ def scan_black_n_white(full_image):
 
     for x in range(img_bnw_mono.width):
         for y in range(img_bnw_mono.height):
-
             value = img_bnw_mono.getpixel((x, y))
 
             if value > whitest:

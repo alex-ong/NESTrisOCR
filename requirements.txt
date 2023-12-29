@@ -1,11 +1,11 @@
-autobahn[twisted]
-cached-property
-numba
-numpy
-opencv-python
-pillow
-pre-commit
-websockets
+autobahn[twisted]==23.6.2
+cached-property==1.5.2
+numba==0.58.1
+numpy==1.26.2
+opencv-python==4.8.1.78
+pillow==10.1.0
+pre-commit==3.6.0
+websockets==12.0
 pyobjc; sys_platform == "darwin"
 pypiwin32; sys_platform == "win32"
 tkmacosx; sys_platform == "darwin"

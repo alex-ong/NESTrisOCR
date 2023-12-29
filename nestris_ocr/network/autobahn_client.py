@@ -44,7 +44,6 @@ VERSION = "20191010"
 
 
 class MyClientProtocol(WebSocketClientProtocol):
-
     connections = []
 
     def onConnect(self, response):
@@ -87,7 +86,6 @@ class MyClientProtocol(WebSocketClientProtocol):
 
 
 class MyClientFactory(WebSocketClientFactory, ReconnectingClientFactory):
-
     protocol = MyClientProtocol
     closing = False
     kickMessage = None
@@ -108,7 +106,7 @@ class Connection(threading.Thread):
         super().__init__()
         self.port = port
         self.host = target
-        self.factory = MyClientFactory(u"ws://" + target + ":" + str(port))
+        self.factory = MyClientFactory("ws://" + target + ":" + str(port))
 
     # reactor thread
     def run(self):

@@ -29,7 +29,6 @@ def match_color(pixr, pixg, pixb, colors):
 
 @cc.export("shine_parse", "uint8[:,:](uint8[:,:,:],uint8[:,:],uint8[:,:])")
 def shine_parse(img, colors_bw, colors_noblack):
-
     # todo: maybe pass this in as a 3d array instead,
     # as numba hates python arrays
     colors_noblack_remap = [1, 2, 3]
@@ -91,7 +90,6 @@ def shine_parse(img, colors_bw, colors_noblack):
 
 @cc.export("ao9_parse", "uint8[:,:](uint8[:,:,:],uint8[:,:])")
 def ao9_parse(img, colors):
-
     # todo: maybe pass this in as a 3d array instead,
     # as numba hates python arrays
 

@@ -1,16 +1,15 @@
-autobahn[twisted]
-cached-property
-numba==0.50.1
-https://download.lfd.uci.edu/pythonlibs/w3jqiv8s/numpy-1.18.5+vanilla-cp37-cp37m-win32.whl; sys_platform == "win32"
-opencv-python-headless
-pillow
-pre-commit
-websockets
+autobahn[twisted]==23.6.2
+cached-property==1.5.2
+numba==0.58.1
+numpy==1.26.2
+opencv-python-headless==4.8.1.78
+pillow==10.1.0
+pre-commit==3.6.0
+websockets==12.0
 pyobjc; sys_platform == "darwin"
 pypiwin32; sys_platform == "win32"
 tkmacosx; sys_platform == "darwin"
-setuptools==44.0.0
-pyinstaller==3.6
-zip-files
-gitchangelog
-pystache
+pyinstaller==5.13.1
+zip-files==0.4.1
+gitchangelog==3.0.4
+pystache==0.6.5

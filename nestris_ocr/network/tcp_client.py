@@ -39,7 +39,6 @@ class ThreadedClient(StoppableThread.StoppableThread):
         # Create a socket (SOCK_STREAM means a TCP socket)
         while not self.stopped():
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-
                 sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, True)
                 sock.settimeout(TIME_OUT)
                 try:

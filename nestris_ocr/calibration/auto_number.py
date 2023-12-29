@@ -17,7 +17,6 @@ def track_best_result(lowestScore, bestRect, result):
 
 
 def auto_adjust_numrect(capture_coords, rect, numDigits, updateUI):
-
     pattern = "D" * numDigits
 
     i = 0

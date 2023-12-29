@@ -11,6 +11,5 @@ if platform.system() == "Darwin":
 
             super(Button, self).__init__(*args, **kwargs)
 
-
 else:
     from tkinter import Button

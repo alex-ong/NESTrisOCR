@@ -23,7 +23,6 @@ class FileCapture(AbstractCapture):
         self.total_frames = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
     def get_image(self, rgb: bool = False) -> Tuple[float, Image.Image]:
-
         if not self.cap:
             return None, None
 
