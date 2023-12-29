@@ -6,3 +6,7 @@
 /dist/
 config.json
 /main.spec
+
+/NESTrisOCR*zip
+/changelog.txt
+/scripts/build-windows/last-tag.txt

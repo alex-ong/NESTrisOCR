@@ -1,4 +1,4 @@
-autobahn[twisted]==23.6.2
+autobahn[twisted]==21.3.1
 cached-property==1.5.2
 numba==0.58.1
 numpy==1.26.2
@@ -9,7 +9,7 @@ websockets==12.0
 pyobjc; sys_platform == "darwin"
 pypiwin32; sys_platform == "win32"
 tkmacosx; sys_platform == "darwin"
-pyinstaller==5.13.1
+pyinstaller==5.13.2
 zip-files==0.4.1
 gitchangelog==3.0.4
 pystache==0.6.5

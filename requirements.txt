@@ -1,4 +1,4 @@
-autobahn[twisted]==23.6.2
+autobahn[twisted]==21.3.1
 cached-property==1.5.2
 numba==0.58.1
 numpy==1.26.2

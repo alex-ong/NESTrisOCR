@@ -16,7 +16,7 @@ cd ..\..\scripts\build-windows
 rem the following spec file assumes we don't need llvmlite since we've excluded numba.
 copy main.spec ..\..\main.spec
 cd ..\..
-pyinstaller -D main.spec
+pyinstaller main.spec
 
 rem copy the scripts to run the program
 copy scripts\build-windows\dist\calibrate.bat dist\
